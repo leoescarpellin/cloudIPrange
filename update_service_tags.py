@@ -303,10 +303,47 @@ def generate_directory_index(
                 tag_class = "tag-json"
                 tag_name = "JSON"
 
+            # Count records (CIDRs for text files, tags for JSON)
+            records_count = None
+            if file.endswith(".txt"):
+                try:
+                    with open(file_path, "r", encoding="utf-8") as rf:
+                        records_count = sum(1 for line in rf if line.strip())
+                except Exception:
+                    pass
+            elif file.endswith(".json.gz"):
+                try:
+                    with gzip.open(file_path, "rb") as gf:
+                        jdata = json.load(gf)
+                        records_count = len(jdata.get("values", []))
+                except Exception:
+                    pass
+            elif file.endswith(".json"):
+                try:
+                    with open(file_path, "r", encoding="utf-8") as jf:
+                        jdata = json.load(jf)
+                        records_count = len(jdata.get("values", []))
+                except Exception:
+                    pass
+
+            if records_count is not None:
+                record_icon = "fa-tags" if "json" in file.lower() else "fa-list-ol"
+                record_label = "tags" if "json" in file.lower() else "CIDRs"
+                records_html = (
+                    f'<span class="badge-records" title="{records_count:,} {record_label}">'
+                    f'<i class="fa-solid {record_icon}"></i> {records_count:,}'
+                    f'</span>'
+                )
+                search_data = f"{file.lower()} {records_count}"
+            else:
+                records_html = '<span style="color: var(--text-muted);">&mdash;</span>'
+                search_data = file.lower()
+
             file_items.append(
-                f'<tr class="file-row" data-name="{file.lower()}">'
+                f'<tr class="file-row" data-name="{search_data}">'
                 f'<td><a class="file-name" href="{file}">{file}</a></td>'
                 f'<td><span class="badge {tag_class}">{tag_name}</span></td>'
+                f'<td>{records_html}</td>'
                 f'<td class="file-size">{size_str}</td>'
                 f'<td><a class="action-btn" href="{file}" download title="Download file"><i class="fa-solid fa-download"></i></a></td>'
                 f'</tr>'
@@ -466,6 +503,23 @@ def generate_directory_index(
         .tag-ipv6 {{ background: #fff3e0; color: #e65100; }}
         .tag-json {{ background: #ede7f6; color: #4a148c; }}
         .tag-gz {{ background: #e0f2fe; color: #0369a1; }}
+        .badge-records {{
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 2px 8px;
+            background: #f1f5f9;
+            color: #334155;
+            border-radius: 12px;
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid #e2e8f0;
+        }}
+        .badge-records i {{
+            color: var(--primary);
+            font-size: 0.72rem;
+        }}
         .action-btn {{
             color: var(--text-muted);
             padding: 6px 10px;
@@ -508,6 +562,7 @@ def generate_directory_index(
                 <tr>
                     <th>Filename</th>
                     <th>Type</th>
+                    <th>Records</th>
                     <th>Size</th>
                     <th style="width: 50px;">Action</th>
                 </tr>
