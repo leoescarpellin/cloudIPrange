@@ -165,29 +165,38 @@
         .badge-grid {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 24px;
+            gap: 10px;
+            margin-bottom: 16px;
         }
 
         .fw-badge {
-            background: #eef6fc;
-            color: var(--primary);
-            border: 1px solid #cce4f7;
-            padding: 5px 14px;
-            border-radius: 16px;
-            font-size: 0.85rem;
+            background: #ffffff;
+            color: #334155;
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.88rem;
             font-weight: 600;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         }
 
-        .fw-badge:hover, .fw-badge.active-badge {
+        .fw-badge:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: #f0f7ff;
+            transform: translateY(-1px);
+        }
+
+        .fw-badge.active-badge {
             background: var(--primary);
             color: #ffffff;
             border-color: var(--primary);
+            box-shadow: 0 4px 10px rgba(0, 120, 212, 0.25);
         }
 
         /* Quick-Start Section Styles */
@@ -196,16 +205,11 @@
             border: 1px solid #cce4f7;
             border-radius: var(--radius);
             padding: 26px;
-            margin: 26px 0;
+            margin: 20px 0 26px 0;
             box-shadow: 0 2px 8px rgba(0, 120, 212, 0.06);
         }
 
         .guide-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
             border-bottom: 1px solid #eef2f5;
             padding-bottom: 16px;
             margin-bottom: 20px;
@@ -222,24 +226,6 @@
 
         .guide-header h3 i {
             color: #eab308;
-        }
-
-        .fw-dropdown {
-            padding: 8px 12px;
-            font-size: 0.92rem;
-            border: 1px solid #94a3b8;
-            border-radius: 6px;
-            background-color: #ffffff;
-            color: #0f172a;
-            font-weight: 500;
-            cursor: pointer;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-
-        .fw-dropdown:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.15);
         }
 
         .guide-content {
@@ -487,17 +473,6 @@
         <div class="guide-box">
             <div class="guide-header">
                 <h3><i class="fa-solid fa-bolt"></i> Firewall Quick-Start Integration</h3>
-                <div class="fw-select-wrapper">
-                    <label for="firewallSelect" style="font-weight: 600; font-size: 0.9rem; color: #1e3a8a;">Firewall Model:</label>
-                    <select id="firewallSelect" class="fw-dropdown" onchange="selectFirewall(this.value)">
-                        <option value="pfsense" selected>pfSense (URL Table Aliases)</option>
-                        <option value="opnsense">OPNsense (URL Table Aliases)</option>
-                        <option value="paloalto">Palo Alto Networks (EDL - IP List)</option>
-                        <option value="mikrotik">MikroTik RouterOS (Address Lists & Script)</option>
-                        <option value="fortinet">Fortinet FortiGate (External Threat Feeds)</option>
-                        <option value="cisco">Cisco Firepower / ASA (Dynamic Objects)</option>
-                    </select>
-                </div>
             </div>
 
             <!-- pfSense -->
@@ -642,7 +617,7 @@
         <div class="footer">
             <div class="footer-left">
                 <span class="pill">Automation Active</span>
-                <span>Generated on <strong>2026-10-30 18:55:14 UTC</strong> by GitHub Actions Automation</span>
+                <span>Generated on <strong>2026-10-30 19:34:57 UTC</strong> by GitHub Actions Automation</span>
             </div>
             <div>
                 <a href="https://github.com/leoescarpellin/cloudIPrange" target="_blank" rel="noopener">
@@ -659,9 +634,6 @@
 
             const target = document.getElementById('guide-' + fw);
             if (target) target.classList.add('active');
-
-            const dropdown = document.getElementById('firewallSelect');
-            if (dropdown) dropdown.value = fw;
 
             const badges = document.querySelectorAll('.fw-badge');
             badges.forEach(b => {
