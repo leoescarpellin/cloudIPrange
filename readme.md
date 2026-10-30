@@ -170,6 +170,12 @@ flowchart LR
 
 ---
 
+## Acknowledgments
+
+Special thanks to [Enzo Gautier](https://github.com/enzo-g) and the original [enzo-g/azureIPranges](https://github.com/enzo-g/azureIPranges) repository, which served as the foundation and initial inspiration for this project.
+
+---
+
 ## Disclaimer
 
 This repository and its contents are provided "AS IS" without warranty of any kind. Microsoft updates these IP ranges on a weekly basis. Verify the ranges against your network requirements prior to production deployment.
