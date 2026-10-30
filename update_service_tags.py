@@ -109,36 +109,43 @@ def download_json(json_url: str) -> Tuple[str, str]:
 
 def process_prefixes(prefixes: Iterable[str]) -> Tuple[List[str], List[str]]:
     """
-    Deduplicate and sort prefixes into IPv4 and IPv6 CIDRs.
+    Deduplicate, collapse overlapping/contained CIDR subnets, and sort into IPv4 and IPv6.
+    Uses ipaddress.collapse_addresses to eliminate redundant child subnets (e.g. /26 inside /16)
+    and merge contiguous blocks into optimal supernets.
     Sorted by numerical network address, then prefix length.
     """
-    v4_set: Set[str] = set()
-    v6_set: Set[str] = set()
+    v4_nets: List[ipaddress.IPv4Network] = []
+    v6_nets: List[ipaddress.IPv6Network] = []
 
     for p in prefixes:
         p = p.strip()
         if not p:
             continue
-        if ":" in p:
-            v6_set.add(p)
-        else:
-            v4_set.add(p)
+        try:
+            if ":" in p:
+                v6_nets.append(ipaddress.IPv6Network(p, strict=False))
+            else:
+                v4_nets.append(ipaddress.IPv4Network(p, strict=False))
+        except ValueError as err:
+            logging.warning(f"Invalid IP prefix skipped: {p} ({err})")
 
-    sorted_v4 = sorted(
-        v4_set,
-        key=lambda c: (
-            int(ipaddress.IPv4Network(c, strict=False).network_address),
-            ipaddress.IPv4Network(c, strict=False).prefixlen
-        )
-    )
+    # Collapse overlapping and contained CIDRs
+    collapsed_v4 = list(ipaddress.collapse_addresses(v4_nets))
+    collapsed_v6 = list(ipaddress.collapse_addresses(v6_nets))
 
-    sorted_v6 = sorted(
-        v6_set,
-        key=lambda c: (
-            int(ipaddress.IPv6Network(c, strict=False).network_address),
-            ipaddress.IPv6Network(c, strict=False).prefixlen
+    sorted_v4 = [
+        str(net) for net in sorted(
+            collapsed_v4,
+            key=lambda c: (int(c.network_address), c.prefixlen)
         )
-    )
+    ]
+
+    sorted_v6 = [
+        str(net) for net in sorted(
+            collapsed_v6,
+            key=lambda c: (int(c.network_address), c.prefixlen)
+        )
+    ]
 
     return sorted_v4, sorted_v6
 

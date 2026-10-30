@@ -17,7 +17,7 @@ Designed for direct integration with firewall aliases and dynamic network lists:
 
 ## Key Features
 
-* **Strict Deduplication:** Eliminates overlapping and duplicate prefixes generated between global service tags and regional tags.
+* **Strict Deduplication & CIDR Collapsing:** Automatically eliminates duplicate prefixes and collapses nested child subnets (e.g., a `/26` enclosed within a `/16` is automatically absorbed into the `/16`), merging contiguous blocks to minimize firewall table memory and lookup overhead.
 * **Canonical CIDR Sorting:** Prefixes are sorted numerically by base address and subnet mask length.
 * **Protocol Separation:** Every service and region is published in three formats:
   * `<name>.ipv4.txt` — IPv4 only (prevents family mismatch in pfSense / OPNsense rules)
