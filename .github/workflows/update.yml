@@ -1,4 +1,4 @@
-name: Update Azure Service Tags
+name: Update Multi-Cloud IP Ranges
 
 on:
   # Trigger on scheduled events
@@ -57,7 +57,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes detected. Skipping commit."
           else
-            git commit -m "chore: update Azure service and regional tags (automated)"
+            git commit -m "chore: update multi-cloud IP ranges and tags (automated)"
             git push origin HEAD:main
           fi
         env:

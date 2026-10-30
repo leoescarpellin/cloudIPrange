@@ -1,12 +1,12 @@
-# Azure IP Ranges & Service Tags Automation
+# Cloud IP Ranges & Service Tags Automation Hub
 
-> **Live Hub & Direct Downloads:** [https://leoescarpellin.github.io/azureIPranges/](https://leoescarpellin.github.io/azureIPranges/)  
-> **Source:** [Microsoft Azure IP Ranges and Service Tags – Public Cloud](https://www.microsoft.com/en-us/download/details.aspx?id=56519)
+> **Live Hub & Direct Downloads:** [https://leoescarpellin.github.io/cloudIPrange/](https://leoescarpellin.github.io/cloudIPrange/)  
+> **Official Sources:** [Microsoft Azure](https://www.microsoft.com/en-us/download/details.aspx?id=56519) · [Amazon Web Services](https://ip-ranges.amazonaws.com/ip-ranges.json) · [Google Cloud (GCP)](https://www.gstatic.com/ipranges/cloud.json) · [Cloudflare](https://api.cloudflare.com/client/v4/ips)
 
-An automated utility for downloading, deduplicating, sorting, and publishing Microsoft Azure service and regional IP ranges into clean plain-text CIDR lists.
+An automated utility for downloading, deduplicating, CIDR-collapsing, sorting, and publishing service and regional IP ranges for **Microsoft Azure**, **Amazon AWS**, **Google Cloud (GCP)**, and **Cloudflare** into clean plain-text CIDR lists.
 
 Designed for direct integration with firewall aliases and dynamic network lists:
-* **pfSense** (`URL Table (IPs)` Aliases)
+* **pfSense** (`URL Table (IPs)` Aliases / pfBlockerNG `Alias Native`)
 * **OPNsense** (`URL Table (IPs)` Aliases)
 * **Palo Alto Networks** (`External Dynamic Lists - EDL`)
 * **MikroTik RouterOS** (`Address Lists`)
@@ -15,17 +15,26 @@ Designed for direct integration with firewall aliases and dynamic network lists:
 
 ---
 
+## Supported Cloud Providers
+
+| Provider | Services | Regions | Direct URLs |
+| :--- | :---: | :---: | :--- |
+| 🟦 **Microsoft Azure** | 100 | 78 | [`ranges-services/`](https://leoescarpellin.github.io/cloudIPrange/ranges-services/) · [`ranges-regions/`](https://leoescarpellin.github.io/cloudIPrange/ranges-regions/) · [JSON](https://leoescarpellin.github.io/cloudIPrange/json-history/ServiceTags_Public.json) |
+| 🟧 **Amazon AWS** | 27 | 43 | [`aws/ranges-services/`](https://leoescarpellin.github.io/cloudIPrange/aws/ranges-services/) · [`aws/ranges-regions/`](https://leoescarpellin.github.io/cloudIPrange/aws/ranges-regions/) · [JSON](https://leoescarpellin.github.io/cloudIPrange/aws/json-history/ip-ranges.json) |
+| 🟥 **Google Cloud (GCP)** | Global List | 48 | [`gcp/ranges-regions/`](https://leoescarpellin.github.io/cloudIPrange/gcp/ranges-regions/) · [All GCP IPv4](https://leoescarpellin.github.io/cloudIPrange/gcp/ranges-regions/GoogleCloud.ipv4.txt) · [JSON](https://leoescarpellin.github.io/cloudIPrange/gcp/json-history/cloud.json) |
+| 🟨 **Cloudflare** | Edge CDN / WAF | Global | [`cloudflare/`](https://leoescarpellin.github.io/cloudIPrange/cloudflare/) · [IPv4 List](https://leoescarpellin.github.io/cloudIPrange/cloudflare/cloudflare.ipv4.txt) · [IPv6 List](https://leoescarpellin.github.io/cloudIPrange/cloudflare/cloudflare.ipv6.txt) |
+
+---
+
 ## Key Features
 
 * **Strict Deduplication & CIDR Collapsing:** Automatically eliminates duplicate prefixes and collapses nested child subnets (e.g., a `/26` enclosed within a `/16` is automatically absorbed into the `/16`), merging contiguous blocks to minimize firewall table memory and lookup overhead.
-* **Canonical CIDR Sorting:** Prefixes are sorted numerically by base address and subnet mask length.
+* **Canonical CIDR Sorting:** Prefixes are sorted numerically by base address integer and subnet mask length.
 * **Protocol Separation:** Every service and region is published in three formats:
   * `<name>.ipv4.txt` — IPv4 only (prevents family mismatch in pfSense / OPNsense rules)
   * `<name>.ipv6.txt` — IPv6 only
   * `<name>.txt` — Combined (IPv4 followed by IPv6)
-* **Organized by Service:** 100+ individual services available in `ranges-services/` (e.g., `AzureStorage`, `AzureSQL`, `AzureCloud`, `AzureFrontDoor.Frontend`).
-* **Organized by Region:** 78 Azure regions available in `ranges-regions/` (e.g., `brazilsouth`, `eastus`, `westeurope`), aggregating all IP ranges allocated to that region.
-* **Static JSON Mirror:** Provides a permanent uncompressed link to the latest JSON without needing to scrape Microsoft's download center: [`json-history/ServiceTags_Public.json`](https://leoescarpellin.github.io/azureIPranges/json-history/ServiceTags_Public.json).
+* **Static JSON Mirrors:** Provides permanent uncompressed links to the latest raw JSON dumps from each provider.
 * **Storage Optimization:** Historical weekly JSON files are maintained within a rolling 12-week retention window and compressed with Gzip (`.json.gz`), keeping the Git repository lightweight (<15 MB total).
 * **Automated Weekly Updates:** Powered by GitHub Actions running every Wednesday at 11:00 UTC.
 
@@ -33,120 +42,120 @@ Designed for direct integration with firewall aliases and dynamic network lists:
 
 ## Directory & URL Structure
 
-| Directory | Description | URL Pattern |
-| :--- | :--- | :--- |
-| **`ranges-services/`** | Service-specific IP lists (100+ services) | `https://leoescarpellin.github.io/azureIPranges/ranges-services/<Service>.ipv4.txt` |
-| **`ranges-regions/`** | Region-wide aggregated IP lists (78 regions) | `https://leoescarpellin.github.io/azureIPranges/ranges-regions/<region>.ipv4.txt` |
-| **`json-history/`** | Historical weekly Microsoft JSON dumps and static mirror | `https://leoescarpellin.github.io/azureIPranges/json-history/ServiceTags_Public.json` |
+```text
+cloudIPrange/
+├── docs/
+│   ├── ranges-services/             # Azure services (legacy root mirror)
+│   ├── ranges-regions/              # Azure regions (legacy root mirror)
+│   ├── json-history/                # Azure JSON dumps (12-week archive)
+│   │
+│   ├── azure/                       # Microsoft Azure namespace
+│   │   ├── ranges-services/         # 100 Azure services
+│   │   └── ranges-regions/          # 78 Azure regions
+│   │
+│   ├── aws/                         # Amazon AWS namespace
+│   │   ├── ranges-services/         # 27 AWS services (S3, EC2, CloudFront, etc.)
+│   │   └── ranges-regions/          # 43 AWS regions (sa-east-1, us-east-1, etc.)
+│   │
+│   ├── gcp/                         # Google Cloud Platform namespace
+│   │   └── ranges-regions/          # 48 GCP regions + GoogleCloud combined
+│   │
+│   └── cloudflare/                  # Cloudflare Edge CDN & Proxy
+│       ├── cloudflare.ipv4.txt      # 15 clean IPv4 CIDRs
+│       ├── cloudflare.ipv6.txt      # 7 clean IPv6 CIDRs
+│       └── cloudflare.txt           # Combined
+```
 
 ---
 
 ## Firewall Integration Guides
 
-### 1. pfSense (URL Table Aliases)
+### 1. pfSense (URL Table Aliases / pfBlockerNG)
 
+#### Via Native URL Table Alias:
 1. Open pfSense WebGUI and go to **Firewall &rarr; Aliases &rarr; IP**.
 2. Click **Add**.
 3. Configure the alias:
-   * **Name:** `Azure_Storage_IPv4`
+   * **Name:** `Azure_Storage_IPv4` or `AWS_SaoPaulo_IPv4`
    * **Type:** `URL Table (IPs)`
-   * **URL:** `https://leoescarpellin.github.io/azureIPranges/ranges-services/AzureStorage.ipv4.txt`
+   * **URL Examples:**
+     * Azure: `https://leoescarpellin.github.io/cloudIPrange/ranges-services/AzureStorage.ipv4.txt`
+     * AWS: `https://leoescarpellin.github.io/cloudIPrange/aws/ranges-regions/sa-east-1.ipv4.txt`
+     * GCP: `https://leoescarpellin.github.io/cloudIPrange/gcp/ranges-regions/southamerica-east1.ipv4.txt`
+     * Cloudflare: `https://leoescarpellin.github.io/cloudIPrange/cloudflare/cloudflare.ipv4.txt`
    * **Update Frequency:** `1` day (or `7` days)
 4. Click **Save** and **Apply Changes**.
 5. Use the alias as **Source** or **Destination** in your Firewall Rules.
 
-> **Tip:** Always use `.ipv4.txt` for IPv4 rules and `.ipv6.txt` for IPv6 rules to prevent pf table family conflicts.
+#### Via pfBlockerNG (Best Practice):
+* Go to **Firewall &rarr; pfBlockerNG &rarr; IP &rarr; IPv4**.
+* Set **Action:** `Alias Native` (creates `pfB_<Name>` without adding rigid automatic rules).
+* Add feed with format `Auto`.
+* In **Firewall &rarr; Rules**, create a `Pass` rule at the top of the interface referencing `pfB_<Name>`.
 
 ---
 
 ### 2. OPNsense (URL Table Aliases)
 
-1. Navigate to **Firewall &rarr; Aliases** and click **+** (Add).
-2. Configure:
-   * **Enabled:** Checked
-   * **Name:** `Azure_BrazilSouth`
+1. Open OPNsense and go to **Firewall &rarr; Aliases**.
+2. Click **+ (Add)**.
+3. Configure:
+   * **Name:** `AWS_SAEast_v4`
    * **Type:** `URL Table (IPs)`
-   * **Content:** `https://leoescarpellin.github.io/azureIPranges/ranges-regions/brazilsouth.ipv4.txt`
+   * **Content:** `https://leoescarpellin.github.io/cloudIPrange/aws/ranges-regions/sa-east-1.ipv4.txt`
    * **Refresh Frequency:** `1` day
-3. Save and apply. OPNsense creates an in-memory table updated automatically by cron.
+4. Save and Apply Changes.
 
 ---
 
-### 3. Palo Alto Networks (External Dynamic List - EDL)
+### 3. Palo Alto Networks (External Dynamic Lists - EDL)
 
-1. Navigate to **Objects &rarr; External Dynamic Lists**.
-2. Click **Add**.
-3. Set **Type** to `IP List`.
-4. Enter the Source URL:
-   `https://leoescarpellin.github.io/azureIPranges/ranges-services/AzureStorage.txt` (or `.ipv4.txt`)
-5. Set the Repeat frequency (e.g. `Daily` or `Weekly`).
-6. Reference the EDL object inside Security Policy Rules.
+1. Go to **Objects &rarr; External Dynamic Lists** and click **Add**.
+2. Set **Type** to `IP List`.
+3. In **Source URL**, enter the desired `.ipv4.txt` or `.txt` URL (e.g. `https://leoescarpellin.github.io/cloudIPrange/aws/ranges-services/S3.ipv4.txt`).
+4. Set Repeat to `Daily` or `Weekly`.
+5. Commit and reference the EDL object in your Security Policies.
 
 ---
 
-### 4. MikroTik RouterOS
-
-Fetch and populate an Address List dynamically via scheduled script:
+### 4. MikroTik RouterOS (Address Lists)
 
 ```routeros
-/tool fetch url="https://leoescarpellin.github.io/azureIPranges/ranges-regions/brazilsouth.ipv4.txt" dst-path="azure_brazil.txt"
-:local content [/file get azure_brazil.txt contents]
+/tool fetch url="https://leoescarpellin.github.io/cloudIPrange/cloudflare/cloudflare.ipv4.txt" dst-path="cf_ips.txt"
+:local content [/file get cf_ips.txt contents]
 :local lineEnd 0
 :local line ""
-/ip firewall address-list remove [find list="Azure_Brazil"]
+/ip firewall address-list remove [find list="Cloudflare_Edge"]
 :while ([:len $content] > 0) do={
-    :set lineEnd [:find $content "\n"]
-    :if ([:len $lineEnd] = 0) do={ :set lineEnd [:len $content] }
-    :set line [:pick $content 0 $lineEnd]
-    :set content [:pick $content ($lineEnd + 1) [:len $content]]
-    :if ([:len $line] > 0) do={
-        /ip firewall address-list add list="Azure_Brazil" address=$line timeout=1d
-    }
+  :set lineEnd [:find $content "\n"]
+  :if ($lineEnd = -1) do={:set lineEnd [:len $content]}
+  :set line [:pick $content 0 $lineEnd]
+  :set content [:pick $content ($lineEnd + 1) [:len $content]]
+  :if ([:len $line] > 0) do={
+    /ip firewall address-list add list="Cloudflare_Edge" address=$line comment="Cloudflare CDN/Proxy"
+  }
 }
-/file remove azure_brazil.txt
 ```
 
 ---
 
 ### 5. Fortinet FortiGate (External Threat Feeds)
 
-1. Navigate to **Security Fabric &rarr; Fabric Connectors** (or **External Connectors**).
-2. Click **Create New** and select **Threat Feeds &rarr; IP Address**.
+1. Go to **Security Fabric &rarr; Fabric Connectors &rarr; Create New**.
+2. Select **Threat Feeds &rarr; IP Address**.
 3. Configure:
-   * **Name:** `Azure_Storage_Feed`
-   * **URL:** `https://leoescarpellin.github.io/azureIPranges/ranges-services/AzureStorage.ipv4.txt`
+   * **Name:** `AWS_S3_Feed`
+   * **URL:** `https://leoescarpellin.github.io/cloudIPrange/aws/ranges-services/S3.ipv4.txt`
    * **Refresh Rate:** `Daily`
-4. Click **OK** and use the connector in **Policy & Objects &rarr; Firewall Policy**.
+4. Use the connector in firewall policy destination matching.
 
 ---
 
-### 6. Cisco Firepower / ASA
+### 6. Cisco Firepower (FMC) / ASA
 
 1. In Firepower Management Center (FMC), navigate to **Objects &rarr; Object Management &rarr; Security Intelligence &rarr; Network Lists and Feeds**.
-2. Click **Add Network Lists and Feeds**:
-   * **Name:** `Azure_Services_Feed`
-   * **Type:** `Feed`
-   * **Feed URL:** `https://leoescarpellin.github.io/azureIPranges/ranges-services/AzureStorage.ipv4.txt`
-   * **Update Frequency:** `Daily`
-3. Save and deploy to your FTD devices.
-
----
-
-## Automation Workflow
-
-The repository is refreshed automatically via **GitHub Actions** ([`.github/workflows/update.yml`](.github/workflows/update.yml)):
-
-```mermaid
-flowchart LR
-    A["Microsoft Download Center"] --> B["GitHub Action (Wednesday 11:00 UTC)"]
-    B --> C["update_service_tags.py"]
-    C --> D["Download JSON & Parse CIDRs"]
-    D --> E["Deduplicate & Sort (IPv4 / IPv6)"]
-    E --> F["ranges-services/"]
-    E --> G["ranges-regions/"]
-    E --> H["json-history/"]
-    F & G & H --> I["Commit & Push to GitHub Pages"]
-```
+2. Add a new **Feed** with the desired URL.
+3. Deploy configuration to managed FTD devices.
 
 ---
 
@@ -154,8 +163,8 @@ flowchart LR
 
 1. Clone repository:
    ```bash
-   git clone https://github.com/leoescarpellin/azureIPranges.git
-   cd azureIPranges
+   git clone https://github.com/leoescarpellin/cloudIPrange.git
+   cd cloudIPrange
    ```
 
 2. Install dependencies:
@@ -163,7 +172,7 @@ flowchart LR
    pip install -r requirements.txt
    ```
 
-3. Run the generator script:
+3. Run the multi-cloud updater:
    ```bash
    python update_service_tags.py
    ```
@@ -178,7 +187,7 @@ Special thanks to [Enzo Gautier](https://github.com/enzo-g) and the original [en
 
 ## Disclaimer
 
-This repository and its contents are provided "AS IS" without warranty of any kind. Microsoft updates these IP ranges on a weekly basis. Verify the ranges against your network requirements prior to production deployment.
+This repository and its contents are provided "AS IS" without warranty of any kind. Microsoft, Amazon, Google, and Cloudflare periodically update their IP ranges. Verify ranges against your network requirements prior to production deployment.
 
 ---
 

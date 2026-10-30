@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure JSON Archive – Cloud IP Ranges Hub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0078d4;
+            --primary-hover: #005a9e;
+            --bg: #f4f6f9;
+            --card-bg: #ffffff;
+            --text: #24292f;
+            --text-muted: #57606a;
+            --border: #d0d7de;
+            --radius: 8px;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 24px 16px;
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+            padding: 32px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            border-bottom: 2px solid #eef2f5;
+            padding-bottom: 20px;
+            margin-bottom: 24px;
+        }
+        h1 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 1.75rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 14px;
+            background: #eef6fc;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        .btn-back:hover {
+            background: #dbebfa;
+            color: var(--primary-hover);
+        }
+        p.desc {
+            color: var(--text-muted);
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        .search-container {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 42px;
+            font-size: 0.95rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.15);
+        }
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.92rem;
+        }
+        th, td {
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid #edf2f7;
+        }
+        th {
+            background-color: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.78rem;
+            letter-spacing: 0.5px;
+        }
+        tr:hover td {
+            background-color: #fbfcfe;
+        }
+        .file-name {
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .file-name:hover {
+            text-decoration: underline;
+        }
+        .file-size {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 12px;
+            text-transform: uppercase;
+        }
+        .tag-all { background: #e3f2fd; color: #0d47a1; }
+        .tag-ipv4 { background: #e8f5e9; color: #1b5e20; }
+        .tag-ipv6 { background: #fff3e0; color: #e65100; }
+        .tag-json { background: #ede7f6; color: #4a148c; }
+        .tag-gz { background: #e0f2fe; color: #0369a1; }
+        .badge-records {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 2px 8px;
+            background: #f1f5f9;
+            color: #334155;
+            border-radius: 12px;
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid #e2e8f0;
+        }
+        .badge-records i {
+            color: var(--primary);
+            font-size: 0.72rem;
+        }
+        .action-btn {
+            color: var(--text-muted);
+            padding: 6px 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: color 0.2s, background 0.2s;
+        }
+        .action-btn:hover {
+            color: var(--primary);
+            background: #eef6fc;
+        }
+        .empty-state {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fa-solid fa-folder-open"></i> Azure JSON Archive</h1>
+            <a href="../../index.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Home</a>
+        </div>
+        <p class="desc">12-week rolling retention archive of Microsoft Azure Service Tags.</p>
+        
+        <div class="search-container">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="filterInput" class="search-input" placeholder="Search files (e.g. storage, brazilsouth, ipv4, 168)..." autofocus>
+        </div>
+
+        <div class="stats-bar">
+            <span>Showing <strong id="visibleCount">1</strong> of 1 archives</span>
+            <span>Compatible with: pfSense, OPNsense, Palo Alto, MikroTik, Fortinet</span>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Filename</th>
+                    <th>Type</th>
+                    <th>Records</th>
+                    <th>Size</th>
+                    <th style="width: 50px;">Action</th>
+                </tr>
+            </thead>
+            <tbody id="fileTableBody">
+                <tr class="file-row" data-name="servicetags_public.json 3358"><td><a class="file-name" href="ServiceTags_Public.json">ServiceTags_Public.json</a></td><td><span class="badge tag-json">JSON</span></td><td><span class="badge-records" title="3,358 items"><i class="fa-solid fa-tags"></i> 3,358</span></td><td class="file-size">4.16 MB</td><td><a class="action-btn" href="ServiceTags_Public.json" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr>
+            </tbody>
+        </table>
+
+        <div id="emptyState" class="empty-state">
+            <i class="fa-solid fa-circle-question fa-2x" style="margin-bottom: 10px;"></i>
+            <p>No matching files found.</p>
+        </div>
+    </div>
+
+    <script>
+        const input = document.getElementById('filterInput');
+        const rows = document.querySelectorAll('.file-row');
+        const visibleCount = document.getElementById('visibleCount');
+        const emptyState = document.getElementById('emptyState');
+
+        input.addEventListener('input', function() {
+            const term = this.value.trim().toLowerCase();
+            let count = 0;
+
+            rows.forEach(row => {
+                const name = row.getAttribute('data-name');
+                if (!term || name.includes(term)) {
+                    row.style.display = '';
+                    count++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            visibleCount.textContent = count;
+            emptyState.style.display = count === 0 ? 'block' : 'none';
+        });
+    </script>
+</body>
+</html>
