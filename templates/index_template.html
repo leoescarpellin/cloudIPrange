@@ -361,6 +361,193 @@
             background: #e1dfdd;
             color: #323130;
         }
+
+        /* SquidGuard Banner Styles */
+        .squidguard-banner {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border: 1px solid #334155;
+            border-radius: var(--radius);
+            padding: 24px 28px;
+            color: #f8fafc;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
+        }
+
+        @media (max-width: 900px) {
+            .squidguard-banner {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+        .sg-left {
+            flex: 1;
+        }
+
+        .sg-badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .sg-tag {
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #93c5fd;
+            border: 1px solid rgba(147, 197, 253, 0.25);
+        }
+
+        .sg-tag.ut1-tag {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fcd34d;
+            border-color: rgba(245, 158, 11, 0.35);
+        }
+
+        .sg-tag.feat-tag {
+            background: rgba(16, 185, 129, 0.15);
+            color: #6ee7b7;
+            border-color: rgba(16, 185, 129, 0.35);
+        }
+
+        .squidguard-banner h3 {
+            margin: 0 0 6px 0;
+            font-size: 1.3rem;
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .squidguard-banner p {
+            margin: 0 0 12px 0;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .sg-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-bottom: 14px;
+        }
+
+        .sg-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sg-meta code {
+            background: rgba(0, 0, 0, 0.4);
+            color: #38bdf8;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .sg-url-box {
+            display: flex;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid #475569;
+            border-radius: 6px;
+            padding: 4px 6px;
+            max-width: 650px;
+            gap: 8px;
+        }
+
+        .sg-url-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #f1f5f9;
+            font-family: ui-monospace, SFMono-Regular, monospace;
+            font-size: 0.85rem;
+            padding: 6px 8px;
+            outline: none;
+        }
+
+        .btn-copy-sg {
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            transition: background 0.2s;
+        }
+
+        .btn-copy-sg:hover {
+            background: var(--primary-hover);
+        }
+
+        .sg-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 215px;
+        }
+
+        .btn-sg-primary {
+            background: #0284c7;
+            color: #ffffff;
+            padding: 9px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .btn-sg-primary:hover {
+            background: #0369a1;
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .btn-sg-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: #e2e8f0;
+            border: 1px solid #475569;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.86rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-sg-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border-color: #94a3b8;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
@@ -459,6 +646,35 @@
             </div>
         </div>
 
+        <!-- SquidGuard Web Filter Blacklists Banner (UT1 Toulouse Mirror) -->
+        <div class="squidguard-banner">
+            <div class="sg-left">
+                <div class="sg-badge-row">
+                    <span class="sg-tag"><i class="fa-solid fa-shield-cat"></i> SquidGuard Mirror</span>
+                    <span class="sg-tag ut1-tag"><i class="fa-solid fa-building-columns"></i> Curadoria Oficial: Université Toulouse 1 Capitole</span>
+                    <span class="sg-tag feat-tag"><i class="fa-solid fa-clock-rotate-left"></i> Shallalist Successor</span>
+                </div>
+                <h3>SquidGuard Web Filter Blacklists — Automated Contingency Mirror</h3>
+                <p>
+                    Espelho automatizado de contingência da blacklist oficial mantida pela <strong>Université Toulouse 1 Capitole</strong> para <strong>pfSense</strong>, <strong>Squid</strong> e <strong>SquidGuard</strong>. Garante alta disponibilidade, integridade criptográfica e prevenção contra abandono (sucessor direto da Shallalist).
+                </p>
+                <div class="sg-meta">
+                    <span><i class="fa-solid fa-hard-drive"></i> {{SQUIDGUARD_SIZE_MB}} MB</span>
+                    <span><i class="fa-solid fa-tags"></i> {{SQUIDGUARD_CATEGORIES_COUNT}} Categorias</span>
+                    <span><i class="fa-solid fa-fingerprint"></i> SHA-256: <code>{{SQUIDGUARD_HASH_SHORT}}...</code></span>
+                </div>
+                <div class="sg-url-box">
+                    <input type="text" readonly value="https://leoescarpellin.github.io/cloudIPrange/squidguard/blacklists.tar.gz" id="sgUrlInput">
+                    <button type="button" class="btn-copy-sg" onclick="copySgUrl()"><i class="fa-regular fa-copy"></i> Copiar URL</button>
+                </div>
+            </div>
+            <div class="sg-actions">
+                <a href="squidguard/blacklists.tar.gz" class="btn-sg-primary"><i class="fa-solid fa-download"></i> Baixar blacklists.tar.gz</a>
+                <a href="squidguard/blacklists.tar.gz.sha256" class="btn-sg-secondary" target="_blank"><i class="fa-solid fa-file-shield"></i> Ver Checksum SHA-256</a>
+                <a href="squidguard/index.html" class="btn-sg-secondary"><i class="fa-solid fa-book-open"></i> Guia pfSense & Categorias</a>
+            </div>
+        </div>
+
         <!-- Firewall Model Badges -->
         <div class="badge-grid">
             <span class="fw-badge active-badge" onclick="selectFirewall('pfsense')"><i class="fa-solid fa-shield-halved"></i> pfSense</span>
@@ -500,6 +716,9 @@
                 </ol>
                 <div class="tip-box">
                     <i class="fa-solid fa-circle-info"></i> <strong>Best Practice:</strong> Always use <code>.ipv4.txt</code> for IPv4 rules and <code>.ipv6.txt</code> for IPv6 rules. pfSense produces an error if IPv6 addresses are present inside an alias assigned to an IPv4 rule.
+                </div>
+                <div class="tip-box" style="margin-top: 10px; background: #fdf8f6; border-left-color: #f97316; color: #7c2d12;">
+                    <i class="fa-solid fa-shield-cat"></i> <strong>Web Filtering (SquidGuard):</strong> Para filtragem de URLs e domínios no SquidGuard, utilize o <a href="squidguard/index.html" style="color: #c2410c; font-weight: 700; text-decoration: underline;">Mirror da Blacklist UT1 Toulouse (Shallalist Successor)</a>.
                 </div>
             </div>
 
@@ -628,6 +847,20 @@
     </div>
 
     <script>
+        function copySgUrl() {
+            const input = document.getElementById("sgUrlInput");
+            input.select();
+            input.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(input.value).then(() => {
+                const btn = document.querySelector(".btn-copy-sg");
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado!';
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                }, 2000);
+            });
+        }
+
         function selectFirewall(fw) {
             document.querySelectorAll('.guide-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.fw-badge').forEach(el => el.classList.remove('active-badge'));

@@ -5,6 +5,8 @@ import os
 import re
 import shutil
 import gzip
+import hashlib
+import tarfile
 from datetime import datetime, timezone
 import logging
 import sys
@@ -16,6 +18,7 @@ AZURE_DOWNLOAD_URL = "https://www.microsoft.com/en-us/download/confirmation.aspx
 AWS_IP_RANGES_URL = "https://ip-ranges.amazonaws.com/ip-ranges.json"
 GCP_IP_RANGES_URL = "https://www.gstatic.com/ipranges/cloud.json"
 CLOUDFLARE_IPS_URL = "https://api.cloudflare.com/client/v4/ips"
+SQUIDGUARD_UPSTREAM_URL = "https://dsi.ut-capitole.fr/blacklists/download/blacklists.tar.gz"
 
 RETENTION_WEEKS = 12
 
@@ -47,6 +50,13 @@ GCP_JSON_DIR = os.path.join(GCP_DIR, "json-history")
 CF_DIR = os.path.join(DOCS_DIR, "cloudflare")
 CF_JSON_DIR = os.path.join(CF_DIR, "json-history")
 
+# SquidGuard paths (UT1 Toulouse Contingency Mirror)
+SQUIDGUARD_DIR = os.path.join(DOCS_DIR, "squidguard")
+SQUIDGUARD_ARCHIVE_FILE = os.path.join(SQUIDGUARD_DIR, "blacklists.tar.gz")
+SQUIDGUARD_SHA256_FILE = os.path.join(SQUIDGUARD_DIR, "blacklists.tar.gz.sha256")
+SQUIDGUARD_INDEX_FILE = os.path.join(SQUIDGUARD_DIR, "index.html")
+SQUIDGUARD_META_FILE = os.path.join(SQUIDGUARD_DIR, "meta.json")
+
 TEMPLATE_FILE = "templates/index_template.html"
 INDEX_FILE = os.path.join(DOCS_DIR, "index.html")
 
@@ -77,7 +87,8 @@ def ensure_directories() -> None:
         GCP_REGIONS_DIR,
         GCP_JSON_DIR,
         CF_DIR,
-        CF_JSON_DIR
+        CF_JSON_DIR,
+        SQUIDGUARD_DIR
     ]
     for directory in directories:
         os.makedirs(directory, exist_ok=True)
@@ -754,16 +765,620 @@ def update_cloudflare() -> Dict[str, Any]:
     }
 
 # ==========================================
-# 5. ROOT INDEX GENERATOR
+# 5. SQUIDGUARD BLACKLIST CONTINGENCY MIRROR
+# ==========================================
+
+def generate_squidguard_index(meta: Dict[str, Any]) -> None:
+    """Generate docs/squidguard/index.html detailing the UT1 Toulouse SquidGuard mirror."""
+    os.makedirs(SQUIDGUARD_DIR, exist_ok=True)
+
+    categories = meta.get("categories", [])
+    cat_count = meta.get("category_count", len(categories))
+    size_mb = meta.get("size_mb", 25.38)
+    sha256 = meta.get("sha256", "")
+    updated_at = meta.get("updated_at", datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"))
+
+    categories_html = "".join([f'<span class="cat-pill"><i class="fa-solid fa-tag"></i> {cat}</span>' for cat in categories])
+
+    html_content = f"""<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SquidGuard Web Filter Blacklists — Shallalist Successor Mirror (UT1 Capitole)</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {{
+            --primary: #0284c7;
+            --primary-dark: #0369a1;
+            --primary-light: #e0f2fe;
+            --accent: #2563eb;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius: 10px;
+            --shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+        }}
+
+        * {{
+            box-sizing: border-box;
+        }}
+
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 30px 16px;
+            background-color: var(--bg);
+            color: var(--text);
+        }}
+
+        .container {{
+            max-width: 1080px;
+            margin: 0 auto;
+            background-color: var(--card-bg);
+            padding: 36px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }}
+
+        .nav-back {{
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            background: #f1f5f9;
+            transition: all 0.2s;
+        }}
+
+        .nav-back:hover {{
+            background: #e2e8f0;
+            color: var(--primary-dark);
+            text-decoration: none;
+        }}
+
+        .header {{
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 22px;
+            margin-bottom: 24px;
+        }}
+
+        .header-top {{
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 10px;
+        }}
+
+        .header-top i {{
+            font-size: 2.4rem;
+            color: var(--primary);
+        }}
+
+        .header h1 {{
+            margin: 0;
+            font-size: 1.85rem;
+            color: #0f172a;
+            font-weight: 700;
+        }}
+
+        .badges-bar {{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }}
+
+        .badge {{
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }}
+
+        .badge-mirror {{ background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }}
+        .badge-univ {{ background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }}
+        .badge-pfsense {{ background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }}
+
+        .attribution-box {{
+            background: #fffbeb;
+            border: 1px solid #fcd34d;
+            border-left: 6px solid #f59e0b;
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 24px 0;
+            color: #78350f;
+            font-size: 0.95rem;
+        }}
+
+        .attribution-box strong {{
+            color: #92400e;
+        }}
+
+        .direct-download-card {{
+            background: linear-gradient(145deg, #f8fafc, #edf2f7);
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 24px;
+            margin-bottom: 30px;
+        }}
+
+        .url-row {{
+            margin: 16px 0;
+        }}
+
+        .url-row label {{
+            display: block;
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: #334155;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }}
+
+        .url-input-group {{
+            display: flex;
+            gap: 8px;
+        }}
+
+        .url-input-group input {{
+            flex: 1;
+            padding: 12px 14px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 0.95rem;
+            border: 1px solid #94a3b8;
+            border-radius: 6px;
+            background: #ffffff;
+            color: #0f172a;
+        }}
+
+        .btn-copy {{
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            padding: 0 20px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }}
+
+        .btn-copy:hover {{
+            background: var(--primary-dark);
+        }}
+
+        .meta-stats {{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 16px;
+            font-size: 0.88rem;
+            color: #475569;
+        }}
+
+        .meta-stats span {{
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #ffffff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }}
+
+        .action-buttons {{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 18px;
+        }}
+
+        .btn-action {{
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.92rem;
+            text-decoration: none;
+            transition: all 0.2s;
+        }}
+
+        .btn-action-primary {{
+            background: #0284c7;
+            color: #ffffff;
+        }}
+
+        .btn-action-primary:hover {{
+            background: #0369a1;
+            color: #ffffff;
+            text-decoration: none;
+        }}
+
+        .btn-action-secondary {{
+            background: #ffffff;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }}
+
+        .btn-action-secondary:hover {{
+            background: #f1f5f9;
+            color: #0f172a;
+            text-decoration: none;
+        }}
+
+        .section-title {{
+            font-size: 1.35rem;
+            color: #0f172a;
+            margin: 32px 0 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 10px;
+        }}
+
+        .guide-steps {{
+            padding-left: 20px;
+            margin: 16px 0;
+        }}
+
+        .guide-steps li {{
+            margin-bottom: 14px;
+            line-height: 1.6;
+        }}
+
+        code {{
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: ui-monospace, SFMono-Regular, monospace;
+            font-size: 0.88rem;
+            color: #be123c;
+        }}
+
+        .categories-filter-box {{
+            margin: 20px 0 14px 0;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }}
+
+        .categories-filter-box input {{
+            flex: 1;
+            padding: 9px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }}
+
+        .categories-container {{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-height: 340px;
+            overflow-y: auto;
+            padding: 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }}
+
+        .cat-pill {{
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            padding: 4px 10px;
+            border-radius: 14px;
+            font-size: 0.82rem;
+            color: #334155;
+            font-family: ui-monospace, SFMono-Regular, monospace;
+            transition: all 0.15s;
+        }}
+
+        .cat-pill:hover {{
+            border-color: var(--primary);
+            color: var(--primary);
+            background: #f0f9ff;
+        }}
+
+        .tip-callout {{
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 14px 18px;
+            border-radius: 6px;
+            margin-top: 16px;
+            color: #065f46;
+            font-size: 0.92rem;
+        }}
+
+        .footer {{
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            color: var(--text-muted);
+            font-size: 0.88rem;
+        }}
+
+        a {{
+            color: var(--primary);
+            text-decoration: none;
+        }}
+
+        a:hover {{
+            text-decoration: underline;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="nav-back"><i class="fa-solid fa-arrow-left"></i> Voltar ao Hub Cloud IP Ranges</a>
+
+        <div class="header">
+            <div class="header-top">
+                <i class="fa-solid fa-shield-cat"></i>
+                <div>
+                    <h1>SquidGuard Web Filter Blacklists</h1>
+                    <p style="margin: 4px 0 0 0; color: var(--text-muted); font-size: 0.98rem;">
+                        Espelho Automatizado de Contingência (Shallalist Successor Mirror) para pfSense, Squid e SquidGuard
+                    </p>
+                </div>
+            </div>
+            <div class="badges-bar">
+                <span class="badge badge-mirror"><i class="fa-solid fa-cloud-arrow-down"></i> Mirror de Contingência</span>
+                <span class="badge badge-univ"><i class="fa-solid fa-building-columns"></i> Curadoria Oficial: Université Toulouse 1 Capitole</span>
+                <span class="badge badge-pfsense"><i class="fa-solid fa-shield-halved"></i> 100% Compatível com pfSense & SquidGuard</span>
+            </div>
+        </div>
+
+        <!-- Attribution Box -->
+        <div class="attribution-box">
+            <p style="margin: 0 0 8px 0; font-weight: 700;">
+                <i class="fa-solid fa-circle-info"></i> Créditos Oficiais & Finalidade deste Espelho:
+            </p>
+            <p style="margin: 0;">
+                Esta base de dados é mantida e catalogada oficialmente pela <strong>Direction des Systèmes d'Information da Université Toulouse 1 Capitole (França)</strong>. Este repositório atua estritamente como um <strong>espelho automatizado de contingência (Shallalist Successor Mirror)</strong> para assegurar redundância e blindar administradores de redes contra indisponibilidades e abandono futuro de repositórios (como ocorrido historicamente com a Shallalist). Todos os créditos de catalogação e propriedade intelectual pertencem integralmente à Universidade de Toulouse.
+            </p>
+        </div>
+
+        <!-- Direct Ingestion Card -->
+        <div class="direct-download-card">
+            <div class="url-row">
+                <label for="sgUrlInput"><i class="fa-solid fa-link"></i> URL Direta para Ingestão no pfSense / SquidGuard:</label>
+                <div class="url-input-group">
+                    <input type="text" id="sgUrlInput" readonly value="https://leoescarpellin.github.io/cloudIPrange/squidguard/blacklists.tar.gz">
+                    <button class="btn-copy" onclick="copyUrl()"><i class="fa-regular fa-copy"></i> Copiar URL</button>
+                </div>
+            </div>
+
+            <div class="meta-stats">
+                <span><i class="fa-solid fa-hard-drive"></i> Tamanho: <strong>{size_mb} MB</strong></span>
+                <span><i class="fa-solid fa-tags"></i> Categorias: <strong>{cat_count}</strong></span>
+                <span><i class="fa-solid fa-clock"></i> Sincronizado: <strong>{updated_at}</strong></span>
+                <span><i class="fa-solid fa-fingerprint"></i> SHA-256: <code>{sha256[:16]}...</code></span>
+            </div>
+
+            <div class="action-buttons">
+                <a href="blacklists.tar.gz" class="btn-action btn-action-primary"><i class="fa-solid fa-download"></i> Baixar blacklists.tar.gz ({size_mb} MB)</a>
+                <a href="blacklists.tar.gz.sha256" class="btn-action btn-action-secondary" target="_blank"><i class="fa-solid fa-file-shield"></i> Ver Checksum SHA-256</a>
+                <a href="https://dsi.ut-capitole.fr/blacklists/" class="btn-action btn-action-secondary" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Upstream Oficial (UT1 Capitole)</a>
+            </div>
+        </div>
+
+        <!-- pfSense Setup Instructions -->
+        <h2 class="section-title"><i class="fa-solid fa-screwdriver-wrench"></i> Como Configurar no pfSense (Passo a Passo)</h2>
+        <ol class="guide-steps">
+            <li>No menu do pfSense WebGUI, acesse <strong>Services &rarr; SquidGuard Proxy Filter</strong>.</li>
+            <li>Na aba <strong>General Settings</strong>, certifique-se de que o SquidGuard está habilitado (<strong>Enable</strong>).</li>
+            <li>Navegue até a aba <strong>Blacklist</strong>:
+                <ul>
+                    <li>Marque a caixa de seleção <strong>Blacklist</strong> (Enable blacklist).</li>
+                    <li>No campo <strong>Blacklist URL</strong>, cole a URL deste mirror:  
+                        <code>https://leoescarpellin.github.io/cloudIPrange/squidguard/blacklists.tar.gz</code>
+                    </li>
+                </ul>
+            </li>
+            <li>Role até o final da página e clique em <strong>Save</strong>.</li>
+            <li>Acesse a aba <strong>Blacklist update</strong> e clique no botão <strong>Download</strong>. O pfSense fará o download do arquivo, descompactará em <code>/var/db/squidGuard/</code> e compilará as tabelas Berkeley DB (<code>.db</code>). Aguarde até a mensagem de conclusão (<i>Blacklist update complete</i>).</li>
+            <li>Acesse a aba <strong>Common ACL</strong> (ou configure ACLs por grupo em <strong>Group ACL</strong>) e clique no ícone <strong>+</strong> em <strong>Target Rules List</strong>:
+                <ul>
+                    <li>Defina a ação desejada para cada categoria (ex: <code>deny</code> para <i>malware</i>, <i>phishing</i>, <i>adult</i>, <i>cryptojacking</i>, etc.).</li>
+                </ul>
+            </li>
+            <li>Clique em <strong>Save</strong> no final da página.</li>
+            <li>Retorne à aba <strong>General Settings</strong> e clique em <strong>Apply</strong> no topo da tela para carregar as novas regras no proxy ativo.</li>
+        </ol>
+
+        <div class="tip-callout">
+            <i class="fa-solid fa-lightbulb"></i> <strong>Dica de Desempenho & Cron:</strong>  
+            Você pode automatizar a atualização semanal da blacklist no pfSense configurando um agendamento no pacote <strong>Cron</strong> (ex: executando o comando de download/update do SquidGuard aos domingos ou segundas-feiras) para que seu ambiente permaneça protegido sem intervenção manual.
+        </div>
+
+        <!-- Available Categories -->
+        <h2 class="section-title"><i class="fa-solid fa-folder-tree"></i> Categorias Incluídas ({cat_count} Categorias)</h2>
+        <div class="categories-filter-box">
+            <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted);"></i>
+            <input type="text" id="catSearchInput" placeholder="Filtrar categorias (ex: malware, social, games, adult)..." onkeyup="filterCategories()">
+        </div>
+        <div class="categories-container" id="catContainer">
+            {categories_html}
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div>
+                <span>Espelho de Contingência mantido no projeto <a href="https://github.com/leoescarpellin/cloudIPrange" target="_blank">cloudIPrange</a></span>
+            </div>
+            <div>
+                <a href="../index.html"><i class="fa-solid fa-arrow-left"></i> Retornar ao Hub Principal</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyUrl() {{
+            const input = document.getElementById("sgUrlInput");
+            input.select();
+            input.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(input.value).then(() => {{
+                const btn = document.querySelector(".btn-copy");
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado!';
+                setTimeout(() => {{
+                    btn.innerHTML = originalHtml;
+                }}, 2000);
+            }});
+        }}
+
+        function filterCategories() {{
+            const filter = document.getElementById("catSearchInput").value.toLowerCase();
+            const pills = document.querySelectorAll(".cat-pill");
+            pills.forEach(pill => {{
+                const text = pill.textContent.toLowerCase();
+                if (text.includes(filter)) {{
+                    pill.style.display = "inline-flex";
+                }} else {{
+                    pill.style.display = "none";
+                }}
+            }});
+        }}
+    </script>
+</body>
+</html>
+"""
+    with open(SQUIDGUARD_INDEX_FILE, "w", encoding="utf-8") as f:
+        f.write(html_content)
+    logging.info(f"SquidGuard index.html generated at {SQUIDGUARD_INDEX_FILE}")
+
+def update_squidguard() -> Dict[str, Any]:
+    """
+    Mirror the SquidGuard Web Filter Blacklist archive from Université Toulouse 1 Capitole.
+    Acts as an automated contingency backup mirror (Shallalist successor).
+    Validates integrity, generates SHA256 checksum, and produces an index.html guide.
+    """
+    logging.info("--- Starting SquidGuard Blacklist update ---")
+    os.makedirs(SQUIDGUARD_DIR, exist_ok=True)
+
+    meta: Dict[str, Any] = {}
+    if os.path.exists(SQUIDGUARD_META_FILE):
+        try:
+            with open(SQUIDGUARD_META_FILE, "r", encoding="utf-8") as f:
+                meta = json.load(f)
+        except Exception:
+            pass
+
+    headers = {}
+    if os.path.exists(SQUIDGUARD_ARCHIVE_FILE) and meta.get("last_modified"):
+        headers["If-Modified-Since"] = meta["last_modified"]
+
+    download_needed = True
+    try:
+        head_resp = requests.head(SQUIDGUARD_UPSTREAM_URL, headers=headers, timeout=20)
+        if head_resp.status_code == 304 and os.path.exists(SQUIDGUARD_ARCHIVE_FILE):
+            logging.info("SquidGuard archive has not changed upstream (304 Not Modified). Reusing local mirror.")
+            download_needed = False
+    except Exception as e:
+        logging.warning(f"Could not verify upstream HEAD: {e}")
+
+    if download_needed or not os.path.exists(SQUIDGUARD_ARCHIVE_FILE):
+        logging.info(f"Downloading SquidGuard archive from {SQUIDGUARD_UPSTREAM_URL}...")
+        resp = requests.get(SQUIDGUARD_UPSTREAM_URL, stream=True, timeout=120)
+        resp.raise_for_status()
+
+        last_modified = resp.headers.get("Last-Modified", "")
+        temp_file = os.path.join(TEMP_DIR, "blacklists.tar.gz")
+        hasher = hashlib.sha256()
+        total_size = 0
+
+        with open(temp_file, "wb") as f:
+            for chunk in resp.iter_content(chunk_size=1024 * 1024):
+                if chunk:
+                    f.write(chunk)
+                    hasher.update(chunk)
+                    total_size += len(chunk)
+
+        if total_size < 1_000_000:
+            raise ValueError(f"Downloaded SquidGuard archive is suspiciously small: {total_size} bytes")
+
+        shutil.move(temp_file, SQUIDGUARD_ARCHIVE_FILE)
+        sha256_hash = hasher.hexdigest()
+
+        # Write .sha256 file
+        with open(SQUIDGUARD_SHA256_FILE, "w", encoding="utf-8") as f:
+            f.write(f"{sha256_hash}  blacklists.tar.gz\n")
+
+        # Inspect categories
+        categories = []
+        try:
+            with tarfile.open(SQUIDGUARD_ARCHIVE_FILE, mode="r:gz") as tar:
+                cat_names = set()
+                for member in tar.getmembers():
+                    parts = member.name.split("/")
+                    if len(parts) > 1 and parts[1]:
+                        item = parts[1]
+                        if not item.endswith((".pdf", ".txt", ".md")) and item != "README":
+                            cat_names.add(item)
+                categories = sorted(list(cat_names))
+        except Exception as e:
+            logging.warning(f"Could not parse categories list from tar: {e}")
+
+        size_mb = round(total_size / (1024 * 1024), 2)
+        now_utc = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+
+        meta = {
+            "last_modified": last_modified,
+            "sha256": sha256_hash,
+            "size_bytes": total_size,
+            "size_mb": size_mb,
+            "category_count": len(categories),
+            "categories": categories,
+            "updated_at": now_utc
+        }
+
+        with open(SQUIDGUARD_META_FILE, "w", encoding="utf-8") as f:
+            json.dump(meta, f, indent=2)
+
+    generate_squidguard_index(meta)
+
+    logging.info(
+        f"SquidGuard complete: {meta.get('size_mb', 0)} MB, "
+        f"{meta.get('category_count', 0)} categories, SHA256: {meta.get('sha256', '')[:12]}..."
+    )
+    return meta
+
+# ==========================================
+# 6. ROOT INDEX GENERATOR
 # ==========================================
 
 def generate_root_index(
     azure_meta: Dict[str, Any],
     aws_meta: Dict[str, Any],
     gcp_meta: Dict[str, Any],
-    cf_meta: Dict[str, Any]
+    cf_meta: Dict[str, Any],
+    squidguard_meta: Dict[str, Any]
 ) -> None:
-    """Render templates/index_template.html into docs/index.html with multi-cloud stats."""
+    """Render templates/index_template.html into docs/index.html with multi-cloud and SquidGuard stats."""
     logging.info("Generating root index.html...")
     with open(TEMPLATE_FILE, "r", encoding="utf-8") as f:
         template = f.read()
@@ -778,6 +1393,9 @@ def generate_root_index(
         "{{GCP_REGIONS_COUNT}}": str(gcp_meta.get("regions", 48)),
         "{{CF_V4_COUNT}}": str(cf_meta.get("ipv4_count", 15)),
         "{{CF_V6_COUNT}}": str(cf_meta.get("ipv6_count", 7)),
+        "{{SQUIDGUARD_SIZE_MB}}": str(squidguard_meta.get("size_mb", "25.38")),
+        "{{SQUIDGUARD_CATEGORIES_COUNT}}": str(squidguard_meta.get("category_count", "78")),
+        "{{SQUIDGUARD_HASH_SHORT}}": str(squidguard_meta.get("sha256", ""))[:16],
         "{{GENERATED_TIME}}": now_utc,
         "{{GENERATED_BY}}": "GitHub Actions Automation"
     }
@@ -795,16 +1413,17 @@ def generate_root_index(
 # ==========================================
 
 def main() -> None:
-    logging.info("Starting Cloud IP Ranges Multi-Cloud Update...")
+    logging.info("Starting Cloud IP Ranges & SquidGuard Multi-Cloud Update...")
     ensure_directories()
 
     azure_meta = update_azure()
     aws_meta = update_aws()
     gcp_meta = update_gcp()
     cf_meta = update_cloudflare()
+    squidguard_meta = update_squidguard()
 
-    generate_root_index(azure_meta, aws_meta, gcp_meta, cf_meta)
-    logging.info("All clouds updated and synchronized successfully!")
+    generate_root_index(azure_meta, aws_meta, gcp_meta, cf_meta, squidguard_meta)
+    logging.info("All clouds and SquidGuard mirror updated and synchronized successfully!")
 
 if __name__ == "__main__":
     main()

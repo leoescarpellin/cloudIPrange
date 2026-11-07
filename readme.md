@@ -1,9 +1,12 @@
 # Cloud IP Ranges & Service Tags Automation Hub
 
 > **Live Hub & Direct Downloads:** [https://leoescarpellin.github.io/cloudIPrange/](https://leoescarpellin.github.io/cloudIPrange/)  
-> **Official Sources:** [Microsoft Azure](https://www.microsoft.com/en-us/download/details.aspx?id=56519) · [Amazon Web Services](https://ip-ranges.amazonaws.com/ip-ranges.json) · [Google Cloud (GCP)](https://www.gstatic.com/ipranges/cloud.json) · [Cloudflare](https://api.cloudflare.com/client/v4/ips)
+> **Official Cloud Sources:** [Microsoft Azure](https://www.microsoft.com/en-us/download/details.aspx?id=56519) · [Amazon Web Services](https://ip-ranges.amazonaws.com/ip-ranges.json) · [Google Cloud (GCP)](https://www.gstatic.com/ipranges/cloud.json) · [Cloudflare](https://api.cloudflare.com/client/v4/ips)  
+> **SquidGuard Contingency Mirror:** [UT1 Capitole Blacklists](https://leoescarpellin.github.io/cloudIPrange/squidguard/index.html) · [Direct Archive](https://leoescarpellin.github.io/cloudIPrange/squidguard/blacklists.tar.gz)
 
 An automated utility for downloading, deduplicating, CIDR-collapsing, sorting, and publishing service and regional IP ranges for **Microsoft Azure**, **Amazon AWS**, **Google Cloud (GCP)**, and **Cloudflare** into clean plain-text CIDR lists.
+
+Additionally, this project hosts an automated, high-availability **Contingency Mirror** for **SquidGuard Web Filter Blacklists** (the official successor to Shallalist, curated by Université Toulouse 1 Capitole), ensuring uninterrupted access for pfSense and Squid web filters.
 
 Designed for direct integration with firewall aliases and dynamic network lists:
 * **pfSense** (`URL Table (IPs)` Aliases / pfBlockerNG `Alias Native`)
@@ -60,11 +63,45 @@ cloudIPrange/
 │   ├── gcp/                         # Google Cloud Platform namespace
 │   │   └── ranges-regions/          # 48 GCP regions + GoogleCloud combined
 │   │
-│   └── cloudflare/                  # Cloudflare Edge CDN & Proxy
-│       ├── cloudflare.ipv4.txt      # 15 clean IPv4 CIDRs
-│       ├── cloudflare.ipv6.txt      # 7 clean IPv6 CIDRs
-│       └── cloudflare.txt           # Combined
+│   ├── cloudflare/                  # Cloudflare Edge CDN & Proxy
+│   │   ├── cloudflare.ipv4.txt      # 15 clean IPv4 CIDRs
+│   │   ├── cloudflare.ipv6.txt      # 7 clean IPv6 CIDRs
+│   │   └── cloudflare.txt           # Combined
+│   │
+│   └── squidguard/                  # SquidGuard Blacklist Contingency Mirror (UT1 Capitole)
+│       ├── blacklists.tar.gz        # Complete archive (~25.4 MB, 80 categories)
+│       ├── blacklists.tar.gz.sha256 # Cryptographic checksum
+│       ├── index.html               # Dedicated mirror guide and category viewer
+│       └── meta.json                # Mirror metadata and category list
 ```
+
+---
+
+## SquidGuard Web Filter Blacklists (Shallalist Successor Mirror)
+
+> **Official Curation & Maintenance:** [Université Toulouse 1 Capitole (DSI)](https://dsi.ut-capitole.fr/blacklists/)  
+> **Direct Ingestion URL for pfSense:** `https://leoescarpellin.github.io/cloudIPrange/squidguard/blacklists.tar.gz`  
+> **Integrity Checksum (SHA-256):** [blacklists.tar.gz.sha256](https://leoescarpellin.github.io/cloudIPrange/squidguard/blacklists.tar.gz.sha256)  
+> **Dedicated Guide & Category Explorer:** [SquidGuard Mirror Hub](https://leoescarpellin.github.io/cloudIPrange/squidguard/index.html)
+
+### Why this Mirror Exists
+Following the shutdown and abandonment of **Shallalist**, the **Université Toulouse 1 Capitole (França)** became the recognized reference authority maintaining public categorized domain and URL blacklists for Squid, SquidGuard, and pfSense.
+
+To protect network administrators against single-point-of-failure risks and sudden project abandonment (as occurred with Shallalist), this repository hosts an automated, high-availability **Shallalist Successor Mirror**. It continuously synchronizes the archive, calculates cryptographic SHA-256 hashes, and serves the latest release via GitHub Pages CDN. All academic credits and curation belong to Université Toulouse 1 Capitole.
+
+### pfSense SquidGuard Step-by-Step Configuration
+1. In pfSense WebGUI, go to **Services &rarr; SquidGuard Proxy Filter**.
+2. On **General Settings**, ensure **Enable** is checked.
+3. Navigate to the **Blacklist** tab:
+   * Check **Blacklist** (Enable blacklist).
+   * In **Blacklist URL**, paste:
+     ```text
+     https://leoescarpellin.github.io/cloudIPrange/squidguard/blacklists.tar.gz
+     ```
+4. Click **Save**.
+5. Switch to the **Blacklist update** tab and click **Download**. pfSense will fetch the archive, unpack categories into `/var/db/squidGuard/`, and compile the Berkeley DB (`.db`) tables.
+6. Under **Common ACL** (or **Group ACL**), expand **Target Rules List** and define desired policies (`deny` or `allow`) for each category (e.g., `adult`, `malware`, `phishing`, `cryptojacking`, `social_networks`).
+7. Click **Save**, then return to **General Settings** and click **Apply** to reload the SquidGuard filter daemon.
 
 ---
 
@@ -181,7 +218,8 @@ cloudIPrange/
 
 ## Acknowledgments
 
-Special thanks to [Enzo Gautier](https://github.com/enzo-g) and the original [enzo-g/azureIPranges](https://github.com/enzo-g/azureIPranges) repository, which served as the foundation and initial inspiration for this project.
+* Special thanks to [Enzo Gautier](https://github.com/enzo-g) and the original [enzo-g/azureIPranges](https://github.com/enzo-g/azureIPranges) repository, which served as the foundation and initial inspiration for this project.
+* Special thanks to **Université Toulouse 1 Capitole (DSI)** for their outstanding, continuous work in curating and maintaining the open SquidGuard web filtering blacklists database.
 
 ---
 

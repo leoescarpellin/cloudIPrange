@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SquidGuard Web Filter Blacklists — Shallalist Successor Mirror (UT1 Capitole)</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-dark: #0369a1;
+            --primary-light: #e0f2fe;
+            --accent: #2563eb;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius: 10px;
+            --shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 30px 16px;
+            background-color: var(--bg);
+            color: var(--text);
+        }
+
+        .container {
+            max-width: 1080px;
+            margin: 0 auto;
+            background-color: var(--card-bg);
+            padding: 36px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .nav-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            background: #f1f5f9;
+            transition: all 0.2s;
+        }
+
+        .nav-back:hover {
+            background: #e2e8f0;
+            color: var(--primary-dark);
+            text-decoration: none;
+        }
+
+        .header {
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 22px;
+            margin-bottom: 24px;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 10px;
+        }
+
+        .header-top i {
+            font-size: 2.4rem;
+            color: var(--primary);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.85rem;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .badges-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-mirror { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+        .badge-univ { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+        .badge-pfsense { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+
+        .attribution-box {
+            background: #fffbeb;
+            border: 1px solid #fcd34d;
+            border-left: 6px solid #f59e0b;
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 24px 0;
+            color: #78350f;
+            font-size: 0.95rem;
+        }
+
+        .attribution-box strong {
+            color: #92400e;
+        }
+
+        .direct-download-card {
+            background: linear-gradient(145deg, #f8fafc, #edf2f7);
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 24px;
+            margin-bottom: 30px;
+        }
+
+        .url-row {
+            margin: 16px 0;
+        }
+
+        .url-row label {
+            display: block;
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: #334155;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .url-input-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .url-input-group input {
+            flex: 1;
+            padding: 12px 14px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 0.95rem;
+            border: 1px solid #94a3b8;
+            border-radius: 6px;
+            background: #ffffff;
+            color: #0f172a;
+        }
+
+        .btn-copy {
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            padding: 0 20px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+
+        .btn-copy:hover {
+            background: var(--primary-dark);
+        }
+
+        .meta-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 16px;
+            font-size: 0.88rem;
+            color: #475569;
+        }
+
+        .meta-stats span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #ffffff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.92rem;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-action-primary {
+            background: #0284c7;
+            color: #ffffff;
+        }
+
+        .btn-action-primary:hover {
+            background: #0369a1;
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .btn-action-secondary {
+            background: #ffffff;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+
+        .btn-action-secondary:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+            text-decoration: none;
+        }
+
+        .section-title {
+            font-size: 1.35rem;
+            color: #0f172a;
+            margin: 32px 0 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 10px;
+        }
+
+        .guide-steps {
+            padding-left: 20px;
+            margin: 16px 0;
+        }
+
+        .guide-steps li {
+            margin-bottom: 14px;
+            line-height: 1.6;
+        }
+
+        code {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: ui-monospace, SFMono-Regular, monospace;
+            font-size: 0.88rem;
+            color: #be123c;
+        }
+
+        .categories-filter-box {
+            margin: 20px 0 14px 0;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .categories-filter-box input {
+            flex: 1;
+            padding: 9px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .categories-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-height: 340px;
+            overflow-y: auto;
+            padding: 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+
+        .cat-pill {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            padding: 4px 10px;
+            border-radius: 14px;
+            font-size: 0.82rem;
+            color: #334155;
+            font-family: ui-monospace, SFMono-Regular, monospace;
+            transition: all 0.15s;
+        }
+
+        .cat-pill:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: #f0f9ff;
+        }
+
+        .tip-callout {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 14px 18px;
+            border-radius: 6px;
+            margin-top: 16px;
+            color: #065f46;
+            font-size: 0.92rem;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            color: var(--text-muted);
+            font-size: 0.88rem;
+        }
+
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="nav-back"><i class="fa-solid fa-arrow-left"></i> Voltar ao Hub Cloud IP Ranges</a>
+
+        <div class="header">
+            <div class="header-top">
+                <i class="fa-solid fa-shield-cat"></i>
+                <div>
+                    <h1>SquidGuard Web Filter Blacklists</h1>
+                    <p style="margin: 4px 0 0 0; color: var(--text-muted); font-size: 0.98rem;">
+                        Espelho Automatizado de Contingência (Shallalist Successor Mirror) para pfSense, Squid e SquidGuard
+                    </p>
+                </div>
+            </div>
+            <div class="badges-bar">
+                <span class="badge badge-mirror"><i class="fa-solid fa-cloud-arrow-down"></i> Mirror de Contingência</span>
+                <span class="badge badge-univ"><i class="fa-solid fa-building-columns"></i> Curadoria Oficial: Université Toulouse 1 Capitole</span>
+                <span class="badge badge-pfsense"><i class="fa-solid fa-shield-halved"></i> 100% Compatível com pfSense & SquidGuard</span>
+            </div>
+        </div>
+
+        <!-- Attribution Box -->
+        <div class="attribution-box">
+            <p style="margin: 0 0 8px 0; font-weight: 700;">
+                <i class="fa-solid fa-circle-info"></i> Créditos Oficiais & Finalidade deste Espelho:
+            </p>
+            <p style="margin: 0;">
+                Esta base de dados é mantida e catalogada oficialmente pela <strong>Direction des Systèmes d'Information da Université Toulouse 1 Capitole (França)</strong>. Este repositório atua estritamente como um <strong>espelho automatizado de contingência (Shallalist Successor Mirror)</strong> para assegurar redundância e blindar administradores de redes contra indisponibilidades e abandono futuro de repositórios (como ocorrido historicamente com a Shallalist). Todos os créditos de catalogação e propriedade intelectual pertencem integralmente à Universidade de Toulouse.
+            </p>
+        </div>
+
+        <!-- Direct Ingestion Card -->
+        <div class="direct-download-card">
+            <div class="url-row">
+                <label for="sgUrlInput"><i class="fa-solid fa-link"></i> URL Direta para Ingestão no pfSense / SquidGuard:</label>
+                <div class="url-input-group">
+                    <input type="text" id="sgUrlInput" readonly value="https://leoescarpellin.github.io/cloudIPrange/squidguard/blacklists.tar.gz">
+                    <button class="btn-copy" onclick="copyUrl()"><i class="fa-regular fa-copy"></i> Copiar URL</button>
+                </div>
+            </div>
+
+            <div class="meta-stats">
+                <span><i class="fa-solid fa-hard-drive"></i> Tamanho: <strong>25.38 MB</strong></span>
+                <span><i class="fa-solid fa-tags"></i> Categorias: <strong>77</strong></span>
+                <span><i class="fa-solid fa-clock"></i> Sincronizado: <strong>2026-11-07 22:06:45 UTC</strong></span>
+                <span><i class="fa-solid fa-fingerprint"></i> SHA-256: <code>702eb1359edadb5b...</code></span>
+            </div>
+
+            <div class="action-buttons">
+                <a href="blacklists.tar.gz" class="btn-action btn-action-primary"><i class="fa-solid fa-download"></i> Baixar blacklists.tar.gz (25.38 MB)</a>
+                <a href="blacklists.tar.gz.sha256" class="btn-action btn-action-secondary" target="_blank"><i class="fa-solid fa-file-shield"></i> Ver Checksum SHA-256</a>
+                <a href="https://dsi.ut-capitole.fr/blacklists/" class="btn-action btn-action-secondary" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Upstream Oficial (UT1 Capitole)</a>
+            </div>
+        </div>
+
+        <!-- pfSense Setup Instructions -->
+        <h2 class="section-title"><i class="fa-solid fa-screwdriver-wrench"></i> Como Configurar no pfSense (Passo a Passo)</h2>
+        <ol class="guide-steps">
+            <li>No menu do pfSense WebGUI, acesse <strong>Services &rarr; SquidGuard Proxy Filter</strong>.</li>
+            <li>Na aba <strong>General Settings</strong>, certifique-se de que o SquidGuard está habilitado (<strong>Enable</strong>).</li>
+            <li>Navegue até a aba <strong>Blacklist</strong>:
+                <ul>
+                    <li>Marque a caixa de seleção <strong>Blacklist</strong> (Enable blacklist).</li>
+                    <li>No campo <strong>Blacklist URL</strong>, cole a URL deste mirror:  
+                        <code>https://leoescarpellin.github.io/cloudIPrange/squidguard/blacklists.tar.gz</code>
+                    </li>
+                </ul>
+            </li>
+            <li>Role até o final da página e clique em <strong>Save</strong>.</li>
+            <li>Acesse a aba <strong>Blacklist update</strong> e clique no botão <strong>Download</strong>. O pfSense fará o download do arquivo, descompactará em <code>/var/db/squidGuard/</code> e compilará as tabelas Berkeley DB (<code>.db</code>). Aguarde até a mensagem de conclusão (<i>Blacklist update complete</i>).</li>
+            <li>Acesse a aba <strong>Common ACL</strong> (ou configure ACLs por grupo em <strong>Group ACL</strong>) e clique no ícone <strong>+</strong> em <strong>Target Rules List</strong>:
+                <ul>
+                    <li>Defina a ação desejada para cada categoria (ex: <code>deny</code> para <i>malware</i>, <i>phishing</i>, <i>adult</i>, <i>cryptojacking</i>, etc.).</li>
+                </ul>
+            </li>
+            <li>Clique em <strong>Save</strong> no final da página.</li>
+            <li>Retorne à aba <strong>General Settings</strong> e clique em <strong>Apply</strong> no topo da tela para carregar as novas regras no proxy ativo.</li>
+        </ol>
+
+        <div class="tip-callout">
+            <i class="fa-solid fa-lightbulb"></i> <strong>Dica de Desempenho & Cron:</strong>  
+            Você pode automatizar a atualização semanal da blacklist no pfSense configurando um agendamento no pacote <strong>Cron</strong> (ex: executando o comando de download/update do SquidGuard aos domingos ou segundas-feiras) para que seu ambiente permaneça protegido sem intervenção manual.
+        </div>
+
+        <!-- Available Categories -->
+        <h2 class="section-title"><i class="fa-solid fa-folder-tree"></i> Categorias Incluídas (77 Categorias)</h2>
+        <div class="categories-filter-box">
+            <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted);"></i>
+            <input type="text" id="catSearchInput" placeholder="Filtrar categorias (ex: malware, social, games, adult)..." onkeyup="filterCategories()">
+        </div>
+        <div class="categories-container" id="catContainer">
+            <span class="cat-pill"><i class="fa-solid fa-tag"></i> ads</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> adult</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> aggressive</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> agressif</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> ai</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> arjel</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> associations_religieuses</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> astrology</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> audio-video</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> bank</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> bitcoin</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> blog</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> celebrity</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> chat</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> child</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> cleaning</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> cooking</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> cryptojacking</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> dangerous_material</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> dating</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> ddos</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> dialer</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> doh</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> download</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> drogue</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> drugs</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> dynamic-dns</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> educational_games</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> examen_pix</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> exceptions_liste_bu</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> fakenews</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> filehosting</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> financial</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> forums</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> gambling</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> games</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> global_usage</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> hacking</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> jobsearch</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> lingerie</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> liste_blanche</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> liste_bu</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> mail</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> malware</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> manga</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> marketingware</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> mixed_adult</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> mobile-phone</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> phishing</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> porn</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> press</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> proxy</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> publicite</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> radio</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> reaffected</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> redirector</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> remote-control</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> residential-proxies</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> sect</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> sexual_education</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> shopping</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> shortener</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> social_networks</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> special</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> sports</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> stalkerware</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> strict_redirector</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> strong_redirector</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> translation</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> tricheur</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> tricheur_pix</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> update</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> violence</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> vpn</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> warez</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> webhosting</span><span class="cat-pill"><i class="fa-solid fa-tag"></i> webmail</span>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div>
+                <span>Espelho de Contingência mantido no projeto <a href="https://github.com/leoescarpellin/cloudIPrange" target="_blank">cloudIPrange</a></span>
+            </div>
+            <div>
+                <a href="../index.html"><i class="fa-solid fa-arrow-left"></i> Retornar ao Hub Principal</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyUrl() {
+            const input = document.getElementById("sgUrlInput");
+            input.select();
+            input.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(input.value).then(() => {
+                const btn = document.querySelector(".btn-copy");
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado!';
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                }, 2000);
+            });
+        }
+
+        function filterCategories() {
+            const filter = document.getElementById("catSearchInput").value.toLowerCase();
+            const pills = document.querySelectorAll(".cat-pill");
+            pills.forEach(pill => {
+                const text = pill.textContent.toLowerCase();
+                if (text.includes(filter)) {
+                    pill.style.display = "inline-flex";
+                } else {
+                    pill.style.display = "none";
+                }
+            });
+        }
+    </script>
+</body>
+</html>
