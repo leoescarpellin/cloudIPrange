@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -74,17 +74,20 @@
             margin-bottom: 20px;
         }
         .search-container {
-            margin-bottom: 20px;
+            margin-bottom: 12px;
             position: relative;
+            display: flex;
+            align-items: center;
         }
         .search-input {
             width: 100%;
-            padding: 12px 16px 12px 42px;
+            padding: 13px 44px 13px 44px;
             font-size: 0.95rem;
             border: 1px solid var(--border);
             border-radius: 6px;
             outline: none;
-            transition: border-color 0.2s;
+            transition: all 0.2s;
+            background: #ffffff;
         }
         .search-input:focus {
             border-color: var(--primary);
@@ -92,10 +95,94 @@
         }
         .search-icon {
             position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
+            left: 15px;
             color: var(--text-muted);
+            font-size: 1rem;
+            pointer-events: none;
+        }
+        .clear-btn {
+            position: absolute;
+            right: 12px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 6px 8px;
+            border-radius: 50%;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+        .clear-btn:hover {
+            background: #eef2f5;
+            color: #0f172a;
+        }
+        .filter-status {
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.88rem;
+            padding: 8px 14px;
+            border-radius: 6px;
+            animation: fadeIn 0.2s ease-in-out;
+        }
+        .status-ip-v4 {
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        .status-ip-v6 {
+            background: #f5f3ff;
+            color: #5b21b6;
+            border: 1px solid #ddd6fe;
+        }
+        .status-loading {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+        .file-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .match-info {
+            display: inline-flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 3px;
+        }
+        .match-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        .match-pill code {
+            background: #d1fae5;
+            color: #047857;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-weight: 600;
+            font-family: ui-monospace, SFMono-Regular, monospace;
+        }
+        .match-pill-v6 {
+            background: #f5f3ff;
+            color: #5b21b6;
+            border-color: #ddd6fe;
+        }
+        .match-pill-v6 code {
+            background: #ede9fe;
+            color: #6d28d9;
         }
         .stats-bar {
             display: flex;
@@ -104,6 +191,8 @@
             font-size: 0.88rem;
             color: var(--text-muted);
             margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
         }
         table {
             width: 100%;
@@ -198,12 +287,14 @@
         
         <div class="search-container">
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
-            <input type="text" id="filterInput" class="search-input" placeholder="Search files (e.g. storage, brazilsouth, ipv4, 168)..." autofocus>
+            <input type="text" id="filterInput" class="search-input" placeholder="Buscar por nome ou endereço IP / CIDR (ex: storage, 20.38.106.12, 13.107.6.0/24)..." autofocus>
+            <button type="button" id="clearBtn" class="clear-btn" style="display:none;" title="Limpar busca"><i class="fa-solid fa-xmark"></i></button>
         </div>
+        <div id="filterStatus" class="filter-status" style="display: none;"></div>
 
         <div class="stats-bar">
-            <span>Showing <strong id="visibleCount">70</strong> of 70 services</span>
-            <span>Compatible with: pfSense, OPNsense, Palo Alto, MikroTik, Fortinet</span>
+            <span>Mostrando <strong id="visibleCount">70</strong> de 70 services</span>
+            <span><i class="fa-solid fa-shield-halved"></i> Compatível com: pfSense, OPNsense, Palo Alto, MikroTik, Fortinet</span>
         </div>
 
         <table>
@@ -217,29 +308,336 @@
                 </tr>
             </thead>
             <tbody id="fileTableBody">
-                <tr class="file-row" data-name="amazon.ipv4.txt 1752"><td><a class="file-name" href="AMAZON.ipv4.txt">AMAZON.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="1,752 CIDRs"><i class="fa-solid fa-list-ol"></i> 1,752</span></td><td class="file-size">26.0 KB</td><td><a class="action-btn" href="AMAZON.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="amazon.ipv6.txt 2358"><td><a class="file-name" href="AMAZON.ipv6.txt">AMAZON.ipv6.txt</a></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="2,358 CIDRs"><i class="fa-solid fa-list-ol"></i> 2,358</span></td><td class="file-size">46.5 KB</td><td><a class="action-btn" href="AMAZON.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="amazon.txt 4110"><td><a class="file-name" href="AMAZON.txt">AMAZON.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="4,110 CIDRs"><i class="fa-solid fa-list-ol"></i> 4,110</span></td><td class="file-size">72.5 KB</td><td><a class="action-btn" href="AMAZON.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="amazon_appflow.ipv4.txt 40"><td><a class="file-name" href="AMAZON_APPFLOW.ipv4.txt">AMAZON_APPFLOW.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="40 CIDRs"><i class="fa-solid fa-list-ol"></i> 40</span></td><td class="file-size">642 B</td><td><a class="action-btn" href="AMAZON_APPFLOW.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="amazon_appflow.txt 40"><td><a class="file-name" href="AMAZON_APPFLOW.txt">AMAZON_APPFLOW.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="40 CIDRs"><i class="fa-solid fa-list-ol"></i> 40</span></td><td class="file-size">642 B</td><td><a class="action-btn" href="AMAZON_APPFLOW.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="amazon_connect.ipv4.txt 9"><td><a class="file-name" href="AMAZON_CONNECT.ipv4.txt">AMAZON_CONNECT.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="9 CIDRs"><i class="fa-solid fa-list-ol"></i> 9</span></td><td class="file-size">142 B</td><td><a class="action-btn" href="AMAZON_CONNECT.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="amazon_connect.ipv6.txt 1"><td><a class="file-name" href="AMAZON_CONNECT.ipv6.txt">AMAZON_CONNECT.ipv6.txt</a></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="1 CIDRs"><i class="fa-solid fa-list-ol"></i> 1</span></td><td class="file-size">20 B</td><td><a class="action-btn" href="AMAZON_CONNECT.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="amazon_connect.txt 10"><td><a class="file-name" href="AMAZON_CONNECT.txt">AMAZON_CONNECT.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="10 CIDRs"><i class="fa-solid fa-list-ol"></i> 10</span></td><td class="file-size">162 B</td><td><a class="action-btn" href="AMAZON_CONNECT.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="api_gateway.ipv4.txt 212"><td><a class="file-name" href="API_GATEWAY.ipv4.txt">API_GATEWAY.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="212 CIDRs"><i class="fa-solid fa-list-ol"></i> 212</span></td><td class="file-size">3.1 KB</td><td><a class="action-btn" href="API_GATEWAY.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="api_gateway.txt 212"><td><a class="file-name" href="API_GATEWAY.txt">API_GATEWAY.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="212 CIDRs"><i class="fa-solid fa-list-ol"></i> 212</span></td><td class="file-size">3.1 KB</td><td><a class="action-btn" href="API_GATEWAY.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="aurora_dsql.ipv4.txt 21"><td><a class="file-name" href="AURORA_DSQL.ipv4.txt">AURORA_DSQL.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="21 CIDRs"><i class="fa-solid fa-list-ol"></i> 21</span></td><td class="file-size">326 B</td><td><a class="action-btn" href="AURORA_DSQL.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="aurora_dsql.ipv6.txt 21"><td><a class="file-name" href="AURORA_DSQL.ipv6.txt">AURORA_DSQL.ipv6.txt</a></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="21 CIDRs"><i class="fa-solid fa-list-ol"></i> 21</span></td><td class="file-size">508 B</td><td><a class="action-btn" href="AURORA_DSQL.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="aurora_dsql.txt 42"><td><a class="file-name" href="AURORA_DSQL.txt">AURORA_DSQL.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="42 CIDRs"><i class="fa-solid fa-list-ol"></i> 42</span></td><td class="file-size">834 B</td><td><a class="action-btn" href="AURORA_DSQL.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="chime_meetings.ipv4.txt 1"><td><a class="file-name" href="CHIME_MEETINGS.ipv4.txt">CHIME_MEETINGS.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="1 CIDRs"><i class="fa-solid fa-list-ol"></i> 1</span></td><td class="file-size">15 B</td><td><a class="action-btn" href="CHIME_MEETINGS.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="chime_meetings.ipv6.txt 1"><td><a class="file-name" href="CHIME_MEETINGS.ipv6.txt">CHIME_MEETINGS.ipv6.txt</a></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="1 CIDRs"><i class="fa-solid fa-list-ol"></i> 1</span></td><td class="file-size">20 B</td><td><a class="action-btn" href="CHIME_MEETINGS.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="chime_meetings.txt 2"><td><a class="file-name" href="CHIME_MEETINGS.txt">CHIME_MEETINGS.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="2 CIDRs"><i class="fa-solid fa-list-ol"></i> 2</span></td><td class="file-size">35 B</td><td><a class="action-btn" href="CHIME_MEETINGS.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="chime_voiceconnector.ipv4.txt 6"><td><a class="file-name" href="CHIME_VOICECONNECTOR.ipv4.txt">CHIME_VOICECONNECTOR.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="6 CIDRs"><i class="fa-solid fa-list-ol"></i> 6</span></td><td class="file-size">88 B</td><td><a class="action-btn" href="CHIME_VOICECONNECTOR.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="chime_voiceconnector.txt 6"><td><a class="file-name" href="CHIME_VOICECONNECTOR.txt">CHIME_VOICECONNECTOR.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="6 CIDRs"><i class="fa-solid fa-list-ol"></i> 6</span></td><td class="file-size">88 B</td><td><a class="action-btn" href="CHIME_VOICECONNECTOR.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="cloud9.ipv4.txt 37"><td><a class="file-name" href="CLOUD9.ipv4.txt">CLOUD9.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="37 CIDRs"><i class="fa-solid fa-list-ol"></i> 37</span></td><td class="file-size">617 B</td><td><a class="action-btn" href="CLOUD9.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="cloud9.txt 37"><td><a class="file-name" href="CLOUD9.txt">CLOUD9.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="37 CIDRs"><i class="fa-solid fa-list-ol"></i> 37</span></td><td class="file-size">617 B</td><td><a class="action-btn" href="CLOUD9.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="cloudfront.ipv4.txt 183"><td><a class="file-name" href="CLOUDFRONT.ipv4.txt">CLOUDFRONT.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="183 CIDRs"><i class="fa-solid fa-list-ol"></i> 183</span></td><td class="file-size">2.8 KB</td><td><a class="action-btn" href="CLOUDFRONT.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="cloudfront.ipv6.txt 33"><td><a class="file-name" href="CLOUDFRONT.ipv6.txt">CLOUDFRONT.ipv6.txt</a></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="33 CIDRs"><i class="fa-solid fa-list-ol"></i> 33</span></td><td class="file-size">653 B</td><td><a class="action-btn" href="CLOUDFRONT.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="cloudfront.txt 216"><td><a class="file-name" href="CLOUDFRONT.txt">CLOUDFRONT.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="216 CIDRs"><i class="fa-solid fa-list-ol"></i> 216</span></td><td class="file-size">3.4 KB</td><td><a class="action-btn" href="CLOUDFRONT.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="cloudfront_origin_facing.ipv4.txt 47"><td><a class="file-name" href="CLOUDFRONT_ORIGIN_FACING.ipv4.txt">CLOUDFRONT_ORIGIN_FACING.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="47 CIDRs"><i class="fa-solid fa-list-ol"></i> 47</span></td><td class="file-size">736 B</td><td><a class="action-btn" href="CLOUDFRONT_ORIGIN_FACING.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="cloudfront_origin_facing.ipv6.txt 37"><td><a class="file-name" href="CLOUDFRONT_ORIGIN_FACING.ipv6.txt">CLOUDFRONT_ORIGIN_FACING.ipv6.txt</a></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="37 CIDRs"><i class="fa-solid fa-list-ol"></i> 37</span></td><td class="file-size">870 B</td><td><a class="action-btn" href="CLOUDFRONT_ORIGIN_FACING.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="cloudfront_origin_facing.txt 84"><td><a class="file-name" href="CLOUDFRONT_ORIGIN_FACING.txt">CLOUDFRONT_ORIGIN_FACING.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="84 CIDRs"><i class="fa-solid fa-list-ol"></i> 84</span></td><td class="file-size">1.6 KB</td><td><a class="action-btn" href="CLOUDFRONT_ORIGIN_FACING.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="codebuild.ipv4.txt 61"><td><a class="file-name" href="CODEBUILD.ipv4.txt">CODEBUILD.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="61 CIDRs"><i class="fa-solid fa-list-ol"></i> 61</span></td><td class="file-size">1008 B</td><td><a class="action-btn" href="CODEBUILD.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="codebuild.txt 61"><td><a class="file-name" href="CODEBUILD.txt">CODEBUILD.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="61 CIDRs"><i class="fa-solid fa-list-ol"></i> 61</span></td><td class="file-size">1008 B</td><td><a class="action-btn" href="CODEBUILD.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="dynamodb.ipv4.txt 29"><td><a class="file-name" href="DYNAMODB.ipv4.txt">DYNAMODB.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="29 CIDRs"><i class="fa-solid fa-list-ol"></i> 29</span></td><td class="file-size">422 B</td><td><a class="action-btn" href="DYNAMODB.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="dynamodb.txt 29"><td><a class="file-name" href="DYNAMODB.txt">DYNAMODB.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="29 CIDRs"><i class="fa-solid fa-list-ol"></i> 29</span></td><td class="file-size">422 B</td><td><a class="action-btn" href="DYNAMODB.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ebs.ipv4.txt 104"><td><a class="file-name" href="EBS.ipv4.txt">EBS.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="104 CIDRs"><i class="fa-solid fa-list-ol"></i> 104</span></td><td class="file-size">1.7 KB</td><td><a class="action-btn" href="EBS.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ebs.txt 104"><td><a class="file-name" href="EBS.txt">EBS.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="104 CIDRs"><i class="fa-solid fa-list-ol"></i> 104</span></td><td class="file-size">1.7 KB</td><td><a class="action-btn" href="EBS.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ec2.ipv4.txt 714"><td><a class="file-name" href="EC2.ipv4.txt">EC2.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="714 CIDRs"><i class="fa-solid fa-list-ol"></i> 714</span></td><td class="file-size">10.0 KB</td><td><a class="action-btn" href="EC2.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ec2.ipv6.txt 1951"><td><a class="file-name" href="EC2.ipv6.txt">EC2.ipv6.txt</a></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="1,951 CIDRs"><i class="fa-solid fa-list-ol"></i> 1,951</span></td><td class="file-size">38.4 KB</td><td><a class="action-btn" href="EC2.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ec2.txt 2665"><td><a class="file-name" href="EC2.txt">EC2.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="2,665 CIDRs"><i class="fa-solid fa-list-ol"></i> 2,665</span></td><td class="file-size">48.5 KB</td><td><a class="action-btn" href="EC2.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ec2_instance_connect.ipv4.txt 37"><td><a class="file-name" href="EC2_INSTANCE_CONNECT.ipv4.txt">EC2_INSTANCE_CONNECT.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="37 CIDRs"><i class="fa-solid fa-list-ol"></i> 37</span></td><td class="file-size">591 B</td><td><a class="action-btn" href="EC2_INSTANCE_CONNECT.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ec2_instance_connect.ipv6.txt 37"><td><a class="file-name" href="EC2_INSTANCE_CONNECT.ipv6.txt">EC2_INSTANCE_CONNECT.ipv6.txt</a></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="37 CIDRs"><i class="fa-solid fa-list-ol"></i> 37</span></td><td class="file-size">895 B</td><td><a class="action-btn" href="EC2_INSTANCE_CONNECT.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ec2_instance_connect.txt 74"><td><a class="file-name" href="EC2_INSTANCE_CONNECT.txt">EC2_INSTANCE_CONNECT.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="74 CIDRs"><i class="fa-solid fa-list-ol"></i> 74</span></td><td class="file-size">1.5 KB</td><td><a class="action-btn" href="EC2_INSTANCE_CONNECT.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="efs.ipv4.txt 81"><td><a class="file-name" href="EFS.ipv4.txt">EFS.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="81 CIDRs"><i class="fa-solid fa-list-ol"></i> 81</span></td><td class="file-size">1.2 KB</td><td><a class="action-btn" href="EFS.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="efs.ipv6.txt 94"><td><a class="file-name" href="EFS.ipv6.txt">EFS.ipv6.txt</a></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="94 CIDRs"><i class="fa-solid fa-list-ol"></i> 94</span></td><td class="file-size">2.2 KB</td><td><a class="action-btn" href="EFS.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="efs.txt 175"><td><a class="file-name" href="EFS.txt">EFS.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="175 CIDRs"><i class="fa-solid fa-list-ol"></i> 175</span></td><td class="file-size">3.5 KB</td><td><a class="action-btn" href="EFS.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="globalaccelerator.ipv4.txt 48"><td><a class="file-name" href="GLOBALACCELERATOR.ipv4.txt">GLOBALACCELERATOR.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="48 CIDRs"><i class="fa-solid fa-list-ol"></i> 48</span></td><td class="file-size">691 B</td><td><a class="action-btn" href="GLOBALACCELERATOR.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="globalaccelerator.ipv6.txt 23"><td><a class="file-name" href="GLOBALACCELERATOR.ipv6.txt">GLOBALACCELERATOR.ipv6.txt</a></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="23 CIDRs"><i class="fa-solid fa-list-ol"></i> 23</span></td><td class="file-size">460 B</td><td><a class="action-btn" href="GLOBALACCELERATOR.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="globalaccelerator.txt 71"><td><a class="file-name" href="GLOBALACCELERATOR.txt">GLOBALACCELERATOR.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="71 CIDRs"><i class="fa-solid fa-list-ol"></i> 71</span></td><td class="file-size">1.1 KB</td><td><a class="action-btn" href="GLOBALACCELERATOR.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ivs_low_latency.ipv4.txt 1"><td><a class="file-name" href="IVS_LOW_LATENCY.ipv4.txt">IVS_LOW_LATENCY.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="1 CIDRs"><i class="fa-solid fa-list-ol"></i> 1</span></td><td class="file-size">13 B</td><td><a class="action-btn" href="IVS_LOW_LATENCY.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ivs_low_latency.ipv6.txt 1"><td><a class="file-name" href="IVS_LOW_LATENCY.ipv6.txt">IVS_LOW_LATENCY.ipv6.txt</a></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="1 CIDRs"><i class="fa-solid fa-list-ol"></i> 1</span></td><td class="file-size">20 B</td><td><a class="action-btn" href="IVS_LOW_LATENCY.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ivs_low_latency.txt 2"><td><a class="file-name" href="IVS_LOW_LATENCY.txt">IVS_LOW_LATENCY.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="2 CIDRs"><i class="fa-solid fa-list-ol"></i> 2</span></td><td class="file-size">33 B</td><td><a class="action-btn" href="IVS_LOW_LATENCY.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ivs_realtime.ipv4.txt 42"><td><a class="file-name" href="IVS_REALTIME.ipv4.txt">IVS_REALTIME.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="42 CIDRs"><i class="fa-solid fa-list-ol"></i> 42</span></td><td class="file-size">620 B</td><td><a class="action-btn" href="IVS_REALTIME.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ivs_realtime.ipv6.txt 29"><td><a class="file-name" href="IVS_REALTIME.ipv6.txt">IVS_REALTIME.ipv6.txt</a></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="29 CIDRs"><i class="fa-solid fa-list-ol"></i> 29</span></td><td class="file-size">565 B</td><td><a class="action-btn" href="IVS_REALTIME.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ivs_realtime.txt 71"><td><a class="file-name" href="IVS_REALTIME.txt">IVS_REALTIME.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="71 CIDRs"><i class="fa-solid fa-list-ol"></i> 71</span></td><td class="file-size">1.2 KB</td><td><a class="action-btn" href="IVS_REALTIME.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="kinesis_video_streams.ipv4.txt 69"><td><a class="file-name" href="KINESIS_VIDEO_STREAMS.ipv4.txt">KINESIS_VIDEO_STREAMS.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="69 CIDRs"><i class="fa-solid fa-list-ol"></i> 69</span></td><td class="file-size">1.1 KB</td><td><a class="action-btn" href="KINESIS_VIDEO_STREAMS.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="kinesis_video_streams.txt 69"><td><a class="file-name" href="KINESIS_VIDEO_STREAMS.txt">KINESIS_VIDEO_STREAMS.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="69 CIDRs"><i class="fa-solid fa-list-ol"></i> 69</span></td><td class="file-size">1.1 KB</td><td><a class="action-btn" href="KINESIS_VIDEO_STREAMS.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="media_package_v2.ipv4.txt 44"><td><a class="file-name" href="MEDIA_PACKAGE_V2.ipv4.txt">MEDIA_PACKAGE_V2.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="44 CIDRs"><i class="fa-solid fa-list-ol"></i> 44</span></td><td class="file-size">736 B</td><td><a class="action-btn" href="MEDIA_PACKAGE_V2.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="media_package_v2.txt 44"><td><a class="file-name" href="MEDIA_PACKAGE_V2.txt">MEDIA_PACKAGE_V2.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="44 CIDRs"><i class="fa-solid fa-list-ol"></i> 44</span></td><td class="file-size">736 B</td><td><a class="action-btn" href="MEDIA_PACKAGE_V2.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="route53.ipv4.txt 18"><td><a class="file-name" href="ROUTE53.ipv4.txt">ROUTE53.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="18 CIDRs"><i class="fa-solid fa-list-ol"></i> 18</span></td><td class="file-size">269 B</td><td><a class="action-btn" href="ROUTE53.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="route53.ipv6.txt 11"><td><a class="file-name" href="ROUTE53.ipv6.txt">ROUTE53.ipv6.txt</a></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="11 CIDRs"><i class="fa-solid fa-list-ol"></i> 11</span></td><td class="file-size">213 B</td><td><a class="action-btn" href="ROUTE53.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="route53.txt 29"><td><a class="file-name" href="ROUTE53.txt">ROUTE53.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="29 CIDRs"><i class="fa-solid fa-list-ol"></i> 29</span></td><td class="file-size">482 B</td><td><a class="action-btn" href="ROUTE53.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="route53_healthchecks.ipv4.txt 27"><td><a class="file-name" href="ROUTE53_HEALTHCHECKS.ipv4.txt">ROUTE53_HEALTHCHECKS.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="27 CIDRs"><i class="fa-solid fa-list-ol"></i> 27</span></td><td class="file-size">435 B</td><td><a class="action-btn" href="ROUTE53_HEALTHCHECKS.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="route53_healthchecks.ipv6.txt 23"><td><a class="file-name" href="ROUTE53_HEALTHCHECKS.ipv6.txt">ROUTE53_HEALTHCHECKS.ipv6.txt</a></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="23 CIDRs"><i class="fa-solid fa-list-ol"></i> 23</span></td><td class="file-size">547 B</td><td><a class="action-btn" href="ROUTE53_HEALTHCHECKS.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="route53_healthchecks.txt 50"><td><a class="file-name" href="ROUTE53_HEALTHCHECKS.txt">ROUTE53_HEALTHCHECKS.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="50 CIDRs"><i class="fa-solid fa-list-ol"></i> 50</span></td><td class="file-size">982 B</td><td><a class="action-btn" href="ROUTE53_HEALTHCHECKS.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="route53_healthchecks_publishing.ipv4.txt 5"><td><a class="file-name" href="ROUTE53_HEALTHCHECKS_PUBLISHING.ipv4.txt">ROUTE53_HEALTHCHECKS_PUBLISHING.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="5 CIDRs"><i class="fa-solid fa-list-ol"></i> 5</span></td><td class="file-size">78 B</td><td><a class="action-btn" href="ROUTE53_HEALTHCHECKS_PUBLISHING.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="route53_healthchecks_publishing.txt 5"><td><a class="file-name" href="ROUTE53_HEALTHCHECKS_PUBLISHING.txt">ROUTE53_HEALTHCHECKS_PUBLISHING.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="5 CIDRs"><i class="fa-solid fa-list-ol"></i> 5</span></td><td class="file-size">78 B</td><td><a class="action-btn" href="ROUTE53_HEALTHCHECKS_PUBLISHING.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="route53_resolver.ipv4.txt 418"><td><a class="file-name" href="ROUTE53_RESOLVER.ipv4.txt">ROUTE53_RESOLVER.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="418 CIDRs"><i class="fa-solid fa-list-ol"></i> 418</span></td><td class="file-size">6.5 KB</td><td><a class="action-btn" href="ROUTE53_RESOLVER.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="route53_resolver.txt 418"><td><a class="file-name" href="ROUTE53_RESOLVER.txt">ROUTE53_RESOLVER.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="418 CIDRs"><i class="fa-solid fa-list-ol"></i> 418</span></td><td class="file-size">6.5 KB</td><td><a class="action-btn" href="ROUTE53_RESOLVER.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="s3.ipv4.txt 172"><td><a class="file-name" href="S3.ipv4.txt">S3.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="172 CIDRs"><i class="fa-solid fa-list-ol"></i> 172</span></td><td class="file-size">2.5 KB</td><td><a class="action-btn" href="S3.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="s3.ipv6.txt 573"><td><a class="file-name" href="S3.ipv6.txt">S3.ipv6.txt</a></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="573 CIDRs"><i class="fa-solid fa-list-ol"></i> 573</span></td><td class="file-size">11.2 KB</td><td><a class="action-btn" href="S3.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="s3.txt 745"><td><a class="file-name" href="S3.txt">S3.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="745 CIDRs"><i class="fa-solid fa-list-ol"></i> 745</span></td><td class="file-size">13.7 KB</td><td><a class="action-btn" href="S3.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="workspaces_gateways.ipv4.txt 69"><td><a class="file-name" href="WORKSPACES_GATEWAYS.ipv4.txt">WORKSPACES_GATEWAYS.ipv4.txt</a></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="69 CIDRs"><i class="fa-solid fa-list-ol"></i> 69</span></td><td class="file-size">1.0 KB</td><td><a class="action-btn" href="WORKSPACES_GATEWAYS.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="workspaces_gateways.ipv6.txt 43"><td><a class="file-name" href="WORKSPACES_GATEWAYS.ipv6.txt">WORKSPACES_GATEWAYS.ipv6.txt</a></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="43 CIDRs"><i class="fa-solid fa-list-ol"></i> 43</span></td><td class="file-size">809 B</td><td><a class="action-btn" href="WORKSPACES_GATEWAYS.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="workspaces_gateways.txt 112"><td><a class="file-name" href="WORKSPACES_GATEWAYS.txt">WORKSPACES_GATEWAYS.txt</a></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="112 CIDRs"><i class="fa-solid fa-list-ol"></i> 112</span></td><td class="file-size">1.8 KB</td><td><a class="action-btn" href="WORKSPACES_GATEWAYS.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr>
+                <tr class="file-row" data-name="amazon.ipv4.txt 1753" data-base="AMAZON" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="AMAZON.ipv4.txt">AMAZON.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="1,753 CIDRs"><i class="fa-solid fa-list-ol"></i> 1,753</span></td><td class="file-size">27.7 KB</td><td><a class="action-btn" href="AMAZON.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="amazon.ipv6.txt 2364" data-base="AMAZON" data-type="ipv6"><td><div class="file-cell"><a class="file-name" href="AMAZON.ipv6.txt">AMAZON.ipv6.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="2,364 CIDRs"><i class="fa-solid fa-list-ol"></i> 2,364</span></td><td class="file-size">49.0 KB</td><td><a class="action-btn" href="AMAZON.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="amazon.txt 4117" data-base="AMAZON" data-type="both"><td><div class="file-cell"><a class="file-name" href="AMAZON.txt">AMAZON.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="4,117 CIDRs"><i class="fa-solid fa-list-ol"></i> 4,117</span></td><td class="file-size">76.7 KB</td><td><a class="action-btn" href="AMAZON.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="amazon_appflow.ipv4.txt 40" data-base="AMAZON_APPFLOW" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="AMAZON_APPFLOW.ipv4.txt">AMAZON_APPFLOW.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="40 CIDRs"><i class="fa-solid fa-list-ol"></i> 40</span></td><td class="file-size">682 B</td><td><a class="action-btn" href="AMAZON_APPFLOW.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="amazon_appflow.txt 40" data-base="AMAZON_APPFLOW" data-type="both"><td><div class="file-cell"><a class="file-name" href="AMAZON_APPFLOW.txt">AMAZON_APPFLOW.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="40 CIDRs"><i class="fa-solid fa-list-ol"></i> 40</span></td><td class="file-size">682 B</td><td><a class="action-btn" href="AMAZON_APPFLOW.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="amazon_connect.ipv4.txt 9" data-base="AMAZON_CONNECT" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="AMAZON_CONNECT.ipv4.txt">AMAZON_CONNECT.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="9 CIDRs"><i class="fa-solid fa-list-ol"></i> 9</span></td><td class="file-size">151 B</td><td><a class="action-btn" href="AMAZON_CONNECT.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="amazon_connect.ipv6.txt 1" data-base="AMAZON_CONNECT" data-type="ipv6"><td><div class="file-cell"><a class="file-name" href="AMAZON_CONNECT.ipv6.txt">AMAZON_CONNECT.ipv6.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="1 CIDRs"><i class="fa-solid fa-list-ol"></i> 1</span></td><td class="file-size">21 B</td><td><a class="action-btn" href="AMAZON_CONNECT.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="amazon_connect.txt 10" data-base="AMAZON_CONNECT" data-type="both"><td><div class="file-cell"><a class="file-name" href="AMAZON_CONNECT.txt">AMAZON_CONNECT.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="10 CIDRs"><i class="fa-solid fa-list-ol"></i> 10</span></td><td class="file-size">172 B</td><td><a class="action-btn" href="AMAZON_CONNECT.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="api_gateway.ipv4.txt 212" data-base="API_GATEWAY" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="API_GATEWAY.ipv4.txt">API_GATEWAY.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="212 CIDRs"><i class="fa-solid fa-list-ol"></i> 212</span></td><td class="file-size">3.3 KB</td><td><a class="action-btn" href="API_GATEWAY.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="api_gateway.txt 212" data-base="API_GATEWAY" data-type="both"><td><div class="file-cell"><a class="file-name" href="API_GATEWAY.txt">API_GATEWAY.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="212 CIDRs"><i class="fa-solid fa-list-ol"></i> 212</span></td><td class="file-size">3.3 KB</td><td><a class="action-btn" href="API_GATEWAY.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="aurora_dsql.ipv4.txt 21" data-base="AURORA_DSQL" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="AURORA_DSQL.ipv4.txt">AURORA_DSQL.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="21 CIDRs"><i class="fa-solid fa-list-ol"></i> 21</span></td><td class="file-size">347 B</td><td><a class="action-btn" href="AURORA_DSQL.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="aurora_dsql.ipv6.txt 21" data-base="AURORA_DSQL" data-type="ipv6"><td><div class="file-cell"><a class="file-name" href="AURORA_DSQL.ipv6.txt">AURORA_DSQL.ipv6.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="21 CIDRs"><i class="fa-solid fa-list-ol"></i> 21</span></td><td class="file-size">529 B</td><td><a class="action-btn" href="AURORA_DSQL.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="aurora_dsql.txt 42" data-base="AURORA_DSQL" data-type="both"><td><div class="file-cell"><a class="file-name" href="AURORA_DSQL.txt">AURORA_DSQL.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="42 CIDRs"><i class="fa-solid fa-list-ol"></i> 42</span></td><td class="file-size">876 B</td><td><a class="action-btn" href="AURORA_DSQL.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="chime_meetings.ipv4.txt 1" data-base="CHIME_MEETINGS" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="CHIME_MEETINGS.ipv4.txt">CHIME_MEETINGS.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="1 CIDRs"><i class="fa-solid fa-list-ol"></i> 1</span></td><td class="file-size">16 B</td><td><a class="action-btn" href="CHIME_MEETINGS.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="chime_meetings.ipv6.txt 1" data-base="CHIME_MEETINGS" data-type="ipv6"><td><div class="file-cell"><a class="file-name" href="CHIME_MEETINGS.ipv6.txt">CHIME_MEETINGS.ipv6.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="1 CIDRs"><i class="fa-solid fa-list-ol"></i> 1</span></td><td class="file-size">21 B</td><td><a class="action-btn" href="CHIME_MEETINGS.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="chime_meetings.txt 2" data-base="CHIME_MEETINGS" data-type="both"><td><div class="file-cell"><a class="file-name" href="CHIME_MEETINGS.txt">CHIME_MEETINGS.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="2 CIDRs"><i class="fa-solid fa-list-ol"></i> 2</span></td><td class="file-size">37 B</td><td><a class="action-btn" href="CHIME_MEETINGS.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="chime_voiceconnector.ipv4.txt 6" data-base="CHIME_VOICECONNECTOR" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="CHIME_VOICECONNECTOR.ipv4.txt">CHIME_VOICECONNECTOR.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="6 CIDRs"><i class="fa-solid fa-list-ol"></i> 6</span></td><td class="file-size">94 B</td><td><a class="action-btn" href="CHIME_VOICECONNECTOR.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="chime_voiceconnector.txt 6" data-base="CHIME_VOICECONNECTOR" data-type="both"><td><div class="file-cell"><a class="file-name" href="CHIME_VOICECONNECTOR.txt">CHIME_VOICECONNECTOR.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="6 CIDRs"><i class="fa-solid fa-list-ol"></i> 6</span></td><td class="file-size">94 B</td><td><a class="action-btn" href="CHIME_VOICECONNECTOR.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="cloud9.ipv4.txt 37" data-base="CLOUD9" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="CLOUD9.ipv4.txt">CLOUD9.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="37 CIDRs"><i class="fa-solid fa-list-ol"></i> 37</span></td><td class="file-size">654 B</td><td><a class="action-btn" href="CLOUD9.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="cloud9.txt 37" data-base="CLOUD9" data-type="both"><td><div class="file-cell"><a class="file-name" href="CLOUD9.txt">CLOUD9.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="37 CIDRs"><i class="fa-solid fa-list-ol"></i> 37</span></td><td class="file-size">654 B</td><td><a class="action-btn" href="CLOUD9.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="cloudfront.ipv4.txt 183" data-base="CLOUDFRONT" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="CLOUDFRONT.ipv4.txt">CLOUDFRONT.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="183 CIDRs"><i class="fa-solid fa-list-ol"></i> 183</span></td><td class="file-size">3.0 KB</td><td><a class="action-btn" href="CLOUDFRONT.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="cloudfront.ipv6.txt 33" data-base="CLOUDFRONT" data-type="ipv6"><td><div class="file-cell"><a class="file-name" href="CLOUDFRONT.ipv6.txt">CLOUDFRONT.ipv6.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="33 CIDRs"><i class="fa-solid fa-list-ol"></i> 33</span></td><td class="file-size">686 B</td><td><a class="action-btn" href="CLOUDFRONT.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="cloudfront.txt 216" data-base="CLOUDFRONT" data-type="both"><td><div class="file-cell"><a class="file-name" href="CLOUDFRONT.txt">CLOUDFRONT.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="216 CIDRs"><i class="fa-solid fa-list-ol"></i> 216</span></td><td class="file-size">3.6 KB</td><td><a class="action-btn" href="CLOUDFRONT.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="cloudfront_origin_facing.ipv4.txt 47" data-base="CLOUDFRONT_ORIGIN_FACING" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="CLOUDFRONT_ORIGIN_FACING.ipv4.txt">CLOUDFRONT_ORIGIN_FACING.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="47 CIDRs"><i class="fa-solid fa-list-ol"></i> 47</span></td><td class="file-size">783 B</td><td><a class="action-btn" href="CLOUDFRONT_ORIGIN_FACING.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="cloudfront_origin_facing.ipv6.txt 37" data-base="CLOUDFRONT_ORIGIN_FACING" data-type="ipv6"><td><div class="file-cell"><a class="file-name" href="CLOUDFRONT_ORIGIN_FACING.ipv6.txt">CLOUDFRONT_ORIGIN_FACING.ipv6.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="37 CIDRs"><i class="fa-solid fa-list-ol"></i> 37</span></td><td class="file-size">907 B</td><td><a class="action-btn" href="CLOUDFRONT_ORIGIN_FACING.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="cloudfront_origin_facing.txt 84" data-base="CLOUDFRONT_ORIGIN_FACING" data-type="both"><td><div class="file-cell"><a class="file-name" href="CLOUDFRONT_ORIGIN_FACING.txt">CLOUDFRONT_ORIGIN_FACING.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="84 CIDRs"><i class="fa-solid fa-list-ol"></i> 84</span></td><td class="file-size">1.7 KB</td><td><a class="action-btn" href="CLOUDFRONT_ORIGIN_FACING.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="codebuild.ipv4.txt 61" data-base="CODEBUILD" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="CODEBUILD.ipv4.txt">CODEBUILD.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="61 CIDRs"><i class="fa-solid fa-list-ol"></i> 61</span></td><td class="file-size">1.0 KB</td><td><a class="action-btn" href="CODEBUILD.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="codebuild.txt 61" data-base="CODEBUILD" data-type="both"><td><div class="file-cell"><a class="file-name" href="CODEBUILD.txt">CODEBUILD.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="61 CIDRs"><i class="fa-solid fa-list-ol"></i> 61</span></td><td class="file-size">1.0 KB</td><td><a class="action-btn" href="CODEBUILD.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="dynamodb.ipv4.txt 29" data-base="DYNAMODB" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="DYNAMODB.ipv4.txt">DYNAMODB.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="29 CIDRs"><i class="fa-solid fa-list-ol"></i> 29</span></td><td class="file-size">451 B</td><td><a class="action-btn" href="DYNAMODB.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="dynamodb.txt 29" data-base="DYNAMODB" data-type="both"><td><div class="file-cell"><a class="file-name" href="DYNAMODB.txt">DYNAMODB.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="29 CIDRs"><i class="fa-solid fa-list-ol"></i> 29</span></td><td class="file-size">451 B</td><td><a class="action-btn" href="DYNAMODB.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ebs.ipv4.txt 104" data-base="EBS" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="EBS.ipv4.txt">EBS.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="104 CIDRs"><i class="fa-solid fa-list-ol"></i> 104</span></td><td class="file-size">1.8 KB</td><td><a class="action-btn" href="EBS.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ebs.txt 104" data-base="EBS" data-type="both"><td><div class="file-cell"><a class="file-name" href="EBS.txt">EBS.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="104 CIDRs"><i class="fa-solid fa-list-ol"></i> 104</span></td><td class="file-size">1.8 KB</td><td><a class="action-btn" href="EBS.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ec2.ipv4.txt 715" data-base="EC2" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="EC2.ipv4.txt">EC2.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="715 CIDRs"><i class="fa-solid fa-list-ol"></i> 715</span></td><td class="file-size">10.8 KB</td><td><a class="action-btn" href="EC2.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ec2.ipv6.txt 1957" data-base="EC2" data-type="ipv6"><td><div class="file-cell"><a class="file-name" href="EC2.ipv6.txt">EC2.ipv6.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="1,957 CIDRs"><i class="fa-solid fa-list-ol"></i> 1,957</span></td><td class="file-size">40.4 KB</td><td><a class="action-btn" href="EC2.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ec2.txt 2672" data-base="EC2" data-type="both"><td><div class="file-cell"><a class="file-name" href="EC2.txt">EC2.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="2,672 CIDRs"><i class="fa-solid fa-list-ol"></i> 2,672</span></td><td class="file-size">51.2 KB</td><td><a class="action-btn" href="EC2.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ec2_instance_connect.ipv4.txt 37" data-base="EC2_INSTANCE_CONNECT" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="EC2_INSTANCE_CONNECT.ipv4.txt">EC2_INSTANCE_CONNECT.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="37 CIDRs"><i class="fa-solid fa-list-ol"></i> 37</span></td><td class="file-size">628 B</td><td><a class="action-btn" href="EC2_INSTANCE_CONNECT.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ec2_instance_connect.ipv6.txt 37" data-base="EC2_INSTANCE_CONNECT" data-type="ipv6"><td><div class="file-cell"><a class="file-name" href="EC2_INSTANCE_CONNECT.ipv6.txt">EC2_INSTANCE_CONNECT.ipv6.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="37 CIDRs"><i class="fa-solid fa-list-ol"></i> 37</span></td><td class="file-size">932 B</td><td><a class="action-btn" href="EC2_INSTANCE_CONNECT.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ec2_instance_connect.txt 74" data-base="EC2_INSTANCE_CONNECT" data-type="both"><td><div class="file-cell"><a class="file-name" href="EC2_INSTANCE_CONNECT.txt">EC2_INSTANCE_CONNECT.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="74 CIDRs"><i class="fa-solid fa-list-ol"></i> 74</span></td><td class="file-size">1.5 KB</td><td><a class="action-btn" href="EC2_INSTANCE_CONNECT.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="efs.ipv4.txt 81" data-base="EFS" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="EFS.ipv4.txt">EFS.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="81 CIDRs"><i class="fa-solid fa-list-ol"></i> 81</span></td><td class="file-size">1.3 KB</td><td><a class="action-btn" href="EFS.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="efs.ipv6.txt 94" data-base="EFS" data-type="ipv6"><td><div class="file-cell"><a class="file-name" href="EFS.ipv6.txt">EFS.ipv6.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="94 CIDRs"><i class="fa-solid fa-list-ol"></i> 94</span></td><td class="file-size">2.3 KB</td><td><a class="action-btn" href="EFS.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="efs.txt 175" data-base="EFS" data-type="both"><td><div class="file-cell"><a class="file-name" href="EFS.txt">EFS.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="175 CIDRs"><i class="fa-solid fa-list-ol"></i> 175</span></td><td class="file-size">3.7 KB</td><td><a class="action-btn" href="EFS.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="globalaccelerator.ipv4.txt 48" data-base="GLOBALACCELERATOR" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="GLOBALACCELERATOR.ipv4.txt">GLOBALACCELERATOR.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="48 CIDRs"><i class="fa-solid fa-list-ol"></i> 48</span></td><td class="file-size">739 B</td><td><a class="action-btn" href="GLOBALACCELERATOR.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="globalaccelerator.ipv6.txt 23" data-base="GLOBALACCELERATOR" data-type="ipv6"><td><div class="file-cell"><a class="file-name" href="GLOBALACCELERATOR.ipv6.txt">GLOBALACCELERATOR.ipv6.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="23 CIDRs"><i class="fa-solid fa-list-ol"></i> 23</span></td><td class="file-size">483 B</td><td><a class="action-btn" href="GLOBALACCELERATOR.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="globalaccelerator.txt 71" data-base="GLOBALACCELERATOR" data-type="both"><td><div class="file-cell"><a class="file-name" href="GLOBALACCELERATOR.txt">GLOBALACCELERATOR.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="71 CIDRs"><i class="fa-solid fa-list-ol"></i> 71</span></td><td class="file-size">1.2 KB</td><td><a class="action-btn" href="GLOBALACCELERATOR.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ivs_low_latency.ipv4.txt 1" data-base="IVS_LOW_LATENCY" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="IVS_LOW_LATENCY.ipv4.txt">IVS_LOW_LATENCY.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="1 CIDRs"><i class="fa-solid fa-list-ol"></i> 1</span></td><td class="file-size">14 B</td><td><a class="action-btn" href="IVS_LOW_LATENCY.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ivs_low_latency.ipv6.txt 1" data-base="IVS_LOW_LATENCY" data-type="ipv6"><td><div class="file-cell"><a class="file-name" href="IVS_LOW_LATENCY.ipv6.txt">IVS_LOW_LATENCY.ipv6.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="1 CIDRs"><i class="fa-solid fa-list-ol"></i> 1</span></td><td class="file-size">21 B</td><td><a class="action-btn" href="IVS_LOW_LATENCY.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ivs_low_latency.txt 2" data-base="IVS_LOW_LATENCY" data-type="both"><td><div class="file-cell"><a class="file-name" href="IVS_LOW_LATENCY.txt">IVS_LOW_LATENCY.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="2 CIDRs"><i class="fa-solid fa-list-ol"></i> 2</span></td><td class="file-size">35 B</td><td><a class="action-btn" href="IVS_LOW_LATENCY.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ivs_realtime.ipv4.txt 42" data-base="IVS_REALTIME" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="IVS_REALTIME.ipv4.txt">IVS_REALTIME.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="42 CIDRs"><i class="fa-solid fa-list-ol"></i> 42</span></td><td class="file-size">662 B</td><td><a class="action-btn" href="IVS_REALTIME.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ivs_realtime.ipv6.txt 29" data-base="IVS_REALTIME" data-type="ipv6"><td><div class="file-cell"><a class="file-name" href="IVS_REALTIME.ipv6.txt">IVS_REALTIME.ipv6.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="29 CIDRs"><i class="fa-solid fa-list-ol"></i> 29</span></td><td class="file-size">594 B</td><td><a class="action-btn" href="IVS_REALTIME.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="ivs_realtime.txt 71" data-base="IVS_REALTIME" data-type="both"><td><div class="file-cell"><a class="file-name" href="IVS_REALTIME.txt">IVS_REALTIME.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="71 CIDRs"><i class="fa-solid fa-list-ol"></i> 71</span></td><td class="file-size">1.2 KB</td><td><a class="action-btn" href="IVS_REALTIME.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="kinesis_video_streams.ipv4.txt 69" data-base="KINESIS_VIDEO_STREAMS" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="KINESIS_VIDEO_STREAMS.ipv4.txt">KINESIS_VIDEO_STREAMS.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="69 CIDRs"><i class="fa-solid fa-list-ol"></i> 69</span></td><td class="file-size">1.2 KB</td><td><a class="action-btn" href="KINESIS_VIDEO_STREAMS.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="kinesis_video_streams.txt 69" data-base="KINESIS_VIDEO_STREAMS" data-type="both"><td><div class="file-cell"><a class="file-name" href="KINESIS_VIDEO_STREAMS.txt">KINESIS_VIDEO_STREAMS.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="69 CIDRs"><i class="fa-solid fa-list-ol"></i> 69</span></td><td class="file-size">1.2 KB</td><td><a class="action-btn" href="KINESIS_VIDEO_STREAMS.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="media_package_v2.ipv4.txt 44" data-base="MEDIA_PACKAGE_V2" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="MEDIA_PACKAGE_V2.ipv4.txt">MEDIA_PACKAGE_V2.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="44 CIDRs"><i class="fa-solid fa-list-ol"></i> 44</span></td><td class="file-size">780 B</td><td><a class="action-btn" href="MEDIA_PACKAGE_V2.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="media_package_v2.txt 44" data-base="MEDIA_PACKAGE_V2" data-type="both"><td><div class="file-cell"><a class="file-name" href="MEDIA_PACKAGE_V2.txt">MEDIA_PACKAGE_V2.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="44 CIDRs"><i class="fa-solid fa-list-ol"></i> 44</span></td><td class="file-size">780 B</td><td><a class="action-btn" href="MEDIA_PACKAGE_V2.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="route53.ipv4.txt 18" data-base="ROUTE53" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="ROUTE53.ipv4.txt">ROUTE53.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="18 CIDRs"><i class="fa-solid fa-list-ol"></i> 18</span></td><td class="file-size">287 B</td><td><a class="action-btn" href="ROUTE53.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="route53.ipv6.txt 11" data-base="ROUTE53" data-type="ipv6"><td><div class="file-cell"><a class="file-name" href="ROUTE53.ipv6.txt">ROUTE53.ipv6.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="11 CIDRs"><i class="fa-solid fa-list-ol"></i> 11</span></td><td class="file-size">224 B</td><td><a class="action-btn" href="ROUTE53.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="route53.txt 29" data-base="ROUTE53" data-type="both"><td><div class="file-cell"><a class="file-name" href="ROUTE53.txt">ROUTE53.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="29 CIDRs"><i class="fa-solid fa-list-ol"></i> 29</span></td><td class="file-size">511 B</td><td><a class="action-btn" href="ROUTE53.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="route53_healthchecks.ipv4.txt 27" data-base="ROUTE53_HEALTHCHECKS" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="ROUTE53_HEALTHCHECKS.ipv4.txt">ROUTE53_HEALTHCHECKS.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="27 CIDRs"><i class="fa-solid fa-list-ol"></i> 27</span></td><td class="file-size">462 B</td><td><a class="action-btn" href="ROUTE53_HEALTHCHECKS.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="route53_healthchecks.ipv6.txt 23" data-base="ROUTE53_HEALTHCHECKS" data-type="ipv6"><td><div class="file-cell"><a class="file-name" href="ROUTE53_HEALTHCHECKS.ipv6.txt">ROUTE53_HEALTHCHECKS.ipv6.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="23 CIDRs"><i class="fa-solid fa-list-ol"></i> 23</span></td><td class="file-size">570 B</td><td><a class="action-btn" href="ROUTE53_HEALTHCHECKS.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="route53_healthchecks.txt 50" data-base="ROUTE53_HEALTHCHECKS" data-type="both"><td><div class="file-cell"><a class="file-name" href="ROUTE53_HEALTHCHECKS.txt">ROUTE53_HEALTHCHECKS.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="50 CIDRs"><i class="fa-solid fa-list-ol"></i> 50</span></td><td class="file-size">1.0 KB</td><td><a class="action-btn" href="ROUTE53_HEALTHCHECKS.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="route53_healthchecks_publishing.ipv4.txt 5" data-base="ROUTE53_HEALTHCHECKS_PUBLISHING" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="ROUTE53_HEALTHCHECKS_PUBLISHING.ipv4.txt">ROUTE53_HEALTHCHECKS_PUBLISHING.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="5 CIDRs"><i class="fa-solid fa-list-ol"></i> 5</span></td><td class="file-size">83 B</td><td><a class="action-btn" href="ROUTE53_HEALTHCHECKS_PUBLISHING.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="route53_healthchecks_publishing.txt 5" data-base="ROUTE53_HEALTHCHECKS_PUBLISHING" data-type="both"><td><div class="file-cell"><a class="file-name" href="ROUTE53_HEALTHCHECKS_PUBLISHING.txt">ROUTE53_HEALTHCHECKS_PUBLISHING.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="5 CIDRs"><i class="fa-solid fa-list-ol"></i> 5</span></td><td class="file-size">83 B</td><td><a class="action-btn" href="ROUTE53_HEALTHCHECKS_PUBLISHING.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="route53_resolver.ipv4.txt 418" data-base="ROUTE53_RESOLVER" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="ROUTE53_RESOLVER.ipv4.txt">ROUTE53_RESOLVER.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="418 CIDRs"><i class="fa-solid fa-list-ol"></i> 418</span></td><td class="file-size">6.9 KB</td><td><a class="action-btn" href="ROUTE53_RESOLVER.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="route53_resolver.txt 418" data-base="ROUTE53_RESOLVER" data-type="both"><td><div class="file-cell"><a class="file-name" href="ROUTE53_RESOLVER.txt">ROUTE53_RESOLVER.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="418 CIDRs"><i class="fa-solid fa-list-ol"></i> 418</span></td><td class="file-size">6.9 KB</td><td><a class="action-btn" href="ROUTE53_RESOLVER.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="s3.ipv4.txt 173" data-base="S3" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="S3.ipv4.txt">S3.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="173 CIDRs"><i class="fa-solid fa-list-ol"></i> 173</span></td><td class="file-size">2.7 KB</td><td><a class="action-btn" href="S3.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="s3.ipv6.txt 574" data-base="S3" data-type="ipv6"><td><div class="file-cell"><a class="file-name" href="S3.ipv6.txt">S3.ipv6.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="574 CIDRs"><i class="fa-solid fa-list-ol"></i> 574</span></td><td class="file-size">11.7 KB</td><td><a class="action-btn" href="S3.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="s3.txt 747" data-base="S3" data-type="both"><td><div class="file-cell"><a class="file-name" href="S3.txt">S3.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="747 CIDRs"><i class="fa-solid fa-list-ol"></i> 747</span></td><td class="file-size">14.4 KB</td><td><a class="action-btn" href="S3.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="workspaces_gateways.ipv4.txt 69" data-base="WORKSPACES_GATEWAYS" data-type="ipv4"><td><div class="file-cell"><a class="file-name" href="WORKSPACES_GATEWAYS.ipv4.txt">WORKSPACES_GATEWAYS.ipv4.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv4">IPv4</span></td><td><span class="badge-records" title="69 CIDRs"><i class="fa-solid fa-list-ol"></i> 69</span></td><td class="file-size">1.1 KB</td><td><a class="action-btn" href="WORKSPACES_GATEWAYS.ipv4.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="workspaces_gateways.ipv6.txt 43" data-base="WORKSPACES_GATEWAYS" data-type="ipv6"><td><div class="file-cell"><a class="file-name" href="WORKSPACES_GATEWAYS.ipv6.txt">WORKSPACES_GATEWAYS.ipv6.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-ipv6">IPv6</span></td><td><span class="badge-records" title="43 CIDRs"><i class="fa-solid fa-list-ol"></i> 43</span></td><td class="file-size">852 B</td><td><a class="action-btn" href="WORKSPACES_GATEWAYS.ipv6.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr><tr class="file-row" data-name="workspaces_gateways.txt 112" data-base="WORKSPACES_GATEWAYS" data-type="both"><td><div class="file-cell"><a class="file-name" href="WORKSPACES_GATEWAYS.txt">WORKSPACES_GATEWAYS.txt</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-all">ALL</span></td><td><span class="badge-records" title="112 CIDRs"><i class="fa-solid fa-list-ol"></i> 112</span></td><td class="file-size">1.9 KB</td><td><a class="action-btn" href="WORKSPACES_GATEWAYS.txt" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr>
             </tbody>
         </table>
 
         <div id="emptyState" class="empty-state">
             <i class="fa-solid fa-circle-question fa-2x" style="margin-bottom: 10px;"></i>
-            <p>No matching files found.</p>
+            <p id="emptyMsg">Nenhum arquivo encontrado.</p>
         </div>
     </div>
 
     <script>
         const input = document.getElementById('filterInput');
+        const clearBtn = document.getElementById('clearBtn');
+        const filterStatus = document.getElementById('filterStatus');
         const rows = document.querySelectorAll('.file-row');
         const visibleCount = document.getElementById('visibleCount');
         const emptyState = document.getElementById('emptyState');
+        const emptyMsg = document.getElementById('emptyMsg');
+        const hasIpIndex = true;
 
-        input.addEventListener('input', function() {
-            const term = this.value.trim().toLowerCase();
+        let ipIndex = null;
+        let parsedIndex = { ipv4: {}, ipv6: {} };
+        let ipIndexLoaded = false;
+        let ipIndexLoading = false;
+
+        function parseIpv4(ipStr) {
+            const parts = ipStr.trim().split('.');
+            if (parts.length !== 4) return null;
+            let num = 0;
+            for (let i = 0; i < 4; i++) {
+                const n = parseInt(parts[i], 10);
+                if (isNaN(n) || n < 0 || n > 255 || parts[i] !== String(n)) return null;
+                num = ((num << 8) + n) >>> 0;
+            }
+            return num;
+        }
+
+        function parseIpv6(ipStr) {
+            let str = ipStr.trim().toLowerCase();
+            if (!str.includes(':')) return null;
+            let parts = str.split('::');
+            if (parts.length > 2) return null;
+            let left = parts[0] ? parts[0].split(':') : [];
+            let right = parts.length === 2 && parts[1] ? parts[1].split(':') : [];
+            let totalParts = left.length + right.length;
+            if (parts.length === 1 && totalParts !== 8) return null;
+            if (parts.length === 2 && totalParts > 7) return null;
+            let missing = 8 - totalParts;
+            let full = [...left, ...Array(missing).fill('0'), ...right];
+            let big = 0n;
+            for (let p of full) {
+                if (!/^[0-9a-f]{1,4}$/.test(p)) return null;
+                big = (big << 16n) + BigInt(parseInt(p, 16));
+            }
+            return big;
+        }
+
+        function parseCidr4(cidrStr) {
+            const idx = cidrStr.indexOf('/');
+            const ipPart = idx === -1 ? cidrStr : cidrStr.slice(0, idx);
+            const ip = parseIpv4(ipPart);
+            if (ip === null) return null;
+            const bits = idx === -1 ? 32 : parseInt(cidrStr.slice(idx + 1), 10);
+            if (isNaN(bits) || bits < 0 || bits > 32) return null;
+            const mask = bits === 0 ? 0 : (~0 << (32 - bits)) >>> 0;
+            const net = (ip & mask) >>> 0;
+            return { net, mask, bits, raw: cidrStr };
+        }
+
+        function parseCidr6(cidrStr) {
+            const idx = cidrStr.indexOf('/');
+            const ipPart = idx === -1 ? cidrStr : cidrStr.slice(0, idx);
+            const ip = parseIpv6(ipPart);
+            if (ip === null) return null;
+            const bits = idx === -1 ? 128 : parseInt(cidrStr.slice(idx + 1), 10);
+            if (isNaN(bits) || bits < 0 || bits > 128) return null;
+            const mask = bits === 0 ? 0n : ((1n << 128n) - 1n) ^ ((1n << BigInt(128 - bits)) - 1n);
+            const net = ip & mask;
+            return { net, mask, bits, raw: cidrStr };
+        }
+
+        function matchCidrs4(query, listCidr) {
+            if (query.bits === 32) {
+                return ((query.net & listCidr.mask) >>> 0) === listCidr.net;
+            }
+            if (listCidr.bits <= query.bits) {
+                return ((query.net & listCidr.mask) >>> 0) === listCidr.net;
+            }
+            return ((listCidr.net & query.mask) >>> 0) === query.net;
+        }
+
+        function matchCidrs6(query, listCidr) {
+            if (query.bits === 128) {
+                return (query.net & listCidr.mask) === listCidr.net;
+            }
+            if (listCidr.bits <= query.bits) {
+                return (query.net & listCidr.mask) === listCidr.net;
+            }
+            return (listCidr.net & query.mask) === query.net;
+        }
+
+        function preParseIndex() {
+            if (!ipIndex) return;
+            if (ipIndex.ipv4) {
+                for (const [base, cidrs] of Object.entries(ipIndex.ipv4)) {
+                    parsedIndex.ipv4[base] = [];
+                    for (let i = 0; i < cidrs.length; i++) {
+                        const p = parseCidr4(cidrs[i]);
+                        if (p) parsedIndex.ipv4[base].push(p);
+                    }
+                }
+            }
+            if (ipIndex.ipv6) {
+                for (const [base, cidrs] of Object.entries(ipIndex.ipv6)) {
+                    parsedIndex.ipv6[base] = [];
+                    for (let i = 0; i < cidrs.length; i++) {
+                        const p = parseCidr6(cidrs[i]);
+                        if (p) parsedIndex.ipv6[base].push(p);
+                    }
+                }
+            }
+        }
+
+        if (hasIpIndex) {
+            ipIndexLoading = true;
+            fetch('ip-index.json')
+                .then(r => {
+                    if (r.ok) return r.json();
+                    throw new Error('Not found');
+                })
+                .then(data => {
+                    ipIndex = data;
+                    preParseIndex();
+                    ipIndexLoaded = true;
+                    ipIndexLoading = false;
+                    if (input.value.trim()) {
+                        runFilter();
+                    }
+                })
+                .catch(err => {
+                    ipIndexLoading = false;
+                    console.log('IP index not available:', err);
+                });
+        }
+
+        function runFilter() {
+            const rawTerm = input.value.trim();
+            clearBtn.style.display = rawTerm ? 'flex' : 'none';
+
+            if (!rawTerm) {
+                filterStatus.style.display = 'none';
+                rows.forEach(row => {
+                    row.style.display = '';
+                    const matchInfo = row.querySelector('.match-info');
+                    if (matchInfo) matchInfo.style.display = 'none';
+                });
+                visibleCount.textContent = rows.length;
+                emptyState.style.display = 'none';
+                return;
+            }
+
+            let isIpv4 = false;
+            let isIpv6 = false;
+            let queryCidr4 = null;
+            let queryCidr6 = null;
+
+            if (rawTerm.includes(':')) {
+                queryCidr6 = parseCidr6(rawTerm);
+                if (queryCidr6) isIpv6 = true;
+            } else if (/^\d{1,3}(\.\d{1,3}){1,3}(\/\d{1,2})?$/.test(rawTerm)) {
+                queryCidr4 = parseCidr4(rawTerm);
+                if (queryCidr4) isIpv4 = true;
+            }
+
+            // 1. Full IPv4 / CIDR query
+            if (isIpv4 && hasIpIndex) {
+                if (ipIndexLoading) {
+                    filterStatus.className = 'filter-status status-loading';
+                    filterStatus.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Carregando base de IPs para consulta...';
+                    filterStatus.style.display = 'flex';
+                    return;
+                }
+                const matches = {};
+                for (const [base, list] of Object.entries(parsedIndex.ipv4)) {
+                    for (let i = 0; i < list.length; i++) {
+                        if (matchCidrs4(queryCidr4, list[i])) {
+                            if (!matches[base]) matches[base] = [];
+                            matches[base].push(list[i].raw);
+                        }
+                    }
+                }
+
+                let count = 0;
+                rows.forEach(row => {
+                    const base = row.getAttribute('data-base');
+                    const type = row.getAttribute('data-type');
+                    const matchInfo = row.querySelector('.match-info');
+
+                    if (matches[base] && (type === 'ipv4' || type === 'both')) {
+                        row.style.display = '';
+                        count++;
+                        if (matchInfo) {
+                            const topCidrs = matches[base].slice(0, 3);
+                            const more = matches[base].length > 3 ? ` +${matches[base].length - 3} mais` : '';
+                            matchInfo.innerHTML = `<span class="match-pill"><i class="fa-solid fa-check-circle"></i> Contém: <code>${topCidrs.join(', ')}${more}</code></span>`;
+                            matchInfo.style.display = 'inline-flex';
+                        }
+                    } else {
+                        row.style.display = 'none';
+                        if (matchInfo) matchInfo.style.display = 'none';
+                    }
+                });
+
+                filterStatus.className = 'filter-status status-ip-v4';
+                const kind = queryCidr4.bits === 32 ? 'Endereço IPv4' : 'Bloco CIDR IPv4';
+                filterStatus.innerHTML = `<i class="fa-solid fa-filter"></i> <strong>${kind} detectado:</strong> Mostrando listas que contêm <code>${escapeHtml(rawTerm)}</code> (${Object.keys(matches).length} serviços/regiões encontrados)`;
+                filterStatus.style.display = 'flex';
+
+                visibleCount.textContent = count;
+                emptyMsg.innerHTML = `Nenhuma lista nesta página contém o IP/bloco <strong>${escapeHtml(rawTerm)}</strong>.`;
+                emptyState.style.display = count === 0 ? 'block' : 'none';
+                return;
+            }
+
+            // 2. Full IPv6 / CIDR query
+            if (isIpv6 && hasIpIndex) {
+                if (ipIndexLoading) {
+                    filterStatus.className = 'filter-status status-loading';
+                    filterStatus.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Carregando base de IPs para consulta...';
+                    filterStatus.style.display = 'flex';
+                    return;
+                }
+                const matches = {};
+                for (const [base, list] of Object.entries(parsedIndex.ipv6)) {
+                    for (let i = 0; i < list.length; i++) {
+                        if (matchCidrs6(queryCidr6, list[i])) {
+                            if (!matches[base]) matches[base] = [];
+                            matches[base].push(list[i].raw);
+                        }
+                    }
+                }
+
+                let count = 0;
+                rows.forEach(row => {
+                    const base = row.getAttribute('data-base');
+                    const type = row.getAttribute('data-type');
+                    const matchInfo = row.querySelector('.match-info');
+
+                    if (matches[base] && (type === 'ipv6' || type === 'both')) {
+                        row.style.display = '';
+                        count++;
+                        if (matchInfo) {
+                            const topCidrs = matches[base].slice(0, 3);
+                            const more = matches[base].length > 3 ? ` +${matches[base].length - 3} mais` : '';
+                            matchInfo.innerHTML = `<span class="match-pill match-pill-v6"><i class="fa-solid fa-check-circle"></i> Contém: <code>${topCidrs.join(', ')}${more}</code></span>`;
+                            matchInfo.style.display = 'inline-flex';
+                        }
+                    } else {
+                        row.style.display = 'none';
+                        if (matchInfo) matchInfo.style.display = 'none';
+                    }
+                });
+
+                filterStatus.className = 'filter-status status-ip-v6';
+                const kind = queryCidr6.bits === 128 ? 'Endereço IPv6' : 'Bloco CIDR IPv6';
+                filterStatus.innerHTML = `<i class="fa-solid fa-filter"></i> <strong>${kind} detectado:</strong> Mostrando listas que contêm <code>${escapeHtml(rawTerm)}</code> (${Object.keys(matches).length} serviços/regiões encontrados)`;
+                filterStatus.style.display = 'flex';
+
+                visibleCount.textContent = count;
+                emptyMsg.innerHTML = `Nenhuma lista nesta página contém o IP/bloco IPv6 <strong>${escapeHtml(rawTerm)}</strong>.`;
+                emptyState.style.display = count === 0 ? 'block' : 'none';
+                return;
+            }
+
+            // 3. Partial IP prefix match (e.g. "20.38." or "52.239.152")
+            if (/^\d{1,3}(\.\d{1,3}){1,2}\.?$/.test(rawTerm) && hasIpIndex && ipIndexLoaded) {
+                const prefix = rawTerm.endsWith('.') ? rawTerm : rawTerm + '.';
+                const matches = {};
+                for (const [base, list] of Object.entries(parsedIndex.ipv4)) {
+                    for (let i = 0; i < list.length; i++) {
+                        if (list[i].raw.startsWith(rawTerm) || list[i].raw.startsWith(prefix)) {
+                            if (!matches[base]) matches[base] = [];
+                            matches[base].push(list[i].raw);
+                        }
+                    }
+                }
+
+                if (Object.keys(matches).length > 0) {
+                    let count = 0;
+                    rows.forEach(row => {
+                        const base = row.getAttribute('data-base');
+                        const type = row.getAttribute('data-type');
+                        const matchInfo = row.querySelector('.match-info');
+
+                        if (matches[base] && (type === 'ipv4' || type === 'both')) {
+                            row.style.display = '';
+                            count++;
+                            if (matchInfo) {
+                                const topCidrs = matches[base].slice(0, 3);
+                                const more = matches[base].length > 3 ? ` +${matches[base].length - 3} mais` : '';
+                                matchInfo.innerHTML = `<span class="match-pill"><i class="fa-solid fa-magnifying-glass"></i> Prefixo: <code>${topCidrs.join(', ')}${more}</code></span>`;
+                                matchInfo.style.display = 'inline-flex';
+                            }
+                        } else {
+                            row.style.display = 'none';
+                            if (matchInfo) matchInfo.style.display = 'none';
+                        }
+                    });
+
+                    filterStatus.className = 'filter-status status-ip-v4';
+                    filterStatus.innerHTML = `<i class="fa-solid fa-filter"></i> <strong>Prefixo IP detectado:</strong> Mostrando listas com blocos iniciando em <code>${escapeHtml(rawTerm)}</code> (${Object.keys(matches).length} serviços/regiões)`;
+                    filterStatus.style.display = 'flex';
+
+                    visibleCount.textContent = count;
+                    emptyMsg.innerHTML = `Nenhuma lista encontrada para o prefixo "${escapeHtml(rawTerm)}".`;
+                    emptyState.style.display = count === 0 ? 'block' : 'none';
+                    return;
+                }
+            }
+
+            // 4. Standard text search on filename and records
+            filterStatus.style.display = 'none';
+            const termLower = rawTerm.toLowerCase();
             let count = 0;
-
             rows.forEach(row => {
                 const name = row.getAttribute('data-name');
-                if (!term || name.includes(term)) {
+                const matchInfo = row.querySelector('.match-info');
+                if (matchInfo) matchInfo.style.display = 'none';
+
+                if (name && name.includes(termLower)) {
                     row.style.display = '';
                     count++;
                 } else {
@@ -248,7 +646,19 @@
             });
 
             visibleCount.textContent = count;
+            emptyMsg.innerHTML = `Nenhum arquivo encontrado para "${escapeHtml(rawTerm)}".`;
             emptyState.style.display = count === 0 ? 'block' : 'none';
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+        }
+
+        input.addEventListener('input', runFilter);
+        clearBtn.addEventListener('click', () => {
+            input.value = '';
+            runFilter();
+            input.focus();
         });
     </script>
 </body>

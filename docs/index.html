@@ -548,6 +548,231 @@
             border-color: #94a3b8;
             text-decoration: none;
         }
+
+        /* Global Multi-Cloud IP Lookup Box */
+        .global-lookup-card {
+            background: #ffffff;
+            border: 1px solid #bfdbfe;
+            border-radius: var(--radius);
+            padding: 24px 26px;
+            margin-bottom: 26px;
+            box-shadow: 0 4px 14px rgba(0, 120, 212, 0.07);
+        }
+
+        .lookup-header h3 {
+            margin: 0 0 6px 0;
+            font-size: 1.25rem;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .lookup-header h3 i {
+            color: var(--primary);
+        }
+
+        .lookup-header p {
+            margin: 0 0 16px 0;
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            line-height: 1.5;
+        }
+
+        .lookup-input-bar {
+            display: flex;
+            align-items: center;
+            position: relative;
+            gap: 10px;
+        }
+
+        .lookup-icon {
+            position: absolute;
+            left: 15px;
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            pointer-events: none;
+        }
+
+        .lookup-input-bar input {
+            flex: 1;
+            padding: 13px 44px 13px 44px;
+            font-size: 0.95rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            outline: none;
+            transition: all 0.2s;
+            font-family: ui-monospace, SFMono-Regular, monospace;
+            background: #ffffff;
+        }
+
+        .lookup-input-bar input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.15);
+        }
+
+        .lookup-clear-btn {
+            position: absolute;
+            right: 155px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 600px) {
+            .lookup-input-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .lookup-clear-btn {
+                right: 14px;
+                top: 14px;
+            }
+        }
+
+        .btn-lookup {
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            padding: 13px 22px;
+            font-weight: 600;
+            font-size: 0.92rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-lookup:hover {
+            background: var(--primary-hover);
+        }
+
+        .lookup-status {
+            margin-top: 12px;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-loading {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+
+        .status-not-found {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .lookup-results {
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid #eef2f5;
+        }
+
+        .results-summary {
+            font-size: 0.92rem;
+            color: #334155;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 14px;
+        }
+
+        .result-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .result-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .provider-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .badge-azure { background: #e0f2fe; color: #0369a1; }
+        .badge-aws { background: #ffedd5; color: #c2410c; }
+        .badge-gcp { background: #fee2e2; color: #b91c1c; }
+        .badge-cf { background: #ffedd5; color: #d97706; }
+
+        .result-item p {
+            margin: 0;
+            font-size: 0.88rem;
+            color: #475569;
+        }
+
+        .result-item code {
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #047857;
+            font-family: ui-monospace, SFMono-Regular, monospace;
+        }
+
+        .result-links {
+            display: flex;
+            gap: 10px;
+            margin-top: 4px;
+            font-size: 0.84rem;
+        }
+
+        .result-links a {
+            color: var(--primary);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 600;
+        }
+
+        .result-links a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -563,6 +788,24 @@
             </div>
         </div>
 
+        <!-- Global Multi-Cloud IP Validator / Lookup -->
+        <div class="global-lookup-card">
+            <div class="lookup-header">
+                <div>
+                    <h3><i class="fa-solid fa-magnifying-glass-location"></i> Validador & Consulta Rápida de IPs Multi-Cloud</h3>
+                    <p>Digite qualquer endereço IP (IPv4 ou IPv6) para identificar instantaneamente se pertence à <strong>Microsoft Azure</strong>, <strong>Amazon AWS</strong>, <strong>Google Cloud (GCP)</strong> ou <strong>Cloudflare</strong>, descobrindo o serviço, região e lista exata correspondente.</p>
+                </div>
+            </div>
+            <div class="lookup-input-bar">
+                <i class="fa-solid fa-network-wired lookup-icon"></i>
+                <input type="text" id="globalIpInput" placeholder="Ex: 20.38.106.12, 52.239.152.10, 34.120.0.1, 1.1.1.1, 2603:1030:408::1..." autocomplete="off">
+                <button type="button" id="globalClearBtn" class="lookup-clear-btn" style="display:none;" title="Limpar"><i class="fa-solid fa-xmark"></i></button>
+                <button type="button" id="globalSearchBtn" class="btn-lookup"><i class="fa-solid fa-magnifying-glass"></i> Consultar IP</button>
+            </div>
+            <div id="globalIpStatus" class="lookup-status" style="display:none;"></div>
+            <div id="globalIpResults" class="lookup-results" style="display:none;"></div>
+        </div>
+
         <!-- 4 Cloud Provider Overview Cards -->
         <div class="provider-grid">
             <!-- Azure -->
@@ -574,8 +817,8 @@
                     </div>
                     <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0 0 10px 0;">Official Microsoft Azure Public Cloud Service Tags and Regional IP ranges.</p>
                     <div class="provider-stats">
-                        <span class="pill-stat"><i class="fa-solid fa-cubes"></i> 103 Services</span>
-                        <span class="pill-stat"><i class="fa-solid fa-earth-americas"></i> 78 Regions</span>
+                        <span class="pill-stat"><i class="fa-solid fa-cubes"></i> 104 Services</span>
+                        <span class="pill-stat"><i class="fa-solid fa-earth-americas"></i> 79 Regions</span>
                     </div>
                 </div>
                 <div class="provider-actions">
@@ -659,9 +902,9 @@
                     Espelho automatizado de contingência da blacklist oficial mantida pela <strong>Université Toulouse 1 Capitole</strong> para <strong>pfSense</strong>, <strong>Squid</strong> e <strong>SquidGuard</strong>. Garante alta disponibilidade, integridade criptográfica e prevenção contra abandono (sucessor direto da Shallalist).
                 </p>
                 <div class="sg-meta">
-                    <span><i class="fa-solid fa-hard-drive"></i> 25.38 MB</span>
+                    <span><i class="fa-solid fa-hard-drive"></i> 25.34 MB</span>
                     <span><i class="fa-solid fa-tags"></i> 77 Categorias</span>
-                    <span><i class="fa-solid fa-fingerprint"></i> SHA-256: <code>702eb1359edadb5b...</code></span>
+                    <span><i class="fa-solid fa-fingerprint"></i> SHA-256: <code>49346c1c4845ac36...</code></span>
                 </div>
                 <div class="sg-url-box">
                     <input type="text" readonly value="https://leoescarpellin.github.io/cloudIPrange/squidguard/blacklists.tar.gz" id="sgUrlInput">
@@ -836,7 +1079,7 @@
         <div class="footer">
             <div class="footer-left">
                 <span class="pill">Automation Active</span>
-                <span>Generated on <strong>2026-11-07 22:09:49 UTC</strong> by GitHub Actions Automation</span>
+                <span>Generated on <strong>2026-11-11 03:00:27 UTC</strong> by GitHub Actions Automation</span>
             </div>
             <div>
                 <a href="https://github.com/leoescarpellin/cloudIPrange" target="_blank" rel="noopener">
@@ -847,6 +1090,277 @@
     </div>
 
     <script>
+        // Global Multi-Cloud IP Lookup
+        let globalLookupData = null;
+        let globalParsedData = null;
+        let globalLoading = false;
+
+        const gInput = document.getElementById('globalIpInput');
+        const gClearBtn = document.getElementById('globalClearBtn');
+        const gSearchBtn = document.getElementById('globalSearchBtn');
+        const gStatus = document.getElementById('globalIpStatus');
+        const gResults = document.getElementById('globalIpResults');
+
+        function parseIpv4(ipStr) {
+            const parts = ipStr.trim().split('.');
+            if (parts.length !== 4) return null;
+            let num = 0;
+            for (let i = 0; i < 4; i++) {
+                const n = parseInt(parts[i], 10);
+                if (isNaN(n) || n < 0 || n > 255 || parts[i] !== String(n)) return null;
+                num = ((num << 8) + n) >>> 0;
+            }
+            return num;
+        }
+
+        function parseIpv6(ipStr) {
+            let str = ipStr.trim().toLowerCase();
+            if (!str.includes(':')) return null;
+            let parts = str.split('::');
+            if (parts.length > 2) return null;
+            let left = parts[0] ? parts[0].split(':') : [];
+            let right = parts.length === 2 && parts[1] ? parts[1].split(':') : [];
+            let totalParts = left.length + right.length;
+            if (parts.length === 1 && totalParts !== 8) return null;
+            if (parts.length === 2 && totalParts > 7) return null;
+            let missing = 8 - totalParts;
+            let full = [...left, ...Array(missing).fill('0'), ...right];
+            let big = 0n;
+            for (let p of full) {
+                if (!/^[0-9a-f]{1,4}$/.test(p)) return null;
+                big = (big << 16n) + BigInt(parseInt(p, 16));
+            }
+            return big;
+        }
+
+        function parseCidr4(cidrStr) {
+            const idx = cidrStr.indexOf('/');
+            const ipPart = idx === -1 ? cidrStr : cidrStr.slice(0, idx);
+            const ip = parseIpv4(ipPart);
+            if (ip === null) return null;
+            const bits = idx === -1 ? 32 : parseInt(cidrStr.slice(idx + 1), 10);
+            if (isNaN(bits) || bits < 0 || bits > 32) return null;
+            const mask = bits === 0 ? 0 : (~0 << (32 - bits)) >>> 0;
+            const net = (ip & mask) >>> 0;
+            return { net, mask, bits, raw: cidrStr };
+        }
+
+        function parseCidr6(cidrStr) {
+            const idx = cidrStr.indexOf('/');
+            const ipPart = idx === -1 ? cidrStr : cidrStr.slice(0, idx);
+            const ip = parseIpv6(ipPart);
+            if (ip === null) return null;
+            const bits = idx === -1 ? 128 : parseInt(cidrStr.slice(idx + 1), 10);
+            if (isNaN(bits) || bits < 0 || bits > 128) return null;
+            const mask = bits === 0 ? 0n : ((1n << 128n) - 1n) ^ ((1n << BigInt(128 - bits)) - 1n);
+            const net = ip & mask;
+            return { net, mask, bits, raw: cidrStr };
+        }
+
+        function matchCidrs4(query, listCidr) {
+            if (query.bits === 32) {
+                return ((query.net & listCidr.mask) >>> 0) === listCidr.net;
+            }
+            if (listCidr.bits <= query.bits) {
+                return ((query.net & listCidr.mask) >>> 0) === listCidr.net;
+            }
+            return ((listCidr.net & query.mask) >>> 0) === query.net;
+        }
+
+        function matchCidrs6(query, listCidr) {
+            if (query.bits === 128) {
+                return (query.net & listCidr.mask) === listCidr.net;
+            }
+            if (listCidr.bits <= query.bits) {
+                return (query.net & listCidr.mask) === listCidr.net;
+            }
+            return (listCidr.net & query.mask) === query.net;
+        }
+
+        async function ensureGlobalIndex() {
+            if (globalParsedData) return true;
+            if (globalLoading) return false;
+            globalLoading = true;
+            gStatus.className = 'lookup-status status-loading';
+            gStatus.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Carregando base global de IPs (Azure, AWS, GCP, Cloudflare)...';
+            gStatus.style.display = 'flex';
+
+            try {
+                const res = await fetch('ip-lookup.json');
+                if (!res.ok) throw new Error('Não foi possível carregar ip-lookup.json');
+                globalLookupData = await res.json();
+                
+                globalParsedData = {};
+                for (const [groupName, group] of Object.entries(globalLookupData)) {
+                    globalParsedData[groupName] = {
+                        url: group.url,
+                        v4: {},
+                        v6: {}
+                    };
+                    for (const [service, cidrs] of Object.entries(group.v4 || {})) {
+                        globalParsedData[groupName].v4[service] = [];
+                        for (let i = 0; i < cidrs.length; i++) {
+                            const p = parseCidr4(cidrs[i]);
+                            if (p) globalParsedData[groupName].v4[service].push(p);
+                        }
+                    }
+                    for (const [service, cidrs] of Object.entries(group.v6 || {})) {
+                        globalParsedData[groupName].v6[service] = [];
+                        for (let i = 0; i < cidrs.length; i++) {
+                            const p = parseCidr6(cidrs[i]);
+                            if (p) globalParsedData[groupName].v6[service].push(p);
+                        }
+                    }
+                }
+                globalLoading = false;
+                gStatus.style.display = 'none';
+                return true;
+            } catch (err) {
+                globalLoading = false;
+                gStatus.className = 'lookup-status status-not-found';
+                gStatus.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Erro ao carregar base de IPs: ' + err.message;
+                gStatus.style.display = 'flex';
+                return false;
+            }
+        }
+
+        async function executeGlobalLookup() {
+            const raw = gInput.value.trim();
+            gClearBtn.style.display = raw ? 'flex' : 'none';
+
+            if (!raw) {
+                gStatus.style.display = 'none';
+                gResults.style.display = 'none';
+                return;
+            }
+
+            const ready = await ensureGlobalIndex();
+            if (!ready) return;
+
+            let isIpv4 = false;
+            let isIpv6 = false;
+            let q4 = null;
+            let q6 = null;
+
+            if (raw.includes(':')) {
+                q6 = parseCidr6(raw);
+                if (q6) isIpv6 = true;
+            } else {
+                q4 = parseCidr4(raw);
+                if (q4) isIpv4 = true;
+            }
+
+            if (!isIpv4 && !isIpv6) {
+                gStatus.className = 'lookup-status status-not-found';
+                gStatus.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Por favor, insira um endereço IP ou bloco CIDR válido (IPv4 ou IPv6).';
+                gStatus.style.display = 'flex';
+                gResults.style.display = 'none';
+                return;
+            }
+
+            // Perform matching
+            const foundItems = [];
+            for (const [groupName, group] of Object.entries(globalParsedData)) {
+                let badgeClass = 'badge-azure';
+                let iconClass = 'fa-brands fa-microsoft';
+                if (groupName.includes('AWS')) {
+                    badgeClass = 'badge-aws';
+                    iconClass = 'fa-brands fa-aws';
+                } else if (groupName.includes('GCP')) {
+                    badgeClass = 'badge-gcp';
+                    iconClass = 'fa-brands fa-google';
+                } else if (groupName.includes('Cloudflare')) {
+                    badgeClass = 'badge-cf';
+                    iconClass = 'fa-brands fa-cloudflare';
+                }
+
+                const targetDict = isIpv4 ? group.v4 : group.v6;
+                const queryObj = isIpv4 ? q4 : q6;
+                const matchFn = isIpv4 ? matchCidrs4 : matchCidrs6;
+                const ext = isIpv4 ? '.ipv4.txt' : '.ipv6.txt';
+
+                for (const [service, cidrList] of Object.entries(targetDict)) {
+                    for (let i = 0; i < cidrList.length; i++) {
+                        if (matchFn(queryObj, cidrList[i])) {
+                            foundItems.push({
+                                group: groupName,
+                                service: service,
+                                cidr: cidrList[i].raw,
+                                badgeClass,
+                                iconClass,
+                                txtUrl: group.url + service + ext,
+                                dirUrl: group.url + 'index.html'
+                            });
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (foundItems.length === 0) {
+                gStatus.className = 'lookup-status status-not-found';
+                gStatus.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> O endereço IP <code>${escapeHtml(raw)}</code> não foi encontrado em nenhuma lista da Microsoft Azure, AWS, GCP ou Cloudflare.`;
+                gStatus.style.display = 'flex';
+                gResults.style.display = 'none';
+                return;
+            }
+
+            gStatus.style.display = 'none';
+            let cardsHtml = '';
+            for (const item of foundItems) {
+                cardsHtml += `
+                    <div class="result-item">
+                        <div class="result-header">
+                            <span class="provider-badge ${item.badgeClass}"><i class="${item.iconClass}"></i> ${item.group}</span>
+                            <span style="font-weight:700; color:#0f172a;">${item.service}</span>
+                        </div>
+                        <p>Contido no bloco: <code>${item.cidr}</code></p>
+                        <div class="result-links">
+                            <a href="${item.txtUrl}" download><i class="fa-solid fa-download"></i> Baixar lista TXT</a>
+                            <a href="${item.dirUrl}"><i class="fa-solid fa-folder-open"></i> Ver no diretório</a>
+                        </div>
+                    </div>
+                `;
+            }
+
+            gResults.innerHTML = `
+                <div class="results-summary">
+                    <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 1.1rem;"></i>
+                    <span>O IP <code>${escapeHtml(raw)}</code> foi localizado em <strong>${foundItems.length}</strong> lista(s):</span>
+                </div>
+                <div class="results-grid">${cardsHtml}</div>
+            `;
+            gResults.style.display = 'block';
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+        }
+
+        gInput.addEventListener('focus', () => {
+            ensureGlobalIndex();
+        });
+        gInput.addEventListener('input', () => {
+            const raw = gInput.value.trim();
+            gClearBtn.style.display = raw ? 'flex' : 'none';
+            if (/^\d{1,3}(\.\d{1,3}){3}$/.test(raw) || (raw.includes(':') && raw.length > 6)) {
+                executeGlobalLookup();
+            }
+        });
+        gInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                executeGlobalLookup();
+            }
+        });
+        gSearchBtn.addEventListener('click', executeGlobalLookup);
+        gClearBtn.addEventListener('click', () => {
+            gInput.value = '';
+            gClearBtn.style.display = 'none';
+            gStatus.style.display = 'none';
+            gResults.style.display = 'none';
+            gInput.focus();
+        });
+
         function copySgUrl() {
             const input = document.getElementById("sgUrlInput");
             input.select();

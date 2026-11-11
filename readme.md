@@ -37,6 +37,9 @@ Designed for direct integration with firewall aliases and dynamic network lists:
   * `<name>.ipv4.txt` — IPv4 only (prevents family mismatch in pfSense / OPNsense rules)
   * `<name>.ipv6.txt` — IPv6 only
   * `<name>.txt` — Combined (IPv4 followed by IPv6)
+* **Integrated IP / CIDR Search & Multi-Cloud Validator:**
+  * **Directory Index Search:** Filter directory listings by typing any IP host (e.g. `20.38.106.12`), CIDR subnet (`20.38.106.0/24`), or IPv6 address directly in the search bar. Mathematical bitwise CIDR containment identifies and displays which lists contain that IP with inline badges.
+  * **Global IP Validator:** An interactive multi-cloud lookup card on the homepage to instantly check any IP address across Microsoft Azure, Amazon AWS, Google Cloud (GCP), and Cloudflare simultaneously in sub-millisecond client-side evaluation.
 * **Static JSON Mirrors:** Provides permanent uncompressed links to the latest raw JSON dumps from each provider.
 * **Storage Optimization:** Historical weekly JSON files are maintained within a rolling 12-week retention window and compressed with Gzip (`.json.gz`), keeping the Git repository lightweight (<15 MB total).
 * **Automated Weekly Updates:** Powered by GitHub Actions running every Wednesday at 11:00 UTC.

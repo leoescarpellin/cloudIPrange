@@ -177,11 +177,35 @@ def generate_directory_index(
     try:
         files = [
             f for f in sorted(os.listdir(directory))
-            if not f.startswith('.') and f != os.path.basename(output_file)
+            if not f.startswith('.') and f != os.path.basename(output_file) and f != "ip-index.json"
         ]
 
         rel_home = os.path.relpath(DOCS_DIR, directory)
         home_href = os.path.normpath(os.path.join(rel_home, "index.html")).replace("\\", "/")
+
+        has_ip_files = False
+        ip_index = {"ipv4": {}, "ipv6": {}}
+        for file in files:
+            file_path = os.path.join(directory, file)
+            if not os.path.isfile(file_path):
+                continue
+            if file.endswith(".ipv4.txt"):
+                has_ip_files = True
+                base = file[:-9]
+                with open(file_path, "r", encoding="utf-8") as rf:
+                    ip_index["ipv4"][base] = [line.strip() for line in rf if line.strip()]
+            elif file.endswith(".ipv6.txt"):
+                has_ip_files = True
+                base = file[:-9]
+                with open(file_path, "r", encoding="utf-8") as rf:
+                    ip_index["ipv6"][base] = [line.strip() for line in rf if line.strip()]
+
+        if has_ip_files:
+            ip_index_path = os.path.join(directory, "ip-index.json")
+            with open(ip_index_path, "w", encoding="utf-8") as f:
+                json.dump(ip_index, f)
+
+        has_ip_files_js = "true" if has_ip_files else "false"
 
         file_items = []
         for file in files:
@@ -191,20 +215,36 @@ def generate_directory_index(
             size = os.path.getsize(file_path)
             size_str = format_file_size(size)
 
-            tag_class = "tag-all"
-            tag_name = "ALL"
             if file.endswith(".ipv4.txt"):
                 tag_class = "tag-ipv4"
                 tag_name = "IPv4"
+                base_name = file[:-9]
+                ip_type = "ipv4"
             elif file.endswith(".ipv6.txt"):
                 tag_class = "tag-ipv6"
                 tag_name = "IPv6"
+                base_name = file[:-9]
+                ip_type = "ipv6"
+            elif file.endswith(".txt"):
+                tag_class = "tag-all"
+                tag_name = "ALL"
+                base_name = file[:-4]
+                ip_type = "both"
             elif file.endswith(".json.gz"):
                 tag_class = "tag-gz"
                 tag_name = "JSON.GZ"
+                base_name = file
+                ip_type = "other"
             elif file.endswith(".json"):
                 tag_class = "tag-json"
                 tag_name = "JSON"
+                base_name = file
+                ip_type = "other"
+            else:
+                tag_class = "tag-all"
+                tag_name = "FILE"
+                base_name = file
+                ip_type = "other"
 
             # Count records (CIDRs for text files, tags for JSON)
             records_count = None
@@ -243,8 +283,11 @@ def generate_directory_index(
                 search_data = file.lower()
 
             file_items.append(
-                f'<tr class="file-row" data-name="{search_data}">'
-                f'<td><a class="file-name" href="{file}">{file}</a></td>'
+                f'<tr class="file-row" data-name="{search_data}" data-base="{base_name}" data-type="{ip_type}">'
+                f'<td><div class="file-cell">'
+                f'<a class="file-name" href="{file}">{file}</a>'
+                f'<div class="match-info" style="display:none;"></div>'
+                f'</div></td>'
                 f'<td><span class="badge {tag_class}">{tag_name}</span></td>'
                 f'<td>{records_html}</td>'
                 f'<td class="file-size">{size_str}</td>'
@@ -253,7 +296,7 @@ def generate_directory_index(
             )
 
         html_content = f"""<!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -328,17 +371,20 @@ def generate_directory_index(
             margin-bottom: 20px;
         }}
         .search-container {{
-            margin-bottom: 20px;
+            margin-bottom: 12px;
             position: relative;
+            display: flex;
+            align-items: center;
         }}
         .search-input {{
             width: 100%;
-            padding: 12px 16px 12px 42px;
+            padding: 13px 44px 13px 44px;
             font-size: 0.95rem;
             border: 1px solid var(--border);
             border-radius: 6px;
             outline: none;
-            transition: border-color 0.2s;
+            transition: all 0.2s;
+            background: #ffffff;
         }}
         .search-input:focus {{
             border-color: var(--primary);
@@ -346,10 +392,94 @@ def generate_directory_index(
         }}
         .search-icon {{
             position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
+            left: 15px;
             color: var(--text-muted);
+            font-size: 1rem;
+            pointer-events: none;
+        }}
+        .clear-btn {{
+            position: absolute;
+            right: 12px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 6px 8px;
+            border-radius: 50%;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }}
+        .clear-btn:hover {{
+            background: #eef2f5;
+            color: #0f172a;
+        }}
+        .filter-status {{
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.88rem;
+            padding: 8px 14px;
+            border-radius: 6px;
+            animation: fadeIn 0.2s ease-in-out;
+        }}
+        .status-ip-v4 {{
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }}
+        .status-ip-v6 {{
+            background: #f5f3ff;
+            color: #5b21b6;
+            border: 1px solid #ddd6fe;
+        }}
+        .status-loading {{
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }}
+        .file-cell {{
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }}
+        .match-info {{
+            display: inline-flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 3px;
+        }}
+        .match-pill {{
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }}
+        .match-pill code {{
+            background: #d1fae5;
+            color: #047857;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-weight: 600;
+            font-family: ui-monospace, SFMono-Regular, monospace;
+        }}
+        .match-pill-v6 {{
+            background: #f5f3ff;
+            color: #5b21b6;
+            border-color: #ddd6fe;
+        }}
+        .match-pill-v6 code {{
+            background: #ede9fe;
+            color: #6d28d9;
         }}
         .stats-bar {{
             display: flex;
@@ -358,6 +488,8 @@ def generate_directory_index(
             font-size: 0.88rem;
             color: var(--text-muted);
             margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
         }}
         table {{
             width: 100%;
@@ -452,12 +584,14 @@ def generate_directory_index(
         
         <div class="search-container">
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
-            <input type="text" id="filterInput" class="search-input" placeholder="Search files (e.g. storage, brazilsouth, ipv4, 168)..." autofocus>
+            <input type="text" id="filterInput" class="search-input" placeholder="Buscar por nome ou endereço IP / CIDR (ex: storage, 20.38.106.12, 13.107.6.0/24)..." autofocus>
+            <button type="button" id="clearBtn" class="clear-btn" style="display:none;" title="Limpar busca"><i class="fa-solid fa-xmark"></i></button>
         </div>
+        <div id="filterStatus" class="filter-status" style="display: none;"></div>
 
         <div class="stats-bar">
-            <span>Showing <strong id="visibleCount">{len(file_items)}</strong> of {len(file_items)} {badge_label.lower()}</span>
-            <span>Compatible with: pfSense, OPNsense, Palo Alto, MikroTik, Fortinet</span>
+            <span>Mostrando <strong id="visibleCount">{len(file_items)}</strong> de {len(file_items)} {badge_label.lower()}</span>
+            <span><i class="fa-solid fa-shield-halved"></i> Compatível com: pfSense, OPNsense, Palo Alto, MikroTik, Fortinet</span>
         </div>
 
         <table>
@@ -477,23 +611,330 @@ def generate_directory_index(
 
         <div id="emptyState" class="empty-state">
             <i class="fa-solid fa-circle-question fa-2x" style="margin-bottom: 10px;"></i>
-            <p>No matching files found.</p>
+            <p id="emptyMsg">Nenhum arquivo encontrado.</p>
         </div>
     </div>
 
     <script>
         const input = document.getElementById('filterInput');
+        const clearBtn = document.getElementById('clearBtn');
+        const filterStatus = document.getElementById('filterStatus');
         const rows = document.querySelectorAll('.file-row');
         const visibleCount = document.getElementById('visibleCount');
         const emptyState = document.getElementById('emptyState');
+        const emptyMsg = document.getElementById('emptyMsg');
+        const hasIpIndex = {has_ip_files_js};
 
-        input.addEventListener('input', function() {{
-            const term = this.value.trim().toLowerCase();
+        let ipIndex = null;
+        let parsedIndex = {{ ipv4: {{}}, ipv6: {{}} }};
+        let ipIndexLoaded = false;
+        let ipIndexLoading = false;
+
+        function parseIpv4(ipStr) {{
+            const parts = ipStr.trim().split('.');
+            if (parts.length !== 4) return null;
+            let num = 0;
+            for (let i = 0; i < 4; i++) {{
+                const n = parseInt(parts[i], 10);
+                if (isNaN(n) || n < 0 || n > 255 || parts[i] !== String(n)) return null;
+                num = ((num << 8) + n) >>> 0;
+            }}
+            return num;
+        }}
+
+        function parseIpv6(ipStr) {{
+            let str = ipStr.trim().toLowerCase();
+            if (!str.includes(':')) return null;
+            let parts = str.split('::');
+            if (parts.length > 2) return null;
+            let left = parts[0] ? parts[0].split(':') : [];
+            let right = parts.length === 2 && parts[1] ? parts[1].split(':') : [];
+            let totalParts = left.length + right.length;
+            if (parts.length === 1 && totalParts !== 8) return null;
+            if (parts.length === 2 && totalParts > 7) return null;
+            let missing = 8 - totalParts;
+            let full = [...left, ...Array(missing).fill('0'), ...right];
+            let big = 0n;
+            for (let p of full) {{
+                if (!/^[0-9a-f]{{1,4}}$/.test(p)) return null;
+                big = (big << 16n) + BigInt(parseInt(p, 16));
+            }}
+            return big;
+        }}
+
+        function parseCidr4(cidrStr) {{
+            const idx = cidrStr.indexOf('/');
+            const ipPart = idx === -1 ? cidrStr : cidrStr.slice(0, idx);
+            const ip = parseIpv4(ipPart);
+            if (ip === null) return null;
+            const bits = idx === -1 ? 32 : parseInt(cidrStr.slice(idx + 1), 10);
+            if (isNaN(bits) || bits < 0 || bits > 32) return null;
+            const mask = bits === 0 ? 0 : (~0 << (32 - bits)) >>> 0;
+            const net = (ip & mask) >>> 0;
+            return {{ net, mask, bits, raw: cidrStr }};
+        }}
+
+        function parseCidr6(cidrStr) {{
+            const idx = cidrStr.indexOf('/');
+            const ipPart = idx === -1 ? cidrStr : cidrStr.slice(0, idx);
+            const ip = parseIpv6(ipPart);
+            if (ip === null) return null;
+            const bits = idx === -1 ? 128 : parseInt(cidrStr.slice(idx + 1), 10);
+            if (isNaN(bits) || bits < 0 || bits > 128) return null;
+            const mask = bits === 0 ? 0n : ((1n << 128n) - 1n) ^ ((1n << BigInt(128 - bits)) - 1n);
+            const net = ip & mask;
+            return {{ net, mask, bits, raw: cidrStr }};
+        }}
+
+        function matchCidrs4(query, listCidr) {{
+            if (query.bits === 32) {{
+                return ((query.net & listCidr.mask) >>> 0) === listCidr.net;
+            }}
+            if (listCidr.bits <= query.bits) {{
+                return ((query.net & listCidr.mask) >>> 0) === listCidr.net;
+            }}
+            return ((listCidr.net & query.mask) >>> 0) === query.net;
+        }}
+
+        function matchCidrs6(query, listCidr) {{
+            if (query.bits === 128) {{
+                return (query.net & listCidr.mask) === listCidr.net;
+            }}
+            if (listCidr.bits <= query.bits) {{
+                return (query.net & listCidr.mask) === listCidr.net;
+            }}
+            return (listCidr.net & query.mask) === query.net;
+        }}
+
+        function preParseIndex() {{
+            if (!ipIndex) return;
+            if (ipIndex.ipv4) {{
+                for (const [base, cidrs] of Object.entries(ipIndex.ipv4)) {{
+                    parsedIndex.ipv4[base] = [];
+                    for (let i = 0; i < cidrs.length; i++) {{
+                        const p = parseCidr4(cidrs[i]);
+                        if (p) parsedIndex.ipv4[base].push(p);
+                    }}
+                }}
+            }}
+            if (ipIndex.ipv6) {{
+                for (const [base, cidrs] of Object.entries(ipIndex.ipv6)) {{
+                    parsedIndex.ipv6[base] = [];
+                    for (let i = 0; i < cidrs.length; i++) {{
+                        const p = parseCidr6(cidrs[i]);
+                        if (p) parsedIndex.ipv6[base].push(p);
+                    }}
+                }}
+            }}
+        }}
+
+        if (hasIpIndex) {{
+            ipIndexLoading = true;
+            fetch('ip-index.json')
+                .then(r => {{
+                    if (r.ok) return r.json();
+                    throw new Error('Not found');
+                }})
+                .then(data => {{
+                    ipIndex = data;
+                    preParseIndex();
+                    ipIndexLoaded = true;
+                    ipIndexLoading = false;
+                    if (input.value.trim()) {{
+                        runFilter();
+                    }}
+                }})
+                .catch(err => {{
+                    ipIndexLoading = false;
+                    console.log('IP index not available:', err);
+                }});
+        }}
+
+        function runFilter() {{
+            const rawTerm = input.value.trim();
+            clearBtn.style.display = rawTerm ? 'flex' : 'none';
+
+            if (!rawTerm) {{
+                filterStatus.style.display = 'none';
+                rows.forEach(row => {{
+                    row.style.display = '';
+                    const matchInfo = row.querySelector('.match-info');
+                    if (matchInfo) matchInfo.style.display = 'none';
+                }});
+                visibleCount.textContent = rows.length;
+                emptyState.style.display = 'none';
+                return;
+            }}
+
+            let isIpv4 = false;
+            let isIpv6 = false;
+            let queryCidr4 = null;
+            let queryCidr6 = null;
+
+            if (rawTerm.includes(':')) {{
+                queryCidr6 = parseCidr6(rawTerm);
+                if (queryCidr6) isIpv6 = true;
+            }} else if (/^\\d{{1,3}}(\\.\\d{{1,3}}){{1,3}}(\\/\\d{{1,2}})?$/.test(rawTerm)) {{
+                queryCidr4 = parseCidr4(rawTerm);
+                if (queryCidr4) isIpv4 = true;
+            }}
+
+            // 1. Full IPv4 / CIDR query
+            if (isIpv4 && hasIpIndex) {{
+                if (ipIndexLoading) {{
+                    filterStatus.className = 'filter-status status-loading';
+                    filterStatus.innerHTML = '<i class=\"fa-solid fa-spinner fa-spin\"></i> Carregando base de IPs para consulta...';
+                    filterStatus.style.display = 'flex';
+                    return;
+                }}
+                const matches = {{}};
+                for (const [base, list] of Object.entries(parsedIndex.ipv4)) {{
+                    for (let i = 0; i < list.length; i++) {{
+                        if (matchCidrs4(queryCidr4, list[i])) {{
+                            if (!matches[base]) matches[base] = [];
+                            matches[base].push(list[i].raw);
+                        }}
+                    }}
+                }}
+
+                let count = 0;
+                rows.forEach(row => {{
+                    const base = row.getAttribute('data-base');
+                    const type = row.getAttribute('data-type');
+                    const matchInfo = row.querySelector('.match-info');
+
+                    if (matches[base] && (type === 'ipv4' || type === 'both')) {{
+                        row.style.display = '';
+                        count++;
+                        if (matchInfo) {{
+                            const topCidrs = matches[base].slice(0, 3);
+                            const more = matches[base].length > 3 ? ` +${{matches[base].length - 3}} mais` : '';
+                            matchInfo.innerHTML = `<span class=\"match-pill\"><i class=\"fa-solid fa-check-circle\"></i> Contém: <code>${{topCidrs.join(', ')}}${{more}}</code></span>`;
+                            matchInfo.style.display = 'inline-flex';
+                        }}
+                    }} else {{
+                        row.style.display = 'none';
+                        if (matchInfo) matchInfo.style.display = 'none';
+                    }}
+                }});
+
+                filterStatus.className = 'filter-status status-ip-v4';
+                const kind = queryCidr4.bits === 32 ? 'Endereço IPv4' : 'Bloco CIDR IPv4';
+                filterStatus.innerHTML = `<i class=\"fa-solid fa-filter\"></i> <strong>${{kind}} detectado:</strong> Mostrando listas que contêm <code>${{escapeHtml(rawTerm)}}</code> (${{Object.keys(matches).length}} serviços/regiões encontrados)`;
+                filterStatus.style.display = 'flex';
+
+                visibleCount.textContent = count;
+                emptyMsg.innerHTML = `Nenhuma lista nesta página contém o IP/bloco <strong>${{escapeHtml(rawTerm)}}</strong>.`;
+                emptyState.style.display = count === 0 ? 'block' : 'none';
+                return;
+            }}
+
+            // 2. Full IPv6 / CIDR query
+            if (isIpv6 && hasIpIndex) {{
+                if (ipIndexLoading) {{
+                    filterStatus.className = 'filter-status status-loading';
+                    filterStatus.innerHTML = '<i class=\"fa-solid fa-spinner fa-spin\"></i> Carregando base de IPs para consulta...';
+                    filterStatus.style.display = 'flex';
+                    return;
+                }}
+                const matches = {{}};
+                for (const [base, list] of Object.entries(parsedIndex.ipv6)) {{
+                    for (let i = 0; i < list.length; i++) {{
+                        if (matchCidrs6(queryCidr6, list[i])) {{
+                            if (!matches[base]) matches[base] = [];
+                            matches[base].push(list[i].raw);
+                        }}
+                    }}
+                }}
+
+                let count = 0;
+                rows.forEach(row => {{
+                    const base = row.getAttribute('data-base');
+                    const type = row.getAttribute('data-type');
+                    const matchInfo = row.querySelector('.match-info');
+
+                    if (matches[base] && (type === 'ipv6' || type === 'both')) {{
+                        row.style.display = '';
+                        count++;
+                        if (matchInfo) {{
+                            const topCidrs = matches[base].slice(0, 3);
+                            const more = matches[base].length > 3 ? ` +${{matches[base].length - 3}} mais` : '';
+                            matchInfo.innerHTML = `<span class=\"match-pill match-pill-v6\"><i class=\"fa-solid fa-check-circle\"></i> Contém: <code>${{topCidrs.join(', ')}}${{more}}</code></span>`;
+                            matchInfo.style.display = 'inline-flex';
+                        }}
+                    }} else {{
+                        row.style.display = 'none';
+                        if (matchInfo) matchInfo.style.display = 'none';
+                    }}
+                }});
+
+                filterStatus.className = 'filter-status status-ip-v6';
+                const kind = queryCidr6.bits === 128 ? 'Endereço IPv6' : 'Bloco CIDR IPv6';
+                filterStatus.innerHTML = `<i class=\"fa-solid fa-filter\"></i> <strong>${{kind}} detectado:</strong> Mostrando listas que contêm <code>${{escapeHtml(rawTerm)}}</code> (${{Object.keys(matches).length}} serviços/regiões encontrados)`;
+                filterStatus.style.display = 'flex';
+
+                visibleCount.textContent = count;
+                emptyMsg.innerHTML = `Nenhuma lista nesta página contém o IP/bloco IPv6 <strong>${{escapeHtml(rawTerm)}}</strong>.`;
+                emptyState.style.display = count === 0 ? 'block' : 'none';
+                return;
+            }}
+
+            // 3. Partial IP prefix match (e.g. "20.38." or "52.239.152")
+            if (/^\\d{{1,3}}(\\.\\d{{1,3}}){{1,2}}\\.?$/.test(rawTerm) && hasIpIndex && ipIndexLoaded) {{
+                const prefix = rawTerm.endsWith('.') ? rawTerm : rawTerm + '.';
+                const matches = {{}};
+                for (const [base, list] of Object.entries(parsedIndex.ipv4)) {{
+                    for (let i = 0; i < list.length; i++) {{
+                        if (list[i].raw.startsWith(rawTerm) || list[i].raw.startsWith(prefix)) {{
+                            if (!matches[base]) matches[base] = [];
+                            matches[base].push(list[i].raw);
+                        }}
+                    }}
+                }}
+
+                if (Object.keys(matches).length > 0) {{
+                    let count = 0;
+                    rows.forEach(row => {{
+                        const base = row.getAttribute('data-base');
+                        const type = row.getAttribute('data-type');
+                        const matchInfo = row.querySelector('.match-info');
+
+                        if (matches[base] && (type === 'ipv4' || type === 'both')) {{
+                            row.style.display = '';
+                            count++;
+                            if (matchInfo) {{
+                                const topCidrs = matches[base].slice(0, 3);
+                                const more = matches[base].length > 3 ? ` +${{matches[base].length - 3}} mais` : '';
+                                matchInfo.innerHTML = `<span class=\"match-pill\"><i class=\"fa-solid fa-magnifying-glass\"></i> Prefixo: <code>${{topCidrs.join(', ')}}${{more}}</code></span>`;
+                                matchInfo.style.display = 'inline-flex';
+                            }}
+                        }} else {{
+                            row.style.display = 'none';
+                            if (matchInfo) matchInfo.style.display = 'none';
+                        }}
+                    }});
+
+                    filterStatus.className = 'filter-status status-ip-v4';
+                    filterStatus.innerHTML = `<i class=\"fa-solid fa-filter\"></i> <strong>Prefixo IP detectado:</strong> Mostrando listas com blocos iniciando em <code>${{escapeHtml(rawTerm)}}</code> (${{Object.keys(matches).length}} serviços/regiões)`;
+                    filterStatus.style.display = 'flex';
+
+                    visibleCount.textContent = count;
+                    emptyMsg.innerHTML = `Nenhuma lista encontrada para o prefixo "${{escapeHtml(rawTerm)}}".`;
+                    emptyState.style.display = count === 0 ? 'block' : 'none';
+                    return;
+                }}
+            }}
+
+            // 4. Standard text search on filename and records
+            filterStatus.style.display = 'none';
+            const termLower = rawTerm.toLowerCase();
             let count = 0;
-
             rows.forEach(row => {{
                 const name = row.getAttribute('data-name');
-                if (!term || name.includes(term)) {{
+                const matchInfo = row.querySelector('.match-info');
+                if (matchInfo) matchInfo.style.display = 'none';
+
+                if (name && name.includes(termLower)) {{
                     row.style.display = '';
                     count++;
                 }} else {{
@@ -502,7 +943,19 @@ def generate_directory_index(
             }});
 
             visibleCount.textContent = count;
+            emptyMsg.innerHTML = `Nenhum arquivo encontrado para "${{escapeHtml(rawTerm)}}".`;
             emptyState.style.display = count === 0 ? 'block' : 'none';
+        }}
+
+        function escapeHtml(str) {{
+            return String(str).replace(/[&<>"']/g, m => ({{ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', \"'\": '&#39;' }}[m]));
+        }}
+
+        input.addEventListener('input', runFilter);
+        clearBtn.addEventListener('click', () => {{
+            input.value = '';
+            runFilter();
+            input.focus();
         }});
     </script>
 </body>
@@ -1368,7 +1821,47 @@ def update_squidguard() -> Dict[str, Any]:
     return meta
 
 # ==========================================
-# 6. ROOT INDEX GENERATOR
+# 6. GLOBAL MULTI-CLOUD IP LOOKUP INDEX
+# ==========================================
+
+def generate_global_ip_lookup() -> None:
+    """Generate consolidated multi-cloud IP index for the global home page lookup."""
+    logging.info("Generating global multi-cloud IP lookup index...")
+    targets = [
+        ("Azure Services", OUTPUT_SERVICES_DIR, "ranges-services/"),
+        ("Azure Regions", OUTPUT_REGIONS_DIR, "ranges-regions/"),
+        ("AWS Services", AWS_SERVICES_DIR, "aws/ranges-services/"),
+        ("AWS Regions", AWS_REGIONS_DIR, "aws/ranges-regions/"),
+        ("GCP Regions", GCP_REGIONS_DIR, "gcp/ranges-regions/"),
+        ("Cloudflare", CF_DIR, "cloudflare/")
+    ]
+
+    lookup_data = {}
+    for label, folder, url_prefix in targets:
+        if not os.path.exists(folder):
+            continue
+        group = {"url": url_prefix, "v4": {}, "v6": {}}
+        for f in os.listdir(folder):
+            p = os.path.join(folder, f)
+            if not os.path.isfile(p):
+                continue
+            if f.endswith(".ipv4.txt"):
+                base = f[:-9]
+                with open(p, "r", encoding="utf-8") as rf:
+                    group["v4"][base] = [l.strip() for l in rf if l.strip()]
+            elif f.endswith(".ipv6.txt"):
+                base = f[:-9]
+                with open(p, "r", encoding="utf-8") as rf:
+                    group["v6"][base] = [l.strip() for l in rf if l.strip()]
+        lookup_data[label] = group
+
+    out_path = os.path.join(DOCS_DIR, "ip-lookup.json")
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(lookup_data, f)
+    logging.info(f"Global ip-lookup.json generated at {out_path} ({os.path.getsize(out_path) // 1024} KB)")
+
+# ==========================================
+# 7. ROOT INDEX GENERATOR
 # ==========================================
 
 def generate_root_index(
@@ -1422,6 +1915,7 @@ def main() -> None:
     cf_meta = update_cloudflare()
     squidguard_meta = update_squidguard()
 
+    generate_global_ip_lookup()
     generate_root_index(azure_meta, aws_meta, gcp_meta, cf_meta, squidguard_meta)
     logging.info("All clouds and SquidGuard mirror updated and synchronized successfully!")
 
