@@ -296,7 +296,7 @@ def generate_directory_index(
             )
 
         html_content = f"""<!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -348,6 +348,47 @@ def generate_directory_index(
             display: flex;
             align-items: center;
             gap: 10px;
+        }}
+        .header-actions {{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }}
+        .lang-switch {{
+            display: inline-flex;
+            align-items: center;
+            background: #f1f5f9;
+            padding: 3px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            gap: 2px;
+        }}
+        .lang-btn {{
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 14px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }}
+        .lang-btn:hover {{
+            color: var(--text);
+        }}
+        .lang-btn.active {{
+            background: #ffffff;
+            color: var(--primary);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+        }}
+        .flag-icon {{
+            font-size: 1rem;
+            line-height: 1;
         }}
         .btn-back {{
             display: inline-flex;
@@ -578,30 +619,36 @@ def generate_directory_index(
     <div class="container">
         <div class="header">
             <h1><i class="fa-solid fa-folder-open"></i> {title}</h1>
-            <a href="{home_href}" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Home</a>
+            <div class="header-actions">
+                <div class="lang-switch">
+                    <button type="button" class="lang-btn active" id="btn-lang-en" onclick="setLang('en')" title="Switch to English"><span class="flag-icon">🇺🇸</span> EN</button>
+                    <button type="button" class="lang-btn" id="btn-lang-pt" onclick="setLang('pt')" title="Mudar para Português"><span class="flag-icon">🇧🇷</span> PT-BR</button>
+                </div>
+                <a href="{home_href}" class="btn-back"><i class="fa-solid fa-arrow-left"></i> <span data-i18n="back_home">Home</span></a>
+            </div>
         </div>
         <p class="desc">{description}</p>
         
         <div class="search-container">
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
-            <input type="text" id="filterInput" class="search-input" placeholder="Buscar por nome ou endereço IP / CIDR (ex: storage, 20.38.106.12, 13.107.6.0/24)..." autofocus>
-            <button type="button" id="clearBtn" class="clear-btn" style="display:none;" title="Limpar busca"><i class="fa-solid fa-xmark"></i></button>
+            <input type="text" id="filterInput" class="search-input" placeholder="Filter by name or IP / CIDR address (e.g. storage, 20.38.106.12, 13.107.6.0/24)..." autofocus data-i18n-placeholder="search_placeholder">
+            <button type="button" id="clearBtn" class="clear-btn" style="display:none;" title="Clear search" data-i18n-title="clear_search"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div id="filterStatus" class="filter-status" style="display: none;"></div>
 
         <div class="stats-bar">
-            <span>Mostrando <strong id="visibleCount">{len(file_items)}</strong> de {len(file_items)} {badge_label.lower()}</span>
-            <span><i class="fa-solid fa-shield-halved"></i> Compatível com: pfSense, OPNsense, Palo Alto, MikroTik, Fortinet</span>
+            <span id="statsLabel">Showing <strong id="visibleCount">{len(file_items)}</strong> of {len(file_items)} {badge_label.lower()}</span>
+            <span data-i18n="compatible_firewalls"><i class="fa-solid fa-shield-halved"></i> Compatible with: pfSense, OPNsense, Palo Alto, MikroTik, Fortinet</span>
         </div>
 
         <table>
             <thead>
                 <tr>
-                    <th>Filename</th>
-                    <th>Type</th>
-                    <th>Records</th>
-                    <th>Size</th>
-                    <th style="width: 50px;">Action</th>
+                    <th><span data-i18n="th_filename">Filename</span></th>
+                    <th><span data-i18n="th_type">Type</span></th>
+                    <th><span data-i18n="th_records">Records</span></th>
+                    <th><span data-i18n="th_size">Size</span></th>
+                    <th style="width: 50px;"><span data-i18n="th_action">Action</span></th>
                 </tr>
             </thead>
             <tbody id="fileTableBody">
@@ -611,11 +658,106 @@ def generate_directory_index(
 
         <div id="emptyState" class="empty-state">
             <i class="fa-solid fa-circle-question fa-2x" style="margin-bottom: 10px;"></i>
-            <p id="emptyMsg">Nenhum arquivo encontrado.</p>
+            <p id="emptyMsg" data-i18n="empty_msg">No matching files found.</p>
         </div>
     </div>
 
     <script>
+        const DIR_I18N = {{
+            en: {{
+                back_home: "Home",
+                search_placeholder: "Filter by name or IP / CIDR address (e.g. storage, 20.38.106.12, 13.107.6.0/24)...",
+                clear_search: "Clear search",
+                compatible_firewalls: '<i class="fa-solid fa-shield-halved"></i> Compatible with: pfSense, OPNsense, Palo Alto, MikroTik, Fortinet',
+                th_filename: "Filename",
+                th_type: "Type",
+                th_records: "Records",
+                th_size: "Size",
+                th_action: "Action",
+                empty_msg: "No matching files found.",
+                stats_showing: (vis, tot, label) => `Showing <strong id="visibleCount">${{vis}}</strong> of ${{tot}} ${{label}}`,
+                loading_ips: '<i class="fa-solid fa-spinner fa-spin"></i> Loading IP database for lookup...',
+                contains_label: "Contains:",
+                prefix_label: "Prefix:",
+                more_label: "more",
+                ipv4_detected: "IPv4 Address detected:",
+                cidr4_detected: "IPv4 CIDR Block detected:",
+                ipv6_detected: "IPv6 Address detected:",
+                cidr6_detected: "IPv6 CIDR Block detected:",
+                prefix_detected: "IP Prefix detected:",
+                showing_containing: "Showing lists containing",
+                showing_prefix: "Showing lists with prefixes starting with",
+                matched_suffix: "lists matched",
+                empty_ip_msg: (term) => `No lists on this page contain the IP/CIDR block <strong>${{term}}</strong>.`,
+                empty_prefix_msg: (term) => `No lists found for prefix "${{term}}".`,
+                empty_text_msg: (term) => `No files found matching "${{term}}".`
+            }},
+            pt: {{
+                back_home: "Início",
+                search_placeholder: "Buscar por nome ou endereço IP / CIDR (ex: storage, 20.38.106.12, 13.107.6.0/24)...",
+                clear_search: "Limpar busca",
+                compatible_firewalls: '<i class="fa-solid fa-shield-halved"></i> Compatível com: pfSense, OPNsense, Palo Alto, MikroTik, Fortinet',
+                th_filename: "Nome do Arquivo",
+                th_type: "Tipo",
+                th_records: "Registros",
+                th_size: "Tamanho",
+                th_action: "Ação",
+                empty_msg: "Nenhum arquivo encontrado.",
+                stats_showing: (vis, tot, label) => `Mostrando <strong id="visibleCount">${{vis}}</strong> de ${{tot}} ${{label}}`,
+                loading_ips: '<i class="fa-solid fa-spinner fa-spin"></i> Carregando base de IPs para consulta...',
+                contains_label: "Contém:",
+                prefix_label: "Prefixo:",
+                more_label: "mais",
+                ipv4_detected: "Endereço IPv4 detectado:",
+                cidr4_detected: "Bloco CIDR IPv4 detectado:",
+                ipv6_detected: "Endereço IPv6 detectado:",
+                cidr6_detected: "Bloco CIDR IPv6 detectado:",
+                prefix_detected: "Prefixo IP detectado:",
+                showing_containing: "Mostrando listas que contêm",
+                showing_prefix: "Mostrando listas com blocos iniciando em",
+                matched_suffix: "listas encontradas",
+                empty_ip_msg: (term) => `Nenhuma lista nesta página contém o IP/bloco <strong>${{term}}</strong>.`,
+                empty_prefix_msg: (term) => `Nenhuma lista encontrada para o prefixo "${{term}}".`,
+                empty_text_msg: (term) => `Nenhum arquivo encontrado para "${{term}}".`
+            }}
+        }};
+
+        let currentLang = localStorage.getItem('cloud_ip_lang') || 'en';
+
+        function setLang(lang) {{
+            currentLang = lang;
+            localStorage.setItem('cloud_ip_lang', lang);
+
+            const btnEn = document.getElementById('btn-lang-en');
+            const btnPt = document.getElementById('btn-lang-pt');
+            if (btnEn && btnPt) {{
+                btnEn.classList.toggle('active', lang === 'en');
+                btnPt.classList.toggle('active', lang === 'pt');
+            }}
+
+            const dict = DIR_I18N[lang] || DIR_I18N.en;
+            document.querySelectorAll('[data-i18n]').forEach(el => {{
+                const key = el.getAttribute('data-i18n');
+                if (dict[key]) {{
+                    el.innerHTML = dict[key];
+                }}
+            }});
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {{
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (dict[key]) {{
+                    el.placeholder = dict[key];
+                }}
+            }});
+            document.querySelectorAll('[data-i18n-title]').forEach(el => {{
+                const key = el.getAttribute('data-i18n-title');
+                if (dict[key]) {{
+                    el.title = dict[key];
+                }}
+            }});
+
+            runFilter();
+        }}
+
         const input = document.getElementById('filterInput');
         const clearBtn = document.getElementById('clearBtn');
         const filterStatus = document.getElementById('filterStatus');
@@ -624,6 +766,8 @@ def generate_directory_index(
         const emptyState = document.getElementById('emptyState');
         const emptyMsg = document.getElementById('emptyMsg');
         const hasIpIndex = {has_ip_files_js};
+        const totalItemsCount = {len(file_items)};
+        const badgeLabel = "{badge_label.lower()}";
 
         let ipIndex = null;
         let parsedIndex = {{ ipv4: {{}}, ipv6: {{}} }};
@@ -753,6 +897,8 @@ def generate_directory_index(
         function runFilter() {{
             const rawTerm = input.value.trim();
             clearBtn.style.display = rawTerm ? 'flex' : 'none';
+            const dict = DIR_I18N[currentLang] || DIR_I18N.en;
+            const statsLabel = document.getElementById('statsLabel');
 
             if (!rawTerm) {{
                 filterStatus.style.display = 'none';
@@ -761,7 +907,7 @@ def generate_directory_index(
                     const matchInfo = row.querySelector('.match-info');
                     if (matchInfo) matchInfo.style.display = 'none';
                 }});
-                visibleCount.textContent = rows.length;
+                if (statsLabel) statsLabel.innerHTML = dict.stats_showing(rows.length, totalItemsCount, badgeLabel);
                 emptyState.style.display = 'none';
                 return;
             }}
@@ -783,7 +929,7 @@ def generate_directory_index(
             if (isIpv4 && hasIpIndex) {{
                 if (ipIndexLoading) {{
                     filterStatus.className = 'filter-status status-loading';
-                    filterStatus.innerHTML = '<i class=\"fa-solid fa-spinner fa-spin\"></i> Carregando base de IPs para consulta...';
+                    filterStatus.innerHTML = dict.loading_ips;
                     filterStatus.style.display = 'flex';
                     return;
                 }}
@@ -808,8 +954,8 @@ def generate_directory_index(
                         count++;
                         if (matchInfo) {{
                             const topCidrs = matches[base].slice(0, 3);
-                            const more = matches[base].length > 3 ? ` +${{matches[base].length - 3}} mais` : '';
-                            matchInfo.innerHTML = `<span class=\"match-pill\"><i class=\"fa-solid fa-check-circle\"></i> Contém: <code>${{topCidrs.join(', ')}}${{more}}</code></span>`;
+                            const more = matches[base].length > 3 ? ` +${{matches[base].length - 3}} ${{dict.more_label}}` : '';
+                            matchInfo.innerHTML = `<span class=\"match-pill\"><i class=\"fa-solid fa-check-circle\"></i> ${{dict.contains_label}} <code>${{topCidrs.join(', ')}}${{more}}</code></span>`;
                             matchInfo.style.display = 'inline-flex';
                         }}
                     }} else {{
@@ -819,12 +965,12 @@ def generate_directory_index(
                 }});
 
                 filterStatus.className = 'filter-status status-ip-v4';
-                const kind = queryCidr4.bits === 32 ? 'Endereço IPv4' : 'Bloco CIDR IPv4';
-                filterStatus.innerHTML = `<i class=\"fa-solid fa-filter\"></i> <strong>${{kind}} detectado:</strong> Mostrando listas que contêm <code>${{escapeHtml(rawTerm)}}</code> (${{Object.keys(matches).length}} serviços/regiões encontrados)`;
+                const kind = queryCidr4.bits === 32 ? dict.ipv4_detected : dict.cidr4_detected;
+                filterStatus.innerHTML = `<i class=\"fa-solid fa-filter\"></i> <strong>${{kind}}</strong> ${{dict.showing_containing}} <code>${{escapeHtml(rawTerm)}}</code> (${{Object.keys(matches).length}} ${{dict.matched_suffix}})`;
                 filterStatus.style.display = 'flex';
 
-                visibleCount.textContent = count;
-                emptyMsg.innerHTML = `Nenhuma lista nesta página contém o IP/bloco <strong>${{escapeHtml(rawTerm)}}</strong>.`;
+                if (statsLabel) statsLabel.innerHTML = dict.stats_showing(count, totalItemsCount, badgeLabel);
+                emptyMsg.innerHTML = dict.empty_ip_msg(escapeHtml(rawTerm));
                 emptyState.style.display = count === 0 ? 'block' : 'none';
                 return;
             }}
@@ -833,7 +979,7 @@ def generate_directory_index(
             if (isIpv6 && hasIpIndex) {{
                 if (ipIndexLoading) {{
                     filterStatus.className = 'filter-status status-loading';
-                    filterStatus.innerHTML = '<i class=\"fa-solid fa-spinner fa-spin\"></i> Carregando base de IPs para consulta...';
+                    filterStatus.innerHTML = dict.loading_ips;
                     filterStatus.style.display = 'flex';
                     return;
                 }}
@@ -858,8 +1004,8 @@ def generate_directory_index(
                         count++;
                         if (matchInfo) {{
                             const topCidrs = matches[base].slice(0, 3);
-                            const more = matches[base].length > 3 ? ` +${{matches[base].length - 3}} mais` : '';
-                            matchInfo.innerHTML = `<span class=\"match-pill match-pill-v6\"><i class=\"fa-solid fa-check-circle\"></i> Contém: <code>${{topCidrs.join(', ')}}${{more}}</code></span>`;
+                            const more = matches[base].length > 3 ? ` +${{matches[base].length - 3}} ${{dict.more_label}}` : '';
+                            matchInfo.innerHTML = `<span class=\"match-pill match-pill-v6\"><i class=\"fa-solid fa-check-circle\"></i> ${{dict.contains_label}} <code>${{topCidrs.join(', ')}}${{more}}</code></span>`;
                             matchInfo.style.display = 'inline-flex';
                         }}
                     }} else {{
@@ -869,12 +1015,12 @@ def generate_directory_index(
                 }});
 
                 filterStatus.className = 'filter-status status-ip-v6';
-                const kind = queryCidr6.bits === 128 ? 'Endereço IPv6' : 'Bloco CIDR IPv6';
-                filterStatus.innerHTML = `<i class=\"fa-solid fa-filter\"></i> <strong>${{kind}} detectado:</strong> Mostrando listas que contêm <code>${{escapeHtml(rawTerm)}}</code> (${{Object.keys(matches).length}} serviços/regiões encontrados)`;
+                const kind = queryCidr6.bits === 128 ? dict.ipv6_detected : dict.cidr6_detected;
+                filterStatus.innerHTML = `<i class=\"fa-solid fa-filter\"></i> <strong>${{kind}}</strong> ${{dict.showing_containing}} <code>${{escapeHtml(rawTerm)}}</code> (${{Object.keys(matches).length}} ${{dict.matched_suffix}})`;
                 filterStatus.style.display = 'flex';
 
-                visibleCount.textContent = count;
-                emptyMsg.innerHTML = `Nenhuma lista nesta página contém o IP/bloco IPv6 <strong>${{escapeHtml(rawTerm)}}</strong>.`;
+                if (statsLabel) statsLabel.innerHTML = dict.stats_showing(count, totalItemsCount, badgeLabel);
+                emptyMsg.innerHTML = dict.empty_ip_msg(escapeHtml(rawTerm));
                 emptyState.style.display = count === 0 ? 'block' : 'none';
                 return;
             }}
@@ -904,8 +1050,8 @@ def generate_directory_index(
                             count++;
                             if (matchInfo) {{
                                 const topCidrs = matches[base].slice(0, 3);
-                                const more = matches[base].length > 3 ? ` +${{matches[base].length - 3}} mais` : '';
-                                matchInfo.innerHTML = `<span class=\"match-pill\"><i class=\"fa-solid fa-magnifying-glass\"></i> Prefixo: <code>${{topCidrs.join(', ')}}${{more}}</code></span>`;
+                                const more = matches[base].length > 3 ? ` +${{matches[base].length - 3}} ${{dict.more_label}}` : '';
+                                matchInfo.innerHTML = `<span class=\"match-pill\"><i class=\"fa-solid fa-magnifying-glass\"></i> ${{dict.prefix_label}} <code>${{topCidrs.join(', ')}}${{more}}</code></span>`;
                                 matchInfo.style.display = 'inline-flex';
                             }}
                         }} else {{
@@ -915,11 +1061,11 @@ def generate_directory_index(
                     }});
 
                     filterStatus.className = 'filter-status status-ip-v4';
-                    filterStatus.innerHTML = `<i class=\"fa-solid fa-filter\"></i> <strong>Prefixo IP detectado:</strong> Mostrando listas com blocos iniciando em <code>${{escapeHtml(rawTerm)}}</code> (${{Object.keys(matches).length}} serviços/regiões)`;
+                    filterStatus.innerHTML = `<i class=\"fa-solid fa-filter\"></i> <strong>${{dict.prefix_detected}}</strong> ${{dict.showing_prefix}} <code>${{escapeHtml(rawTerm)}}</code> (${{Object.keys(matches).length}} ${{dict.matched_suffix}})`;
                     filterStatus.style.display = 'flex';
 
-                    visibleCount.textContent = count;
-                    emptyMsg.innerHTML = `Nenhuma lista encontrada para o prefixo "${{escapeHtml(rawTerm)}}".`;
+                    if (statsLabel) statsLabel.innerHTML = dict.stats_showing(count, totalItemsCount, badgeLabel);
+                    emptyMsg.innerHTML = dict.empty_prefix_msg(escapeHtml(rawTerm));
                     emptyState.style.display = count === 0 ? 'block' : 'none';
                     return;
                 }}
@@ -942,8 +1088,8 @@ def generate_directory_index(
                 }}
             }});
 
-            visibleCount.textContent = count;
-            emptyMsg.innerHTML = `Nenhum arquivo encontrado para "${{escapeHtml(rawTerm)}}".`;
+            if (statsLabel) statsLabel.innerHTML = dict.stats_showing(count, totalItemsCount, badgeLabel);
+            emptyMsg.innerHTML = dict.empty_text_msg(escapeHtml(rawTerm));
             emptyState.style.display = count === 0 ? 'block' : 'none';
         }}
 
@@ -957,6 +1103,10 @@ def generate_directory_index(
             runFilter();
             input.focus();
         }});
+
+        // Initialize language
+        setLang(currentLang);
+    </script>
     </script>
 </body>
 </html>"""
@@ -1234,7 +1384,7 @@ def generate_squidguard_index(meta: Dict[str, Any]) -> None:
     categories_html = "".join([f'<span class="cat-pill"><i class="fa-solid fa-tag"></i> {cat}</span>' for cat in categories])
 
     html_content = f"""<!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1278,6 +1428,15 @@ def generate_squidguard_index(meta: Dict[str, Any]) -> None:
             border: 1px solid var(--border);
         }}
 
+        .top-nav-bar {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }}
+
         .nav-back {{
             display: inline-flex;
             align-items: center;
@@ -1286,7 +1445,6 @@ def generate_squidguard_index(meta: Dict[str, Any]) -> None:
             text-decoration: none;
             font-weight: 600;
             font-size: 0.95rem;
-            margin-bottom: 20px;
             padding: 6px 12px;
             border-radius: 6px;
             background: #f1f5f9;
@@ -1297,6 +1455,47 @@ def generate_squidguard_index(meta: Dict[str, Any]) -> None:
             background: #e2e8f0;
             color: var(--primary-dark);
             text-decoration: none;
+        }}
+
+        .lang-switch {{
+            display: inline-flex;
+            align-items: center;
+            background: #f1f5f9;
+            padding: 3px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            gap: 2px;
+        }}
+
+        .lang-btn {{
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 14px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }}
+
+        .lang-btn:hover {{
+            color: var(--text);
+        }}
+
+        .lang-btn.active {{
+            background: #ffffff;
+            color: var(--primary);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+        }}
+
+        .flag-icon {{
+            font-size: 1rem;
+            line-height: 1;
         }}
 
         .header {{
@@ -1586,93 +1785,101 @@ def generate_squidguard_index(meta: Dict[str, Any]) -> None:
 </head>
 <body>
     <div class="container">
-        <a href="../index.html" class="nav-back"><i class="fa-solid fa-arrow-left"></i> Voltar ao Hub Cloud IP Ranges</a>
+        <div class="top-nav-bar">
+            <a href="../index.html" class="nav-back"><i class="fa-solid fa-arrow-left"></i> <span data-i18n="back_hub">Back to Cloud IP Ranges Hub</span></a>
+            <div class="lang-switch">
+                <button type="button" class="lang-btn active" id="btn-lang-en" onclick="setLang('en')" title="Switch to English"><span class="flag-icon">🇺🇸</span> EN</button>
+                <button type="button" class="lang-btn" id="btn-lang-pt" onclick="setLang('pt')" title="Mudar para Português"><span class="flag-icon">🇧🇷</span> PT-BR</button>
+            </div>
+        </div>
 
         <div class="header">
             <div class="header-top">
                 <i class="fa-solid fa-shield-cat"></i>
                 <div>
                     <h1>SquidGuard Web Filter Blacklists</h1>
-                    <p style="margin: 4px 0 0 0; color: var(--text-muted); font-size: 0.98rem;">
-                        Espelho Automatizado de Contingência (Shallalist Successor Mirror) para pfSense, Squid e SquidGuard
+                    <p style="margin: 4px 0 0 0; color: var(--text-muted); font-size: 0.98rem;" data-i18n="sg_subtitle">
+                        Automated Contingency Mirror (Shallalist Successor Mirror) for pfSense, Squid, and SquidGuard
                     </p>
                 </div>
             </div>
             <div class="badges-bar">
-                <span class="badge badge-mirror"><i class="fa-solid fa-cloud-arrow-down"></i> Mirror de Contingência</span>
-                <span class="badge badge-univ"><i class="fa-solid fa-building-columns"></i> Curadoria Oficial: Université Toulouse 1 Capitole</span>
-                <span class="badge badge-pfsense"><i class="fa-solid fa-shield-halved"></i> 100% Compatível com pfSense & SquidGuard</span>
+                <span class="badge badge-mirror" data-i18n="badge_mirror"><i class="fa-solid fa-cloud-arrow-down"></i> Contingency Mirror</span>
+                <span class="badge badge-univ" data-i18n="badge_univ"><i class="fa-solid fa-building-columns"></i> Official Curation: Université Toulouse 1 Capitole</span>
+                <span class="badge badge-pfsense" data-i18n="badge_compat"><i class="fa-solid fa-shield-halved"></i> 100% Compatible with pfSense & SquidGuard</span>
             </div>
         </div>
 
         <!-- Attribution Box -->
         <div class="attribution-box">
-            <p style="margin: 0 0 8px 0; font-weight: 700;">
-                <i class="fa-solid fa-circle-info"></i> Créditos Oficiais & Finalidade deste Espelho:
+            <p style="margin: 0 0 8px 0; font-weight: 700;" data-i18n="attr_title">
+                <i class="fa-solid fa-circle-info"></i> Official Credits & Purpose of this Mirror:
             </p>
-            <p style="margin: 0;">
-                Esta base de dados é mantida e catalogada oficialmente pela <strong>Direction des Systèmes d'Information da Université Toulouse 1 Capitole (França)</strong>. Este repositório atua estritamente como um <strong>espelho automatizado de contingência (Shallalist Successor Mirror)</strong> para assegurar redundância e blindar administradores de redes contra indisponibilidades e abandono futuro de repositórios (como ocorrido historicamente com a Shallalist). Todos os créditos de catalogação e propriedade intelectual pertencem integralmente à Universidade de Toulouse.
+            <p style="margin: 0;" data-i18n="attr_desc">
+                This database is officially maintained and cataloged by the <strong>Direction des Systèmes d'Information of Université Toulouse 1 Capitole (France)</strong>. This repository acts strictly as an <strong>automated contingency mirror (Shallalist Successor Mirror)</strong> to ensure redundancy and protect network administrators against service downtime and future abandonment (as historically occurred with Shallalist). All categorization credits and intellectual property belong entirely to the University of Toulouse.
             </p>
         </div>
 
         <!-- Direct Ingestion Card -->
         <div class="direct-download-card">
             <div class="url-row">
-                <label for="sgUrlInput"><i class="fa-solid fa-link"></i> URL Direta para Ingestão no pfSense / SquidGuard:</label>
+                <label for="sgUrlInput" data-i18n="lbl_direct_url"><i class="fa-solid fa-link"></i> Direct URL for Ingestion in pfSense / SquidGuard:</label>
                 <div class="url-input-group">
                     <input type="text" id="sgUrlInput" readonly value="https://leoescarpellin.github.io/cloudIPrange/squidguard/blacklists.tar.gz">
-                    <button class="btn-copy" onclick="copyUrl()"><i class="fa-regular fa-copy"></i> Copiar URL</button>
+                    <button class="btn-copy" onclick="copyUrl()"><i class="fa-regular fa-copy"></i> <span data-i18n="btn_copy">Copy URL</span></button>
                 </div>
             </div>
 
             <div class="meta-stats">
-                <span><i class="fa-solid fa-hard-drive"></i> Tamanho: <strong>{size_mb} MB</strong></span>
-                <span><i class="fa-solid fa-tags"></i> Categorias: <strong>{cat_count}</strong></span>
-                <span><i class="fa-solid fa-clock"></i> Sincronizado: <strong>{updated_at}</strong></span>
+                <span><i class="fa-solid fa-hard-drive"></i> <span data-i18n="meta_size">Size:</span> <strong>{size_mb} MB</strong></span>
+                <span><i class="fa-solid fa-tags"></i> <span data-i18n="meta_cats">Categories:</span> <strong>{cat_count}</strong></span>
+                <span><i class="fa-solid fa-clock"></i> <span data-i18n="meta_synced">Synchronized:</span> <strong>{updated_at}</strong></span>
                 <span><i class="fa-solid fa-fingerprint"></i> SHA-256: <code>{sha256[:16]}...</code></span>
             </div>
 
             <div class="action-buttons">
-                <a href="blacklists.tar.gz" class="btn-action btn-action-primary"><i class="fa-solid fa-download"></i> Baixar blacklists.tar.gz ({size_mb} MB)</a>
-                <a href="blacklists.tar.gz.sha256" class="btn-action btn-action-secondary" target="_blank"><i class="fa-solid fa-file-shield"></i> Ver Checksum SHA-256</a>
-                <a href="https://dsi.ut-capitole.fr/blacklists/" class="btn-action btn-action-secondary" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Upstream Oficial (UT1 Capitole)</a>
+                <a href="blacklists.tar.gz" class="btn-action btn-action-primary"><i class="fa-solid fa-download"></i> <span data-i18n="btn_dl">Download blacklists.tar.gz ({size_mb} MB)</span></a>
+                <a href="blacklists.tar.gz.sha256" class="btn-action btn-action-secondary" target="_blank"><i class="fa-solid fa-file-shield"></i> <span data-i18n="btn_view_sha">View SHA-256 Checksum</span></a>
+                <a href="https://dsi.ut-capitole.fr/blacklists/" class="btn-action btn-action-secondary" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> <span data-i18n="btn_upstream">Official Upstream (UT1 Capitole)</span></a>
             </div>
         </div>
 
         <!-- pfSense Setup Instructions -->
-        <h2 class="section-title"><i class="fa-solid fa-screwdriver-wrench"></i> Como Configurar no pfSense (Passo a Passo)</h2>
-        <ol class="guide-steps">
-            <li>No menu do pfSense WebGUI, acesse <strong>Services &rarr; SquidGuard Proxy Filter</strong>.</li>
-            <li>Na aba <strong>General Settings</strong>, certifique-se de que o SquidGuard está habilitado (<strong>Enable</strong>).</li>
-            <li>Navegue até a aba <strong>Blacklist</strong>:
-                <ul>
-                    <li>Marque a caixa de seleção <strong>Blacklist</strong> (Enable blacklist).</li>
-                    <li>No campo <strong>Blacklist URL</strong>, cole a URL deste mirror:  
-                        <code>https://leoescarpellin.github.io/cloudIPrange/squidguard/blacklists.tar.gz</code>
-                    </li>
-                </ul>
-            </li>
-            <li>Role até o final da página e clique em <strong>Save</strong>.</li>
-            <li>Acesse a aba <strong>Blacklist update</strong> e clique no botão <strong>Download</strong>. O pfSense fará o download do arquivo, descompactará em <code>/var/db/squidGuard/</code> e compilará as tabelas Berkeley DB (<code>.db</code>). Aguarde até a mensagem de conclusão (<i>Blacklist update complete</i>).</li>
-            <li>Acesse a aba <strong>Common ACL</strong> (ou configure ACLs por grupo em <strong>Group ACL</strong>) e clique no ícone <strong>+</strong> em <strong>Target Rules List</strong>:
-                <ul>
-                    <li>Defina a ação desejada para cada categoria (ex: <code>deny</code> para <i>malware</i>, <i>phishing</i>, <i>adult</i>, <i>cryptojacking</i>, etc.).</li>
-                </ul>
-            </li>
-            <li>Clique em <strong>Save</strong> no final da página.</li>
-            <li>Retorne à aba <strong>General Settings</strong> e clique em <strong>Apply</strong> no topo da tela para carregar as novas regras no proxy ativo.</li>
-        </ol>
+        <h2 class="section-title"><i class="fa-solid fa-screwdriver-wrench"></i> <span data-i18n="guide_title">How to Configure in pfSense (Step-by-Step)</span></h2>
+        <div id="guideStepsContainer">
+            <ol class="guide-steps" id="guideStepsList">
+                <li>In the pfSense WebGUI menu, navigate to <strong>Services &rarr; SquidGuard Proxy Filter</strong>.</li>
+                <li>In the <strong>General Settings</strong> tab, make sure SquidGuard is enabled (<strong>Enable</strong>).</li>
+                <li>Navigate to the <strong>Blacklist</strong> tab:
+                    <ul>
+                        <li>Check the <strong>Blacklist</strong> checkbox (Enable blacklist).</li>
+                        <li>In the <strong>Blacklist URL</strong> field, paste this mirror URL:  
+                            <code>https://leoescarpellin.github.io/cloudIPrange/squidguard/blacklists.tar.gz</code>
+                        </li>
+                    </ul>
+                </li>
+                <li>Scroll to the bottom of the page and click <strong>Save</strong>.</li>
+                <li>Switch to the <strong>Blacklist update</strong> tab and click the <strong>Download</strong> button. pfSense will download the archive, extract to <code>/var/db/squidGuard/</code>, and compile Berkeley DB tables (<code>.db</code>). Wait until the message reports <i>Blacklist update complete</i>.</li>
+                <li>Go to the <strong>Common ACL</strong> tab (or configure group ACLs in <strong>Group ACL</strong>) and click the <strong>+</strong> icon under <strong>Target Rules List</strong>:
+                    <ul>
+                        <li>Define desired actions for each category (e.g. <code>deny</code> for <i>malware</i>, <i>phishing</i>, <i>adult</i>, <i>cryptojacking</i>, etc.).</li>
+                    </ul>
+                </li>
+                <li>Click <strong>Save</strong> at the bottom of the page.</li>
+                <li>Return to the <strong>General Settings</strong> tab and click <strong>Apply</strong> at the top of the screen to activate the new filtering rules in the live proxy.</li>
+            </ol>
+        </div>
 
-        <div class="tip-callout">
-            <i class="fa-solid fa-lightbulb"></i> <strong>Dica de Desempenho & Cron:</strong>  
-            Você pode automatizar a atualização semanal da blacklist no pfSense configurando um agendamento no pacote <strong>Cron</strong> (ex: executando o comando de download/update do SquidGuard aos domingos ou segundas-feiras) para que seu ambiente permaneça protegido sem intervenção manual.
+        <div class="tip-callout" data-i18n="tip_cron">
+            <i class="fa-solid fa-lightbulb"></i> <strong>Performance & Cron Tip:</strong>  
+            You can automate weekly blacklist updates in pfSense by configuring a scheduled job in the <strong>Cron</strong> package (e.g. running the SquidGuard download/update command on Sundays or Mondays) ensuring continuous protection without manual intervention.
         </div>
 
         <!-- Available Categories -->
-        <h2 class="section-title"><i class="fa-solid fa-folder-tree"></i> Categorias Incluídas ({cat_count} Categorias)</h2>
+        <h2 class="section-title"><i class="fa-solid fa-folder-tree"></i> <span id="catHeaderTitle">Included Categories ({cat_count} Categories)</span></h2>
         <div class="categories-filter-box">
             <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted);"></i>
-            <input type="text" id="catSearchInput" placeholder="Filtrar categorias (ex: malware, social, games, adult)..." onkeyup="filterCategories()">
+            <input type="text" id="catSearchInput" placeholder="Filter categories (e.g. malware, social, games, adult)..." onkeyup="filterCategories()" data-i18n-placeholder="search_cats">
         </div>
         <div class="categories-container" id="catContainer">
             {categories_html}
@@ -1681,25 +1888,134 @@ def generate_squidguard_index(meta: Dict[str, Any]) -> None:
         <!-- Footer -->
         <div class="footer">
             <div>
-                <span>Espelho de Contingência mantido no projeto <a href="https://github.com/leoescarpellin/cloudIPrange" target="_blank">cloudIPrange</a></span>
+                <span data-i18n="footer_credits">Contingency Mirror maintained by the <a href="https://github.com/leoescarpellin/cloudIPrange" target="_blank">cloudIPrange</a> project</span>
             </div>
             <div>
-                <a href="../index.html"><i class="fa-solid fa-arrow-left"></i> Retornar ao Hub Principal</a>
+                <a href="../index.html"><i class="fa-solid fa-arrow-left"></i> <span data-i18n="footer_back">Return to Main Hub</span></a>
             </div>
         </div>
     </div>
 
     <script>
+        const SG_I18N = {{
+            en: {{
+                back_hub: "Back to Cloud IP Ranges Hub",
+                sg_subtitle: "Automated Contingency Mirror (Shallalist Successor Mirror) for pfSense, Squid, and SquidGuard",
+                badge_mirror: '<i class="fa-solid fa-cloud-arrow-down"></i> Contingency Mirror',
+                badge_univ: '<i class="fa-solid fa-building-columns"></i> Official Curation: Université Toulouse 1 Capitole',
+                badge_compat: '<i class="fa-solid fa-shield-halved"></i> 100% Compatible with pfSense & SquidGuard',
+                attr_title: '<i class="fa-solid fa-circle-info"></i> Official Credits & Purpose of this Mirror:',
+                attr_desc: "This database is officially maintained and cataloged by the <strong>Direction des Systèmes d\\'Information of Université Toulouse 1 Capitole (France)</strong>. This repository acts strictly as an <strong>automated contingency mirror (Shallalist Successor Mirror)</strong> to ensure redundancy and protect network administrators against service downtime and future abandonment (as historically occurred with Shallalist). All categorization credits and intellectual property belong entirely to the University of Toulouse.",
+                lbl_direct_url: '<i class="fa-solid fa-link"></i> Direct URL for Ingestion in pfSense / SquidGuard:',
+                btn_copy: "Copy URL",
+                btn_copied: '<i class="fa-solid fa-check"></i> Copied!',
+                meta_size: "Size:",
+                meta_cats: "Categories:",
+                meta_synced: "Synchronized:",
+                btn_dl: "Download blacklists.tar.gz ({size_mb} MB)",
+                btn_view_sha: "View SHA-256 Checksum",
+                btn_upstream: "Official Upstream (UT1 Capitole)",
+                guide_title: "How to Configure in pfSense (Step-by-Step)",
+                guide_steps: [
+                    "In the pfSense WebGUI menu, navigate to <strong>Services &rarr; SquidGuard Proxy Filter</strong>.",
+                    "In the <strong>General Settings</strong> tab, make sure SquidGuard is enabled (<strong>Enable</strong>).",
+                    "Navigate to the <strong>Blacklist</strong> tab:<ul><li>Check the <strong>Blacklist</strong> checkbox (Enable blacklist).</li><li>In the <strong>Blacklist URL</strong> field, paste this mirror URL: <code>https://leoescarpellin.github.io/cloudIPrange/squidguard/blacklists.tar.gz</code></li></ul>",
+                    "Scroll to the bottom of the page and click <strong>Save</strong>.",
+                    "Switch to the <strong>Blacklist update</strong> tab and click the <strong>Download</strong> button. pfSense will download the archive, extract to <code>/var/db/squidGuard/</code>, and compile Berkeley DB tables (<code>.db</code>). Wait until the message reports <i>Blacklist update complete</i>.",
+                    "Go to the <strong>Common ACL</strong> tab (or configure group ACLs in <strong>Group ACL</strong>) and click the <strong>+</strong> icon under <strong>Target Rules List</strong>:<ul><li>Define desired actions for each category (e.g. <code>deny</code> for <i>malware</i>, <i>phishing</i>, <i>adult</i>, <i>cryptojacking</i>, etc.).</li></ul>",
+                    "Click <strong>Save</strong> at the bottom of the page.",
+                    "Return to the <strong>General Settings</strong> tab and click <strong>Apply</strong> at the top of the screen to activate the new filtering rules in the live proxy."
+                ],
+                tip_cron: '<i class="fa-solid fa-lightbulb"></i> <strong>Performance & Cron Tip:</strong> You can automate weekly blacklist updates in pfSense by configuring a scheduled job in the <strong>Cron</strong> package (e.g. running the SquidGuard download/update command on Sundays or Mondays) ensuring continuous protection without manual intervention.',
+                cat_header: "Included Categories ({cat_count} Categories)",
+                search_cats: "Filter categories (e.g. malware, social, games, adult)...",
+                footer_credits: 'Contingency Mirror maintained by the <a href="https://github.com/leoescarpellin/cloudIPrange" target="_blank">cloudIPrange</a> project',
+                footer_back: "Return to Main Hub"
+            }},
+            pt: {{
+                back_hub: "Voltar ao Hub Cloud IP Ranges",
+                sg_subtitle: "Espelho Automatizado de Contingência (Shallalist Successor Mirror) para pfSense, Squid e SquidGuard",
+                badge_mirror: '<i class="fa-solid fa-cloud-arrow-down"></i> Mirror de Contingência',
+                badge_univ: '<i class="fa-solid fa-building-columns"></i> Curadoria Oficial: Université Toulouse 1 Capitole',
+                badge_compat: '<i class="fa-solid fa-shield-halved"></i> 100% Compatível com pfSense & SquidGuard',
+                attr_title: '<i class="fa-solid fa-circle-info"></i> Créditos Oficiais & Finalidade deste Espelho:',
+                attr_desc: "Esta base de dados é mantida e catalogada oficialmente pela <strong>Direction des Systèmes d\\'Information da Université Toulouse 1 Capitole (França)</strong>. Este repositório atua estritamente como um <strong>espelho automatizado de contingência (Shallalist Successor Mirror)</strong> para assegurar redundância e blindar administradores de redes contra indisponibilidades e abandono futuro de repositórios (como ocorrido historicamente com a Shallalist). Todos os créditos de catalogação e propriedade intelectual pertencem integralmente à Universidade de Toulouse.",
+                lbl_direct_url: '<i class="fa-solid fa-link"></i> URL Direta para Ingestão no pfSense / SquidGuard:',
+                btn_copy: "Copiar URL",
+                btn_copied: '<i class="fa-solid fa-check"></i> Copiado!',
+                meta_size: "Tamanho:",
+                meta_cats: "Categorias:",
+                meta_synced: "Sincronizado:",
+                btn_dl: "Baixar blacklists.tar.gz ({size_mb} MB)",
+                btn_view_sha: "Ver Checksum SHA-256",
+                btn_upstream: "Upstream Oficial (UT1 Capitole)",
+                guide_title: "Como Configurar no pfSense (Passo a Passo)",
+                guide_steps: [
+                    "No menu do pfSense WebGUI, acesse <strong>Services &rarr; SquidGuard Proxy Filter</strong>.",
+                    "Na aba <strong>General Settings</strong>, certifique-se de que o SquidGuard está habilitado (<strong>Enable</strong>).",
+                    "Navegue até a aba <strong>Blacklist</strong>:<ul><li>Marque a caixa de seleção <strong>Blacklist</strong> (Enable blacklist).</li><li>No campo <strong>Blacklist URL</strong>, cole a URL deste mirror: <code>https://leoescarpellin.github.io/cloudIPrange/squidguard/blacklists.tar.gz</code></li></ul>",
+                    "Role até o final da página e clique em <strong>Save</strong>.",
+                    "Acesse a aba <strong>Blacklist update</strong> e clique no botão <strong>Download</strong>. O pfSense fará o download do arquivo, descompactará em <code>/var/db/squidGuard/</code> e compilará as tabelas Berkeley DB (<code>.db</code>). Aguarde até a mensagem de conclusão (<i>Blacklist update complete</i>).",
+                    "Acesse a aba <strong>Common ACL</strong> (ou configure ACLs por grupo em <strong>Group ACL</strong>) e clique no ícone <strong>+</strong> em <strong>Target Rules List</strong>:<ul><li>Defina a ação desejada para cada categoria (ex: <code>deny</code> para <i>malware</i>, <i>phishing</i>, <i>adult</i>, <i>cryptojacking</i>, etc.).</li></ul>",
+                    "Clique em <strong>Save</strong> no final da página.",
+                    "Retorne à aba <strong>General Settings</strong> e clique em <strong>Apply</strong> no topo da tela para carregar as novas regras no proxy ativo."
+                ],
+                tip_cron: '<i class="fa-solid fa-lightbulb"></i> <strong>Dica de Desempenho & Cron:</strong> Você pode automatizar a atualização semanal da blacklist no pfSense configurando um agendamento no pacote <strong>Cron</strong> (ex: executando o comando de download/update do SquidGuard aos domingos ou segundas-feiras) para que seu ambiente permaneça protegido sem intervenção manual.',
+                cat_header: "Categorias Incluídas ({cat_count} Categorias)",
+                search_cats: "Filtrar categorias (ex: malware, social, games, adult)...",
+                footer_credits: 'Espelho de Contingência mantido no projeto <a href="https://github.com/leoescarpellin/cloudIPrange" target="_blank">cloudIPrange</a>',
+                footer_back: "Retornar ao Hub Principal"
+            }}
+        }};
+
+        let currentLang = localStorage.getItem('cloud_ip_lang') || 'en';
+
+        function setLang(lang) {{
+            currentLang = lang;
+            localStorage.setItem('cloud_ip_lang', lang);
+
+            const btnEn = document.getElementById('btn-lang-en');
+            const btnPt = document.getElementById('btn-lang-pt');
+            if (btnEn && btnPt) {{
+                btnEn.classList.toggle('active', lang === 'en');
+                btnPt.classList.toggle('active', lang === 'pt');
+            }}
+
+            const dict = SG_I18N[lang] || SG_I18N.en;
+            document.querySelectorAll('[data-i18n]').forEach(el => {{
+                const key = el.getAttribute('data-i18n');
+                if (dict[key]) {{
+                    el.innerHTML = dict[key];
+                }}
+            }});
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {{
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (dict[key]) {{
+                    el.placeholder = dict[key];
+                }}
+            }});
+
+            const catHeader = document.getElementById('catHeaderTitle');
+            if (catHeader) {{
+                catHeader.textContent = dict.cat_header;
+            }}
+
+            const stepsList = document.getElementById('guideStepsList');
+            if (stepsList && dict.guide_steps) {{
+                stepsList.innerHTML = dict.guide_steps.map(s => `<li>${{s}}</li>`).join('');
+            }}
+        }}
+
         function copyUrl() {{
             const input = document.getElementById("sgUrlInput");
             input.select();
             input.setSelectionRange(0, 99999);
             navigator.clipboard.writeText(input.value).then(() => {{
                 const btn = document.querySelector(".btn-copy");
-                const originalHtml = btn.innerHTML;
-                btn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado!';
+                const dict = SG_I18N[currentLang] || SG_I18N.en;
+                btn.innerHTML = dict.btn_copied;
                 setTimeout(() => {{
-                    btn.innerHTML = originalHtml;
+                    btn.innerHTML = '<i class="fa-regular fa-copy"></i> ' + dict.btn_copy;
                 }}, 2000);
             }});
         }}
@@ -1716,6 +2032,9 @@ def generate_squidguard_index(meta: Dict[str, Any]) -> None:
                 }}
             }});
         }}
+
+        // Initialize language
+        setLang(currentLang);
     </script>
 </body>
 </html>

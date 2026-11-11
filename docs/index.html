@@ -48,14 +48,24 @@
 
         .header-title {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
+            justify-content: space-between;
             gap: 16px;
             border-bottom: 2px solid #eef2f5;
             padding-bottom: 18px;
             margin-bottom: 24px;
+            flex-wrap: wrap;
         }
 
-        .header-title i {
+        .header-main {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+            min-width: 280px;
+        }
+
+        .header-title i.header-icon {
             color: var(--primary);
             font-size: 2.4rem;
         }
@@ -65,6 +75,49 @@
             color: #1e293b;
             font-size: 1.95rem;
             font-weight: 700;
+        }
+
+        /* Language Switcher */
+        .lang-switch {
+            display: inline-flex;
+            align-items: center;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            gap: 3px;
+        }
+
+        .lang-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 16px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .lang-btn:hover {
+            color: var(--text);
+        }
+
+        .lang-btn.active {
+            background: #ffffff;
+            color: var(--primary);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        .flag-icon {
+            font-size: 1.05rem;
+            line-height: 1;
+            display: inline-block;
         }
 
         .provider-grid {
@@ -226,6 +279,27 @@
 
         .guide-header h3 i {
             color: #eab308;
+        }
+
+        .guide-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 28px 20px;
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 6px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+            text-align: center;
+            user-select: none;
+        }
+
+        .guide-placeholder i {
+            font-size: 1.25rem;
+            color: var(--primary);
         }
 
         .guide-content {
@@ -779,12 +853,22 @@
     <div class="container">
         <!-- Header -->
         <div class="header-title">
-            <i class="fa-solid fa-cloud-bolt"></i>
-            <div>
-                <h1>Cloud IP Ranges Automation Hub</h1>
-                <p style="margin: 4px 0 0 0; color: var(--text-muted); font-size: 0.95rem;">
-                    Automated, deduplicated, and CIDR-collapsed IP ranges for <strong>Microsoft Azure</strong>, <strong>Amazon AWS</strong>, <strong>Google Cloud</strong>, and <strong>Cloudflare</strong>. Ready for firewall aliases and dynamic lists.
-                </p>
+            <div class="header-main">
+                <i class="fa-solid fa-cloud-bolt header-icon"></i>
+                <div>
+                    <h1 data-i18n="portal_title">Cloud IP Ranges Automation Hub</h1>
+                    <p data-i18n="portal_subtitle" style="margin: 4px 0 0 0; color: var(--text-muted); font-size: 0.95rem;">
+                        Automated, deduplicated, and CIDR-collapsed IP ranges for <strong>Microsoft Azure</strong>, <strong>Amazon AWS</strong>, <strong>Google Cloud</strong>, and <strong>Cloudflare</strong>. Ready for firewall aliases and dynamic lists.
+                    </p>
+                </div>
+            </div>
+            <div class="lang-switch">
+                <button type="button" class="lang-btn active" id="btn-lang-en" onclick="setLanguage('en')" title="Switch to English">
+                    <span class="flag-icon">🇺🇸</span> EN
+                </button>
+                <button type="button" class="lang-btn" id="btn-lang-pt" onclick="setLanguage('pt')" title="Mudar para Português (Brasil)">
+                    <span class="flag-icon">🇧🇷</span> PT-BR
+                </button>
             </div>
         </div>
 
@@ -792,15 +876,15 @@
         <div class="global-lookup-card">
             <div class="lookup-header">
                 <div>
-                    <h3><i class="fa-solid fa-magnifying-glass-location"></i> Validador & Consulta Rápida de IPs Multi-Cloud</h3>
-                    <p>Digite qualquer endereço IP (IPv4 ou IPv6) para identificar instantaneamente se pertence à <strong>Microsoft Azure</strong>, <strong>Amazon AWS</strong>, <strong>Google Cloud (GCP)</strong> ou <strong>Cloudflare</strong>, descobrindo o serviço, região e lista exata correspondente.</p>
+                    <h3 data-i18n="lookup_title"><i class="fa-solid fa-magnifying-glass-location"></i> Multi-Cloud IP Validator & Rapid Lookup</h3>
+                    <p data-i18n="lookup_desc">Type any IP address (IPv4 or IPv6) or CIDR block to instantly identify whether it belongs to <strong>Microsoft Azure</strong>, <strong>Amazon AWS</strong>, <strong>Google Cloud (GCP)</strong>, or <strong>Cloudflare</strong>, discovering the exact matching service, region, and list.</p>
                 </div>
             </div>
             <div class="lookup-input-bar">
                 <i class="fa-solid fa-network-wired lookup-icon"></i>
-                <input type="text" id="globalIpInput" placeholder="Ex: 20.38.106.12, 52.239.152.10, 34.120.0.1, 1.1.1.1, 2603:1030:408::1..." autocomplete="off">
-                <button type="button" id="globalClearBtn" class="lookup-clear-btn" style="display:none;" title="Limpar"><i class="fa-solid fa-xmark"></i></button>
-                <button type="button" id="globalSearchBtn" class="btn-lookup"><i class="fa-solid fa-magnifying-glass"></i> Consultar IP</button>
+                <input type="text" id="globalIpInput" placeholder="Ex: 20.38.106.12, 52.239.152.10, 34.120.0.1, 104.16.12.34, 2603:1030:408::1..." autocomplete="off">
+                <button type="button" id="globalClearBtn" class="lookup-clear-btn" style="display:none;" title="Clear" data-i18n-title="btn_clear"><i class="fa-solid fa-xmark"></i></button>
+                <button type="button" id="globalSearchBtn" class="btn-lookup"><i class="fa-solid fa-magnifying-glass"></i> <span data-i18n="btn_validate_ip">Validate IP</span></button>
             </div>
             <div id="globalIpStatus" class="lookup-status" style="display:none;"></div>
             <div id="globalIpResults" class="lookup-results" style="display:none;"></div>
@@ -815,16 +899,16 @@
                         <i class="fa-brands fa-microsoft"></i>
                         <h2>Microsoft Azure</h2>
                     </div>
-                    <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0 0 10px 0;">Official Microsoft Azure Public Cloud Service Tags and Regional IP ranges.</p>
+                    <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0 0 10px 0;" data-i18n="azure_desc">Official Microsoft Azure Public Cloud Service Tags and Regional IP ranges.</p>
                     <div class="provider-stats">
                         <span class="pill-stat"><i class="fa-solid fa-cubes"></i> 104 Services</span>
                         <span class="pill-stat"><i class="fa-solid fa-earth-americas"></i> 79 Regions</span>
                     </div>
                 </div>
                 <div class="provider-actions">
-                    <a href="ranges-services/index.html" class="btn-link"><span><i class="fa-solid fa-folder-open"></i> Browse Services</span> <i class="fa-solid fa-chevron-right"></i></a>
-                    <a href="ranges-regions/index.html" class="btn-link"><span><i class="fa-solid fa-map-location-dot"></i> Browse Regions</span> <i class="fa-solid fa-chevron-right"></i></a>
-                    <a href="json-history/ServiceTags_Public.json" class="btn-link"><span><i class="fa-solid fa-file-code"></i> JSON Mirror</span> <i class="fa-solid fa-arrow-down"></i></a>
+                    <a href="ranges-services/index.html" class="btn-link"><span data-i18n="browse_services"><i class="fa-solid fa-folder-open"></i> Browse Services</span> <i class="fa-solid fa-chevron-right"></i></a>
+                    <a href="ranges-regions/index.html" class="btn-link"><span data-i18n="browse_regions"><i class="fa-solid fa-map-location-dot"></i> Browse Regions</span> <i class="fa-solid fa-chevron-right"></i></a>
+                    <a href="json-history/ServiceTags_Public.json" class="btn-link"><span data-i18n="json_mirror"><i class="fa-solid fa-file-code"></i> JSON Mirror</span> <i class="fa-solid fa-arrow-down"></i></a>
                 </div>
             </div>
 
@@ -835,16 +919,16 @@
                         <i class="fa-brands fa-aws"></i>
                         <h2>Amazon AWS</h2>
                     </div>
-                    <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0 0 10px 0;">Amazon Web Services global IP ranges categorized by service and region.</p>
+                    <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0 0 10px 0;" data-i18n="aws_desc">Amazon Web Services global IP ranges categorized by service and region.</p>
                     <div class="provider-stats">
                         <span class="pill-stat"><i class="fa-solid fa-cubes"></i> 27 Services</span>
                         <span class="pill-stat"><i class="fa-solid fa-earth-americas"></i> 43 Regions</span>
                     </div>
                 </div>
                 <div class="provider-actions">
-                    <a href="aws/ranges-services/index.html" class="btn-link"><span><i class="fa-solid fa-folder-open"></i> Browse Services</span> <i class="fa-solid fa-chevron-right"></i></a>
-                    <a href="aws/ranges-regions/index.html" class="btn-link"><span><i class="fa-solid fa-map-location-dot"></i> Browse Regions</span> <i class="fa-solid fa-chevron-right"></i></a>
-                    <a href="aws/json-history/ip-ranges.json" class="btn-link"><span><i class="fa-solid fa-file-code"></i> JSON Mirror</span> <i class="fa-solid fa-arrow-down"></i></a>
+                    <a href="aws/ranges-services/index.html" class="btn-link"><span data-i18n="browse_services"><i class="fa-solid fa-folder-open"></i> Browse Services</span> <i class="fa-solid fa-chevron-right"></i></a>
+                    <a href="aws/ranges-regions/index.html" class="btn-link"><span data-i18n="browse_regions"><i class="fa-solid fa-map-location-dot"></i> Browse Regions</span> <i class="fa-solid fa-chevron-right"></i></a>
+                    <a href="aws/json-history/ip-ranges.json" class="btn-link"><span data-i18n="json_mirror"><i class="fa-solid fa-file-code"></i> JSON Mirror</span> <i class="fa-solid fa-arrow-down"></i></a>
                 </div>
             </div>
 
@@ -855,16 +939,16 @@
                         <i class="fa-brands fa-google"></i>
                         <h2>Google Cloud (GCP)</h2>
                     </div>
-                    <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0 0 10px 0;">Google Cloud Platform customer endpoints and regional scopes.</p>
+                    <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0 0 10px 0;" data-i18n="gcp_desc">Google Cloud Platform customer endpoints and regional scopes.</p>
                     <div class="provider-stats">
                         <span class="pill-stat"><i class="fa-solid fa-earth-americas"></i> 48 Scopes / Regions</span>
                         <span class="pill-stat"><i class="fa-solid fa-globe"></i> Global List</span>
                     </div>
                 </div>
                 <div class="provider-actions">
-                    <a href="gcp/ranges-regions/index.html" class="btn-link"><span><i class="fa-solid fa-map-location-dot"></i> Browse Regions</span> <i class="fa-solid fa-chevron-right"></i></a>
-                    <a href="gcp/ranges-regions/GoogleCloud.ipv4.txt" class="btn-link"><span><i class="fa-solid fa-file-lines"></i> All GCP IPv4</span> <i class="fa-solid fa-arrow-down"></i></a>
-                    <a href="gcp/json-history/cloud.json" class="btn-link"><span><i class="fa-solid fa-file-code"></i> JSON Mirror</span> <i class="fa-solid fa-arrow-down"></i></a>
+                    <a href="gcp/ranges-regions/index.html" class="btn-link"><span data-i18n="browse_regions"><i class="fa-solid fa-map-location-dot"></i> Browse Regions</span> <i class="fa-solid fa-chevron-right"></i></a>
+                    <a href="gcp/ranges-regions/GoogleCloud.ipv4.txt" class="btn-link"><span data-i18n="all_gcp_ipv4"><i class="fa-solid fa-file-lines"></i> All GCP IPv4</span> <i class="fa-solid fa-arrow-down"></i></a>
+                    <a href="gcp/json-history/cloud.json" class="btn-link"><span data-i18n="json_mirror"><i class="fa-solid fa-file-code"></i> JSON Mirror</span> <i class="fa-solid fa-arrow-down"></i></a>
                 </div>
             </div>
 
@@ -875,16 +959,16 @@
                         <i class="fa-brands fa-cloudflare"></i>
                         <h2>Cloudflare</h2>
                     </div>
-                    <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0 0 10px 0;">Cloudflare Anycast edge proxies, CDN, and WAF IP ranges.</p>
+                    <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0 0 10px 0;" data-i18n="cf_desc">Cloudflare Anycast edge proxies, CDN, and WAF IP ranges.</p>
                     <div class="provider-stats">
                         <span class="pill-stat"><i class="fa-solid fa-shield-halved"></i> 15 IPv4 CIDRs</span>
                         <span class="pill-stat"><i class="fa-solid fa-network-wired"></i> 7 IPv6 CIDRs</span>
                     </div>
                 </div>
                 <div class="provider-actions">
-                    <a href="cloudflare/cloudflare.ipv4.txt" class="btn-link"><span><i class="fa-solid fa-file-lines"></i> Cloudflare IPv4</span> <i class="fa-solid fa-arrow-down"></i></a>
-                    <a href="cloudflare/cloudflare.ipv6.txt" class="btn-link"><span><i class="fa-solid fa-file-lines"></i> Cloudflare IPv6</span> <i class="fa-solid fa-arrow-down"></i></a>
-                    <a href="cloudflare/index.html" class="btn-link"><span><i class="fa-solid fa-folder-open"></i> Browse Directory</span> <i class="fa-solid fa-chevron-right"></i></a>
+                    <a href="cloudflare/cloudflare.ipv4.txt" class="btn-link"><span data-i18n="cf_ipv4"><i class="fa-solid fa-file-lines"></i> Cloudflare IPv4</span> <i class="fa-solid fa-arrow-down"></i></a>
+                    <a href="cloudflare/cloudflare.ipv6.txt" class="btn-link"><span data-i18n="cf_ipv6"><i class="fa-solid fa-file-lines"></i> Cloudflare IPv6</span> <i class="fa-solid fa-arrow-down"></i></a>
+                    <a href="cloudflare/index.html" class="btn-link"><span data-i18n="browse_dir"><i class="fa-solid fa-folder-open"></i> Browse Directory</span> <i class="fa-solid fa-chevron-right"></i></a>
                 </div>
             </div>
         </div>
@@ -893,34 +977,34 @@
         <div class="squidguard-banner">
             <div class="sg-left">
                 <div class="sg-badge-row">
-                    <span class="sg-tag"><i class="fa-solid fa-shield-cat"></i> SquidGuard Mirror</span>
-                    <span class="sg-tag ut1-tag"><i class="fa-solid fa-building-columns"></i> Curadoria Oficial: Université Toulouse 1 Capitole</span>
-                    <span class="sg-tag feat-tag"><i class="fa-solid fa-clock-rotate-left"></i> Shallalist Successor</span>
+                    <span class="sg-tag" data-i18n="sg_tag_mirror"><i class="fa-solid fa-shield-cat"></i> SquidGuard Mirror</span>
+                    <span class="sg-tag ut1-tag" data-i18n="sg_tag_ut1"><i class="fa-solid fa-building-columns"></i> Official Curation: Université Toulouse 1 Capitole</span>
+                    <span class="sg-tag feat-tag" data-i18n="sg_tag_shallalist"><i class="fa-solid fa-clock-rotate-left"></i> Shallalist Successor</span>
                 </div>
-                <h3>SquidGuard Web Filter Blacklists — Automated Contingency Mirror</h3>
-                <p>
-                    Espelho automatizado de contingência da blacklist oficial mantida pela <strong>Université Toulouse 1 Capitole</strong> para <strong>pfSense</strong>, <strong>Squid</strong> e <strong>SquidGuard</strong>. Garante alta disponibilidade, integridade criptográfica e prevenção contra abandono (sucessor direto da Shallalist).
+                <h3 data-i18n="sg_title">SquidGuard Web Filter Blacklists — Automated Contingency Mirror</h3>
+                <p data-i18n="sg_desc">
+                    Automated contingency mirror of the official blacklist maintained by <strong>Université Toulouse 1 Capitole</strong> for <strong>pfSense</strong>, <strong>Squid</strong>, and <strong>SquidGuard</strong>. Ensures high availability, cryptographic integrity, and protection against project abandonment (direct successor to Shallalist).
                 </p>
                 <div class="sg-meta">
                     <span><i class="fa-solid fa-hard-drive"></i> 25.34 MB</span>
-                    <span><i class="fa-solid fa-tags"></i> 77 Categorias</span>
+                    <span><i class="fa-solid fa-tags"></i> <span data-i18n="sg_meta_cat">77 Categories</span></span>
                     <span><i class="fa-solid fa-fingerprint"></i> SHA-256: <code>49346c1c4845ac36...</code></span>
                 </div>
                 <div class="sg-url-box">
                     <input type="text" readonly value="https://leoescarpellin.github.io/cloudIPrange/squidguard/blacklists.tar.gz" id="sgUrlInput">
-                    <button type="button" class="btn-copy-sg" onclick="copySgUrl()"><i class="fa-regular fa-copy"></i> Copiar URL</button>
+                    <button type="button" class="btn-copy-sg" onclick="copySgUrl()"><i class="fa-regular fa-copy"></i> <span data-i18n="btn_copy_url">Copy URL</span></button>
                 </div>
             </div>
             <div class="sg-actions">
-                <a href="squidguard/blacklists.tar.gz" class="btn-sg-primary"><i class="fa-solid fa-download"></i> Baixar blacklists.tar.gz</a>
-                <a href="squidguard/blacklists.tar.gz.sha256" class="btn-sg-secondary" target="_blank"><i class="fa-solid fa-file-shield"></i> Ver Checksum SHA-256</a>
-                <a href="squidguard/index.html" class="btn-sg-secondary"><i class="fa-solid fa-book-open"></i> Guia pfSense & Categorias</a>
+                <a href="squidguard/blacklists.tar.gz" class="btn-sg-primary"><i class="fa-solid fa-download"></i> <span data-i18n="btn_dl_sg">Download blacklists.tar.gz</span></a>
+                <a href="squidguard/blacklists.tar.gz.sha256" class="btn-sg-secondary" target="_blank"><i class="fa-solid fa-file-shield"></i> <span data-i18n="btn_view_sha">View SHA-256 Checksum</span></a>
+                <a href="squidguard/index.html" class="btn-sg-secondary"><i class="fa-solid fa-book-open"></i> <span data-i18n="btn_guide_sg">pfSense Guide & Categories</span></a>
             </div>
         </div>
 
         <!-- Firewall Model Badges -->
         <div class="badge-grid">
-            <span class="fw-badge active-badge" onclick="selectFirewall('pfsense')"><i class="fa-solid fa-shield-halved"></i> pfSense</span>
+            <span class="fw-badge" onclick="selectFirewall('pfsense')"><i class="fa-solid fa-shield-halved"></i> pfSense</span>
             <span class="fw-badge" onclick="selectFirewall('opnsense')"><i class="fa-solid fa-shield-virus"></i> OPNsense</span>
             <span class="fw-badge" onclick="selectFirewall('paloalto')"><i class="fa-solid fa-fire"></i> Palo Alto</span>
             <span class="fw-badge" onclick="selectFirewall('mikrotik')"><i class="fa-solid fa-network-wired"></i> MikroTik</span>
@@ -931,11 +1015,17 @@
         <!-- Interactive Quick-Start Guide Section -->
         <div class="guide-box">
             <div class="guide-header">
-                <h3><i class="fa-solid fa-bolt"></i> Firewall Quick-Start Integration</h3>
+                <h3 data-i18n="fw_header"><i class="fa-solid fa-bolt"></i> Firewall Quick-Start Integration</h3>
+            </div>
+
+            <!-- Initial Clean Collapsed Placeholder -->
+            <div id="guide-placeholder" class="guide-placeholder">
+                <i class="fa-solid fa-arrow-pointer"></i>
+                <span data-i18n="fw_placeholder">Select a firewall model above to display setup instructions and alias configuration.</span>
             </div>
 
             <!-- pfSense -->
-            <div id="guide-pfsense" class="guide-content active">
+            <div id="guide-pfsense" class="guide-content">
                 <h4><i class="fa-solid fa-shield-halved"></i> pfSense (URL Table Aliases)</h4>
                 <ol class="guide-steps">
                     <li>In pfSense WebGUI, navigate to <strong>Firewall &rarr; Aliases &rarr; IP</strong> and click <strong>Add</strong>.</li>
@@ -957,11 +1047,11 @@
                     <li>Click <strong>Save</strong> and <strong>Apply Changes</strong>. pfSense will fetch and load the CIDRs into packet filter (pf).</li>
                     <li>In <strong>Firewall &rarr; Rules</strong>, select the alias as the <strong>Source</strong> or <strong>Destination</strong>.</li>
                 </ol>
-                <div class="tip-box">
+                <div class="tip-box" data-i18n="tip_best_practice">
                     <i class="fa-solid fa-circle-info"></i> <strong>Best Practice:</strong> Always use <code>.ipv4.txt</code> for IPv4 rules and <code>.ipv6.txt</code> for IPv6 rules. pfSense produces an error if IPv6 addresses are present inside an alias assigned to an IPv4 rule.
                 </div>
-                <div class="tip-box" style="margin-top: 10px; background: #fdf8f6; border-left-color: #f97316; color: #7c2d12;">
-                    <i class="fa-solid fa-shield-cat"></i> <strong>Web Filtering (SquidGuard):</strong> Para filtragem de URLs e domínios no SquidGuard, utilize o <a href="squidguard/index.html" style="color: #c2410c; font-weight: 700; text-decoration: underline;">Mirror da Blacklist UT1 Toulouse (Shallalist Successor)</a>.
+                <div class="tip-box" style="margin-top: 10px; background: #fdf8f6; border-left-color: #f97316; color: #7c2d12;" data-i18n="tip_squidguard">
+                    <i class="fa-solid fa-shield-cat"></i> <strong>Web Filtering (SquidGuard):</strong> For URL and domain filtering in pfSense SquidGuard, use our <a href="squidguard/index.html" style="color: #c2410c; font-weight: 700; text-decoration: underline;">UT1 Toulouse Blacklist Mirror (Shallalist Successor)</a>.
                 </div>
             </div>
 
@@ -1079,7 +1169,7 @@
         <div class="footer">
             <div class="footer-left">
                 <span class="pill">Automation Active</span>
-                <span>Generated on <strong>2026-11-11 03:03:37 UTC</strong> by GitHub Actions Automation</span>
+                <span>Generated on <strong>2026-11-11 03:27:42 UTC</strong> by GitHub Actions Automation</span>
             </div>
             <div>
                 <a href="https://github.com/leoescarpellin/cloudIPrange" target="_blank" rel="noopener">
@@ -1090,6 +1180,143 @@
     </div>
 
     <script>
+        // Multi-Language Support (English / Português)
+        const I18N = {
+            en: {
+                portal_title: "Cloud IP Ranges Automation Hub",
+                portal_subtitle: "Automated, deduplicated, and CIDR-collapsed IP ranges for <strong>Microsoft Azure</strong>, <strong>Amazon AWS</strong>, <strong>Google Cloud</strong>, and <strong>Cloudflare</strong>. Ready for firewall aliases and dynamic lists.",
+                lookup_title: '<i class="fa-solid fa-magnifying-glass-location"></i> Multi-Cloud IP Validator & Rapid Lookup',
+                lookup_desc: "Type any IP address (IPv4 or IPv6) or CIDR block to instantly identify whether it belongs to <strong>Microsoft Azure</strong>, <strong>Amazon AWS</strong>, <strong>Google Cloud (GCP)</strong>, or <strong>Cloudflare</strong>, discovering the exact matching service, region, and list.",
+                lookup_placeholder: "Ex: 20.38.106.12, 52.239.152.10, 34.120.0.1, 104.16.12.34, 2603:1030:408::1...",
+                btn_validate_ip: "Validate IP",
+                btn_clear: "Clear",
+                azure_desc: "Official Microsoft Azure Public Cloud Service Tags and Regional IP ranges.",
+                aws_desc: "Amazon Web Services global IP ranges categorized by service and region.",
+                gcp_desc: "Google Cloud Platform customer endpoints and regional scopes.",
+                cf_desc: "Cloudflare Anycast edge proxies, CDN, and WAF IP ranges.",
+                browse_services: '<i class="fa-solid fa-folder-open"></i> Browse Services',
+                browse_regions: '<i class="fa-solid fa-map-location-dot"></i> Browse Regions',
+                json_mirror: '<i class="fa-solid fa-file-code"></i> JSON Mirror',
+                all_gcp_ipv4: '<i class="fa-solid fa-file-lines"></i> All GCP IPv4',
+                cf_ipv4: '<i class="fa-solid fa-file-lines"></i> Cloudflare IPv4',
+                cf_ipv6: '<i class="fa-solid fa-file-lines"></i> Cloudflare IPv6',
+                browse_dir: '<i class="fa-solid fa-folder-open"></i> Browse Directory',
+                sg_tag_mirror: '<i class="fa-solid fa-shield-cat"></i> SquidGuard Mirror',
+                sg_tag_ut1: '<i class="fa-solid fa-building-columns"></i> Official Curation: Université Toulouse 1 Capitole',
+                sg_tag_shallalist: '<i class="fa-solid fa-clock-rotate-left"></i> Shallalist Successor',
+                sg_title: "SquidGuard Web Filter Blacklists — Automated Contingency Mirror",
+                sg_desc: "Automated contingency mirror of the official blacklist maintained by <strong>Université Toulouse 1 Capitole</strong> for <strong>pfSense</strong>, <strong>Squid</strong>, and <strong>SquidGuard</strong>. Ensures high availability, cryptographic integrity, and protection against project abandonment (direct successor to Shallalist).",
+                sg_meta_cat: "77 Categories",
+                btn_copy_url: "Copy URL",
+                btn_dl_sg: "Download blacklists.tar.gz",
+                btn_view_sha: "View SHA-256 Checksum",
+                btn_guide_sg: "pfSense Guide & Categories",
+                fw_header: '<i class="fa-solid fa-bolt"></i> Firewall Quick-Start Integration',
+                fw_placeholder: "Select a firewall model above to display setup instructions and alias configuration.",
+                tip_best_practice: '<i class="fa-solid fa-circle-info"></i> <strong>Best Practice:</strong> Always use <code>.ipv4.txt</code> for IPv4 rules and <code>.ipv6.txt</code> for IPv6 rules. pfSense produces an error if IPv6 addresses are present inside an alias assigned to an IPv4 rule.',
+                tip_squidguard: '<i class="fa-solid fa-shield-cat"></i> <strong>Web Filtering (SquidGuard):</strong> For URL and domain filtering in pfSense SquidGuard, use our <a href="squidguard/index.html" style="color: #c2410c; font-weight: 700; text-decoration: underline;">UT1 Toulouse Blacklist Mirror (Shallalist Successor)</a>.',
+                lookup_loading: '<i class="fa-solid fa-spinner fa-spin"></i> Loading multi-cloud IP database (Azure, AWS, GCP, Cloudflare)...',
+                lookup_err: "Could not load IP database: ",
+                lookup_invalid: '<i class="fa-solid fa-circle-exclamation"></i> Please enter a valid IP address or CIDR subnet (IPv4 or IPv6).',
+                lookup_not_found: (ip) => `<i class="fa-solid fa-circle-xmark"></i> IP address <code>${ip}</code> was not found in any Microsoft Azure, AWS, GCP, or Cloudflare published list.`,
+                lookup_found_summary: (ip, count) => `IP <code>${ip}</code> was located in <strong>${count}</strong> list(s):`,
+                lookup_contained_in: "Contained in subnet:",
+                lookup_dl_txt: '<i class="fa-solid fa-download"></i> Download TXT list',
+                lookup_view_dir: '<i class="fa-solid fa-folder-open"></i> View in directory',
+                copied_feedback: '<i class="fa-solid fa-check"></i> Copied!'
+            },
+            pt: {
+                portal_title: "Cloud IP Ranges Hub de Automação",
+                portal_subtitle: "Faixas de IP automatizadas, deduplicadas e agrupadas em CIDR para <strong>Microsoft Azure</strong>, <strong>Amazon AWS</strong>, <strong>Google Cloud</strong> e <strong>Cloudflare</strong>. Prontas para aliases e listas dinâmicas em firewalls.",
+                lookup_title: '<i class="fa-solid fa-magnifying-glass-location"></i> Validador & Consulta Rápida de IPs Multi-Cloud',
+                lookup_desc: "Digite qualquer endereço IP (IPv4 ou IPv6) ou bloco CIDR para identificar instantaneamente se pertence à <strong>Microsoft Azure</strong>, <strong>Amazon AWS</strong>, <strong>Google Cloud (GCP)</strong> ou <strong>Cloudflare</strong>, descobrindo o serviço, região e lista exata correspondente.",
+                lookup_placeholder: "Ex: 20.38.106.12, 52.239.152.10, 34.120.0.1, 104.16.12.34, 2603:1030:408::1...",
+                btn_validate_ip: "Consultar IP",
+                btn_clear: "Limpar",
+                azure_desc: "Service Tags e faixas de IP regionais oficiais da nuvem pública Microsoft Azure.",
+                aws_desc: "Faixas de IP globais da Amazon Web Services categorizadas por serviço e região.",
+                gcp_desc: "Endpoints de clientes e escopos regionais da Google Cloud Platform.",
+                cf_desc: "Faixas de IP dos proxies de borda Anycast, CDN e WAF da Cloudflare.",
+                browse_services: '<i class="fa-solid fa-folder-open"></i> Ver Serviços',
+                browse_regions: '<i class="fa-solid fa-map-location-dot"></i> Ver Regiões',
+                json_mirror: '<i class="fa-solid fa-file-code"></i> Espelho JSON',
+                all_gcp_ipv4: '<i class="fa-solid fa-file-lines"></i> Todos IPv4 GCP',
+                cf_ipv4: '<i class="fa-solid fa-file-lines"></i> Cloudflare IPv4',
+                cf_ipv6: '<i class="fa-solid fa-file-lines"></i> Cloudflare IPv6',
+                browse_dir: '<i class="fa-solid fa-folder-open"></i> Explorar Diretório',
+                sg_tag_mirror: '<i class="fa-solid fa-shield-cat"></i> Espelho SquidGuard',
+                sg_tag_ut1: '<i class="fa-solid fa-building-columns"></i> Curadoria Oficial: Université Toulouse 1 Capitole',
+                sg_tag_shallalist: '<i class="fa-solid fa-clock-rotate-left"></i> Sucessor Shallalist',
+                sg_title: "SquidGuard Web Filter Blacklists — Espelho Automatizado de Contingência",
+                sg_desc: "Espelho automatizado de contingência da blacklist oficial mantida pela <strong>Université Toulouse 1 Capitole</strong> para <strong>pfSense</strong>, <strong>Squid</strong> e <strong>SquidGuard</strong>. Garante alta disponibilidade, integridade criptográfica e prevenção contra abandono (sucessor direto da Shallalist).",
+                sg_meta_cat: "77 Categorias",
+                btn_copy_url: "Copiar URL",
+                btn_dl_sg: "Baixar blacklists.tar.gz",
+                btn_view_sha: "Ver Checksum SHA-256",
+                btn_guide_sg: "Guia pfSense & Categorias",
+                fw_header: '<i class="fa-solid fa-bolt"></i> Integração Rápida com Firewalls',
+                fw_placeholder: "Selecione um modelo de firewall acima para exibir as instruções de configuração e aliases.",
+                tip_best_practice: '<i class="fa-solid fa-circle-info"></i> <strong>Boa Prática:</strong> Utilize sempre <code>.ipv4.txt</code> para regras IPv4 e <code>.ipv6.txt</code> para regras IPv6. O pfSense gera erro se endereços IPv6 estiverem em um alias atribuído a uma regra IPv4.',
+                tip_squidguard: '<i class="fa-solid fa-shield-cat"></i> <strong>Filtragem Web (SquidGuard):</strong> Para filtragem de URLs e domínios no SquidGuard, utilize o nosso <a href="squidguard/index.html" style="color: #c2410c; font-weight: 700; text-decoration: underline;">Mirror da Blacklist UT1 Toulouse (Sucessor Shallalist)</a>.',
+                lookup_loading: '<i class="fa-solid fa-spinner fa-spin"></i> Carregando base global de IPs (Azure, AWS, GCP, Cloudflare)...',
+                lookup_err: "Não foi possível carregar a base de IPs: ",
+                lookup_invalid: '<i class="fa-solid fa-circle-exclamation"></i> Por favor, insira um endereço IP ou bloco CIDR válido (IPv4 ou IPv6).',
+                lookup_not_found: (ip) => `<i class="fa-solid fa-circle-xmark"></i> O endereço IP <code>${ip}</code> não foi encontrado em nenhuma lista da Microsoft Azure, AWS, GCP ou Cloudflare.`,
+                lookup_found_summary: (ip, count) => `O IP <code>${ip}</code> foi localizado em <strong>${count}</strong> lista(s):`,
+                lookup_contained_in: "Contido no bloco:",
+                lookup_dl_txt: '<i class="fa-solid fa-download"></i> Baixar lista TXT',
+                lookup_view_dir: '<i class="fa-solid fa-folder-open"></i> Ver no diretório',
+                copied_feedback: '<i class="fa-solid fa-check"></i> Copiado!'
+            }
+        };
+
+        let currentLang = localStorage.getItem('cloud_ip_lang') || 'en';
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('cloud_ip_lang', lang);
+
+            const btnEn = document.getElementById('btn-lang-en');
+            const btnPt = document.getElementById('btn-lang-pt');
+            if (btnEn && btnPt) {
+                btnEn.classList.toggle('active', lang === 'en');
+                btnPt.classList.toggle('active', lang === 'pt');
+            }
+
+            const dict = I18N[lang] || I18N.en;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (dict[key]) {
+                    el.innerHTML = dict[key];
+                }
+            });
+
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (dict[key]) {
+                    el.placeholder = dict[key];
+                }
+            });
+
+            document.querySelectorAll('[data-i18n-title]').forEach(el => {
+                const key = el.getAttribute('data-i18n-title');
+                if (dict[key]) {
+                    el.title = dict[key];
+                }
+            });
+
+            const ipInput = document.getElementById('globalIpInput');
+            if (ipInput && dict.lookup_placeholder) {
+                ipInput.placeholder = dict.lookup_placeholder;
+            }
+
+            // Re-render lookup results if active
+            const resultsEl = document.getElementById('globalIpResults');
+            if (resultsEl && resultsEl.style.display !== 'none' && ipInput && ipInput.value.trim()) {
+                executeGlobalLookup();
+            }
+        }
+
         // Global Multi-Cloud IP Lookup
         let globalLookupData = null;
         let globalParsedData = null;
@@ -1181,13 +1408,14 @@
             if (globalParsedData) return true;
             if (globalLoading) return false;
             globalLoading = true;
+            const dict = I18N[currentLang] || I18N.en;
             gStatus.className = 'lookup-status status-loading';
-            gStatus.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Carregando base global de IPs (Azure, AWS, GCP, Cloudflare)...';
+            gStatus.innerHTML = dict.lookup_loading;
             gStatus.style.display = 'flex';
 
             try {
                 const res = await fetch('ip-lookup.json');
-                if (!res.ok) throw new Error('Não foi possível carregar ip-lookup.json');
+                if (!res.ok) throw new Error('ip-lookup.json not found');
                 globalLookupData = await res.json();
                 
                 globalParsedData = {};
@@ -1217,8 +1445,9 @@
                 return true;
             } catch (err) {
                 globalLoading = false;
+                const dict = I18N[currentLang] || I18N.en;
                 gStatus.className = 'lookup-status status-not-found';
-                gStatus.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Erro ao carregar base de IPs: ' + err.message;
+                gStatus.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ' + dict.lookup_err + err.message;
                 gStatus.style.display = 'flex';
                 return false;
             }
@@ -1227,6 +1456,7 @@
         async function executeGlobalLookup() {
             const raw = gInput.value.trim();
             gClearBtn.style.display = raw ? 'flex' : 'none';
+            const dict = I18N[currentLang] || I18N.en;
 
             if (!raw) {
                 gStatus.style.display = 'none';
@@ -1252,7 +1482,7 @@
 
             if (!isIpv4 && !isIpv6) {
                 gStatus.className = 'lookup-status status-not-found';
-                gStatus.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Por favor, insira um endereço IP ou bloco CIDR válido (IPv4 ou IPv6).';
+                gStatus.innerHTML = dict.lookup_invalid;
                 gStatus.style.display = 'flex';
                 gResults.style.display = 'none';
                 return;
@@ -1299,7 +1529,7 @@
 
             if (foundItems.length === 0) {
                 gStatus.className = 'lookup-status status-not-found';
-                gStatus.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> O endereço IP <code>${escapeHtml(raw)}</code> não foi encontrado em nenhuma lista da Microsoft Azure, AWS, GCP ou Cloudflare.`;
+                gStatus.innerHTML = dict.lookup_not_found(escapeHtml(raw));
                 gStatus.style.display = 'flex';
                 gResults.style.display = 'none';
                 return;
@@ -1314,10 +1544,10 @@
                             <span class="provider-badge ${item.badgeClass}"><i class="${item.iconClass}"></i> ${item.group}</span>
                             <span style="font-weight:700; color:#0f172a;">${item.service}</span>
                         </div>
-                        <p>Contido no bloco: <code>${item.cidr}</code></p>
+                        <p>${dict.lookup_contained_in} <code>${item.cidr}</code></p>
                         <div class="result-links">
-                            <a href="${item.txtUrl}" download><i class="fa-solid fa-download"></i> Baixar lista TXT</a>
-                            <a href="${item.dirUrl}"><i class="fa-solid fa-folder-open"></i> Ver no diretório</a>
+                            <a href="${item.txtUrl}" download>${dict.lookup_dl_txt}</a>
+                            <a href="${item.dirUrl}">${dict.lookup_view_dir}</a>
                         </div>
                     </div>
                 `;
@@ -1326,7 +1556,7 @@
             gResults.innerHTML = `
                 <div class="results-summary">
                     <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 1.1rem;"></i>
-                    <span>O IP <code>${escapeHtml(raw)}</code> foi localizado em <strong>${foundItems.length}</strong> lista(s):</span>
+                    <span>${dict.lookup_found_summary(escapeHtml(raw), foundItems.length)}</span>
                 </div>
                 <div class="results-grid">${cardsHtml}</div>
             `;
@@ -1367,28 +1597,39 @@
             input.setSelectionRange(0, 99999);
             navigator.clipboard.writeText(input.value).then(() => {
                 const btn = document.querySelector(".btn-copy-sg");
-                const originalHtml = btn.innerHTML;
-                btn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado!';
+                const dict = I18N[currentLang] || I18N.en;
+                btn.innerHTML = dict.copied_feedback;
                 setTimeout(() => {
-                    btn.innerHTML = originalHtml;
+                    btn.innerHTML = '<i class="fa-regular fa-copy"></i> ' + dict.btn_copy_url;
                 }, 2000);
             });
         }
 
         function selectFirewall(fw) {
+            const placeholder = document.getElementById('guide-placeholder');
+            const target = document.getElementById('guide-' + fw);
+            const isCurrentlyActive = target && target.classList.contains('active');
+
             document.querySelectorAll('.guide-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.fw-badge').forEach(el => el.classList.remove('active-badge'));
 
-            const target = document.getElementById('guide-' + fw);
-            if (target) target.classList.add('active');
-
-            const badges = document.querySelectorAll('.fw-badge');
-            badges.forEach(b => {
-                if (b.getAttribute('onclick') && b.getAttribute('onclick').includes(fw)) {
-                    b.classList.add('active-badge');
-                }
-            });
+            if (isCurrentlyActive) {
+                // Collapse back to clean placeholder
+                if (placeholder) placeholder.style.display = 'flex';
+            } else if (target) {
+                if (placeholder) placeholder.style.display = 'none';
+                target.classList.add('active');
+                const badges = document.querySelectorAll('.fw-badge');
+                badges.forEach(b => {
+                    if (b.getAttribute('onclick') && b.getAttribute('onclick').includes(fw)) {
+                        b.classList.add('active-badge');
+                    }
+                });
+            }
         }
+
+        // Initialize saved language
+        setLanguage(currentLang);
     </script>
 </body>
 </html>
