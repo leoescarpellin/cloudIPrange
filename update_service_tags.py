@@ -169,9 +169,12 @@ def format_file_size(size_in_bytes: int) -> str:
 def generate_directory_index(
     directory: str,
     output_file: str,
-    title: str,
-    description: str,
-    badge_label: str = "Files"
+    title_en: str,
+    title_pt: str,
+    desc_en: str,
+    desc_pt: str,
+    badge_en: str = "Files",
+    badge_pt: str = "Arquivos"
 ) -> None:
     """Generate a modern, responsive HTML index with search/filter for files in a directory."""
     try:
@@ -291,7 +294,7 @@ def generate_directory_index(
                 f'<td><span class="badge {tag_class}">{tag_name}</span></td>'
                 f'<td>{records_html}</td>'
                 f'<td class="file-size">{size_str}</td>'
-                f'<td><a class="action-btn" href="{file}" download title="Download file"><i class="fa-solid fa-download"></i></a></td>'
+                f'<td><a class="action-btn" href="{file}" download title="Download file" data-i18n-title="download_title"><i class="fa-solid fa-download"></i></a></td>'
                 f'</tr>'
             )
 
@@ -300,7 +303,7 @@ def generate_directory_index(
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title} – Cloud IP Ranges Hub</title>
+    <title>{title_en} – Cloud IP Ranges Hub</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <style>
         :root {{
@@ -618,7 +621,7 @@ def generate_directory_index(
 <body>
     <div class="container">
         <div class="header">
-            <h1><i class="fa-solid fa-folder-open"></i> {title}</h1>
+            <h1><i class="fa-solid fa-folder-open"></i> <span id="pageTitle" data-i18n="page_title">{title_en}</span></h1>
             <div class="header-actions">
                 <div class="lang-switch">
                     <button type="button" class="lang-btn active" id="btn-lang-en" onclick="setLang('en')" title="Switch to English"><span class="flag-icon">🇺🇸</span> EN</button>
@@ -627,7 +630,7 @@ def generate_directory_index(
                 <a href="{home_href}" class="btn-back"><i class="fa-solid fa-arrow-left"></i> <span data-i18n="back_home">Home</span></a>
             </div>
         </div>
-        <p class="desc">{description}</p>
+        <p class="desc" id="pageDesc" data-i18n="page_desc">{desc_en}</p>
         
         <div class="search-container">
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
@@ -637,7 +640,7 @@ def generate_directory_index(
         <div id="filterStatus" class="filter-status" style="display: none;"></div>
 
         <div class="stats-bar">
-            <span id="statsLabel">Showing <strong id="visibleCount">{len(file_items)}</strong> of {len(file_items)} {badge_label.lower()}</span>
+            <span id="statsLabel">Showing <strong id="visibleCount">{len(file_items)}</strong> of {len(file_items)} {badge_en.lower()}</span>
             <span data-i18n="compatible_firewalls"><i class="fa-solid fa-shield-halved"></i> Compatible with: pfSense, OPNsense, Palo Alto, MikroTik, Fortinet</span>
         </div>
 
@@ -665,9 +668,13 @@ def generate_directory_index(
     <script>
         const DIR_I18N = {{
             en: {{
+                page_title: "{title_en}",
+                page_desc: "{desc_en}",
+                badge_label: "{badge_en.lower()}",
                 back_home: "Home",
                 search_placeholder: "Filter by name or IP / CIDR address (e.g. storage, 20.38.106.12, 13.107.6.0/24)...",
                 clear_search: "Clear search",
+                download_title: "Download file",
                 compatible_firewalls: '<i class="fa-solid fa-shield-halved"></i> Compatible with: pfSense, OPNsense, Palo Alto, MikroTik, Fortinet',
                 th_filename: "Filename",
                 th_type: "Type",
@@ -693,9 +700,13 @@ def generate_directory_index(
                 empty_text_msg: (term) => `No files found matching "${{term}}".`
             }},
             pt: {{
+                page_title: "{title_pt}",
+                page_desc: "{desc_pt}",
+                badge_label: "{badge_pt.lower()}",
                 back_home: "Início",
                 search_placeholder: "Buscar por nome ou endereço IP / CIDR (ex: storage, 20.38.106.12, 13.107.6.0/24)...",
                 clear_search: "Limpar busca",
+                download_title: "Baixar arquivo",
                 compatible_firewalls: '<i class="fa-solid fa-shield-halved"></i> Compatível com: pfSense, OPNsense, Palo Alto, MikroTik, Fortinet',
                 th_filename: "Nome do Arquivo",
                 th_type: "Tipo",
@@ -736,6 +747,10 @@ def generate_directory_index(
             }}
 
             const dict = DIR_I18N[lang] || DIR_I18N.en;
+            if (dict.page_title) {{
+                document.title = dict.page_title + " – Cloud IP Ranges Hub";
+            }}
+
             document.querySelectorAll('[data-i18n]').forEach(el => {{
                 const key = el.getAttribute('data-i18n');
                 if (dict[key]) {{
@@ -767,7 +782,7 @@ def generate_directory_index(
         const emptyMsg = document.getElementById('emptyMsg');
         const hasIpIndex = {has_ip_files_js};
         const totalItemsCount = {len(file_items)};
-        const badgeLabel = "{badge_label.lower()}";
+        const badgeLabel = "{badge_en.lower()}";
 
         let ipIndex = null;
         let parsedIndex = {{ ipv4: {{}}, ipv6: {{}} }};
@@ -899,6 +914,7 @@ def generate_directory_index(
             clearBtn.style.display = rawTerm ? 'flex' : 'none';
             const dict = DIR_I18N[currentLang] || DIR_I18N.en;
             const statsLabel = document.getElementById('statsLabel');
+            const currentBadge = dict.badge_label || badgeLabel;
 
             if (!rawTerm) {{
                 filterStatus.style.display = 'none';
@@ -907,7 +923,7 @@ def generate_directory_index(
                     const matchInfo = row.querySelector('.match-info');
                     if (matchInfo) matchInfo.style.display = 'none';
                 }});
-                if (statsLabel) statsLabel.innerHTML = dict.stats_showing(rows.length, totalItemsCount, badgeLabel);
+                if (statsLabel) statsLabel.innerHTML = dict.stats_showing(rows.length, totalItemsCount, currentBadge);
                 emptyState.style.display = 'none';
                 return;
             }}
@@ -969,7 +985,7 @@ def generate_directory_index(
                 filterStatus.innerHTML = `<i class=\"fa-solid fa-filter\"></i> <strong>${{kind}}</strong> ${{dict.showing_containing}} <code>${{escapeHtml(rawTerm)}}</code> (${{Object.keys(matches).length}} ${{dict.matched_suffix}})`;
                 filterStatus.style.display = 'flex';
 
-                if (statsLabel) statsLabel.innerHTML = dict.stats_showing(count, totalItemsCount, badgeLabel);
+                if (statsLabel) statsLabel.innerHTML = dict.stats_showing(count, totalItemsCount, currentBadge);
                 emptyMsg.innerHTML = dict.empty_ip_msg(escapeHtml(rawTerm));
                 emptyState.style.display = count === 0 ? 'block' : 'none';
                 return;
@@ -1019,7 +1035,7 @@ def generate_directory_index(
                 filterStatus.innerHTML = `<i class=\"fa-solid fa-filter\"></i> <strong>${{kind}}</strong> ${{dict.showing_containing}} <code>${{escapeHtml(rawTerm)}}</code> (${{Object.keys(matches).length}} ${{dict.matched_suffix}})`;
                 filterStatus.style.display = 'flex';
 
-                if (statsLabel) statsLabel.innerHTML = dict.stats_showing(count, totalItemsCount, badgeLabel);
+                if (statsLabel) statsLabel.innerHTML = dict.stats_showing(count, totalItemsCount, currentBadge);
                 emptyMsg.innerHTML = dict.empty_ip_msg(escapeHtml(rawTerm));
                 emptyState.style.display = count === 0 ? 'block' : 'none';
                 return;
@@ -1064,7 +1080,7 @@ def generate_directory_index(
                     filterStatus.innerHTML = `<i class=\"fa-solid fa-filter\"></i> <strong>${{dict.prefix_detected}}</strong> ${{dict.showing_prefix}} <code>${{escapeHtml(rawTerm)}}</code> (${{Object.keys(matches).length}} ${{dict.matched_suffix}})`;
                     filterStatus.style.display = 'flex';
 
-                    if (statsLabel) statsLabel.innerHTML = dict.stats_showing(count, totalItemsCount, badgeLabel);
+                    if (statsLabel) statsLabel.innerHTML = dict.stats_showing(count, totalItemsCount, currentBadge);
                     emptyMsg.innerHTML = dict.empty_prefix_msg(escapeHtml(rawTerm));
                     emptyState.style.display = count === 0 ? 'block' : 'none';
                     return;
@@ -1088,7 +1104,7 @@ def generate_directory_index(
                 }}
             }});
 
-            if (statsLabel) statsLabel.innerHTML = dict.stats_showing(count, totalItemsCount, badgeLabel);
+            if (statsLabel) statsLabel.innerHTML = dict.stats_showing(count, totalItemsCount, currentBadge);
             emptyMsg.innerHTML = dict.empty_text_msg(escapeHtml(rawTerm));
             emptyState.style.display = count === 0 ? 'block' : 'none';
         }}
@@ -1106,7 +1122,6 @@ def generate_directory_index(
 
         // Initialize language
         setLang(currentLang);
-    </script>
     </script>
 </body>
 </html>"""
@@ -1209,12 +1224,42 @@ def update_azure() -> Dict[str, Any]:
     apply_json_history_retention(AZURE_JSON_DIR, RETENTION_WEEKS)
 
     # Generate directory indices
-    generate_directory_index(OUTPUT_SERVICES_DIR, os.path.join(OUTPUT_SERVICES_DIR, "index.html"), "Azure Services IP Ranges", "Automated, deduplicated CIDR lists by Azure service.", "Services")
-    generate_directory_index(AZURE_SERVICES_DIR, os.path.join(AZURE_SERVICES_DIR, "index.html"), "Azure Services IP Ranges", "Automated, deduplicated CIDR lists by Azure service.", "Services")
-    generate_directory_index(OUTPUT_REGIONS_DIR, os.path.join(OUTPUT_REGIONS_DIR, "index.html"), "Azure Regional IP Ranges", "Complete IP ranges aggregated per Azure Region.", "Regions")
-    generate_directory_index(AZURE_REGIONS_DIR, os.path.join(AZURE_REGIONS_DIR, "index.html"), "Azure Regional IP Ranges", "Complete IP ranges aggregated per Azure Region.", "Regions")
-    generate_directory_index(JSON_DIR, os.path.join(JSON_DIR, "index.html"), "Azure JSON Archive", "12-week rolling retention archive of Microsoft Azure Service Tags.", "Archives")
-    generate_directory_index(AZURE_JSON_DIR, os.path.join(AZURE_JSON_DIR, "index.html"), "Azure JSON Archive", "12-week rolling retention archive of Microsoft Azure Service Tags.", "Archives")
+    generate_directory_index(
+        OUTPUT_SERVICES_DIR, os.path.join(OUTPUT_SERVICES_DIR, "index.html"),
+        "Azure Services IP Ranges", "Faixas de IP de Serviços Azure",
+        "Automated, deduplicated CIDR lists by Azure service.", "Listas CIDR automatizadas e deduplicadas por serviço Azure.",
+        "Services", "Serviços"
+    )
+    generate_directory_index(
+        AZURE_SERVICES_DIR, os.path.join(AZURE_SERVICES_DIR, "index.html"),
+        "Azure Services IP Ranges", "Faixas de IP de Serviços Azure",
+        "Automated, deduplicated CIDR lists by Azure service.", "Listas CIDR automatizadas e deduplicadas por serviço Azure.",
+        "Services", "Serviços"
+    )
+    generate_directory_index(
+        OUTPUT_REGIONS_DIR, os.path.join(OUTPUT_REGIONS_DIR, "index.html"),
+        "Azure Regional IP Ranges", "Faixas de IP Regionais Azure",
+        "Complete IP ranges aggregated per Azure Region.", "Faixas completas de IP agregadas por Região Azure.",
+        "Regions", "Regiões"
+    )
+    generate_directory_index(
+        AZURE_REGIONS_DIR, os.path.join(AZURE_REGIONS_DIR, "index.html"),
+        "Azure Regional IP Ranges", "Faixas de IP Regionais Azure",
+        "Complete IP ranges aggregated per Azure Region.", "Faixas completas de IP agregadas por Região Azure.",
+        "Regions", "Regiões"
+    )
+    generate_directory_index(
+        JSON_DIR, os.path.join(JSON_DIR, "index.html"),
+        "Azure JSON Archive", "Arquivo Histórico JSON Azure",
+        "12-week rolling retention archive of Microsoft Azure Service Tags.", "Arquivo histórico com retenção de 12 semanas das Service Tags da Microsoft Azure.",
+        "Archives", "Arquivos"
+    )
+    generate_directory_index(
+        AZURE_JSON_DIR, os.path.join(AZURE_JSON_DIR, "index.html"),
+        "Azure JSON Archive", "Arquivo Histórico JSON Azure",
+        "12-week rolling retention archive of Microsoft Azure Service Tags.", "Arquivo histórico com retenção de 12 semanas das Service Tags da Microsoft Azure.",
+        "Archives", "Arquivos"
+    )
 
     logging.info(f"Azure complete: {len(service_names)} services, {len(regions)} regions.")
     return {
@@ -1285,9 +1330,24 @@ def update_aws() -> Dict[str, Any]:
         write_range_files(AWS_REGIONS_DIR, reg, v4, v6)
 
     # Generate directory indices
-    generate_directory_index(AWS_SERVICES_DIR, os.path.join(AWS_SERVICES_DIR, "index.html"), "AWS Services IP Ranges", "Automated, CIDR-collapsed lists for Amazon Web Services.", "Services")
-    generate_directory_index(AWS_REGIONS_DIR, os.path.join(AWS_REGIONS_DIR, "index.html"), "AWS Regional IP Ranges", "Aggregated IP ranges for each AWS Region (e.g. sa-east-1, us-east-1).", "Regions")
-    generate_directory_index(AWS_JSON_DIR, os.path.join(AWS_JSON_DIR, "index.html"), "AWS JSON Mirror", "Static mirror of Amazon AWS ip-ranges.json.", "Mirror")
+    generate_directory_index(
+        AWS_SERVICES_DIR, os.path.join(AWS_SERVICES_DIR, "index.html"),
+        "AWS Services IP Ranges", "Faixas de IP de Serviços AWS",
+        "Automated, CIDR-collapsed lists for Amazon Web Services.", "Listas com redução CIDR automatizada para Amazon Web Services.",
+        "Services", "Serviços"
+    )
+    generate_directory_index(
+        AWS_REGIONS_DIR, os.path.join(AWS_REGIONS_DIR, "index.html"),
+        "AWS Regional IP Ranges", "Faixas de IP Regionais AWS",
+        "Aggregated IP ranges for each AWS Region (e.g. sa-east-1, us-east-1).", "Faixas de IP agregadas para cada Região AWS (ex: sa-east-1, us-east-1).",
+        "Regions", "Regiões"
+    )
+    generate_directory_index(
+        AWS_JSON_DIR, os.path.join(AWS_JSON_DIR, "index.html"),
+        "AWS JSON Mirror", "Espelho JSON AWS",
+        "Static mirror of Amazon AWS ip-ranges.json.", "Espelho estático do arquivo ip-ranges.json da Amazon AWS.",
+        "Mirror", "Espelho"
+    )
 
     logging.info(f"AWS complete: {len(services)} services, {len(regions)} regions.")
     return {
@@ -1328,8 +1388,18 @@ def update_gcp() -> Dict[str, Any]:
     write_range_files(GCP_REGIONS_DIR, "GoogleCloud", all_v4, all_v6)
 
     # Generate directory indices
-    generate_directory_index(GCP_REGIONS_DIR, os.path.join(GCP_REGIONS_DIR, "index.html"), "Google Cloud Regional IP Ranges", "Aggregated CIDR lists for GCP regions and global endpoints.", "Regions")
-    generate_directory_index(GCP_JSON_DIR, os.path.join(GCP_JSON_DIR, "index.html"), "GCP JSON Mirror", "Static mirror of Google Cloud cloud.json.", "Mirror")
+    generate_directory_index(
+        GCP_REGIONS_DIR, os.path.join(GCP_REGIONS_DIR, "index.html"),
+        "Google Cloud Regional IP Ranges", "Faixas de IP Regionais Google Cloud",
+        "Aggregated CIDR lists for GCP regions and global endpoints.", "Listas CIDR agregadas para regiões e endpoints globais do GCP.",
+        "Regions", "Regiões"
+    )
+    generate_directory_index(
+        GCP_JSON_DIR, os.path.join(GCP_JSON_DIR, "index.html"),
+        "GCP JSON Mirror", "Espelho JSON GCP",
+        "Static mirror of Google Cloud cloud.json.", "Espelho estático do arquivo cloud.json do Google Cloud.",
+        "Mirror", "Espelho"
+    )
 
     logging.info(f"GCP complete: {len(scopes)} regions + GoogleCloud list.")
     return {
@@ -1359,7 +1429,12 @@ def update_cloudflare() -> Dict[str, Any]:
     v4, v6 = process_prefixes(raw_v4 + raw_v6)
 
     write_range_files(CF_DIR, "cloudflare", v4, v6)
-    generate_directory_index(CF_DIR, os.path.join(CF_DIR, "index.html"), "Cloudflare IP Ranges", "Cloudflare Anycast edge proxies, CDN, and WAF IP ranges.", "Files")
+    generate_directory_index(
+        CF_DIR, os.path.join(CF_DIR, "index.html"),
+        "Cloudflare IP Ranges", "Faixas de IP Cloudflare",
+        "Cloudflare Anycast edge proxies, CDN, and WAF IP ranges.", "Faixas de IP dos proxies de borda Anycast, CDN e WAF da Cloudflare.",
+        "Files", "Arquivos"
+    )
 
     logging.info(f"Cloudflare complete: {len(v4)} IPv4, {len(v6)} IPv6 CIDRs.")
     return {

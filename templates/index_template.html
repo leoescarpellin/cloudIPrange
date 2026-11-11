@@ -882,7 +882,7 @@
             </div>
             <div class="lookup-input-bar">
                 <i class="fa-solid fa-network-wired lookup-icon"></i>
-                <input type="text" id="globalIpInput" placeholder="Ex: 20.38.106.12, 52.239.152.10, 34.120.0.1, 104.16.12.34, 2603:1030:408::1..." autocomplete="off">
+                <input type="text" id="globalIpInput" placeholder="Ex: 20.38.106.12, 52.239.152.10, 34.120.0.1, 104.16.12.34, 2603:1030:408::1..." autocomplete="off" data-i18n-placeholder="lookup_placeholder">
                 <button type="button" id="globalClearBtn" class="lookup-clear-btn" style="display:none;" title="Clear" data-i18n-title="btn_clear"><i class="fa-solid fa-xmark"></i></button>
                 <button type="button" id="globalSearchBtn" class="btn-lookup"><i class="fa-solid fa-magnifying-glass"></i> <span data-i18n="btn_validate_ip">Validate IP</span></button>
             </div>
@@ -901,8 +901,8 @@
                     </div>
                     <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0 0 10px 0;" data-i18n="azure_desc">Official Microsoft Azure Public Cloud Service Tags and Regional IP ranges.</p>
                     <div class="provider-stats">
-                        <span class="pill-stat"><i class="fa-solid fa-cubes"></i> {{AZURE_SERVICES_COUNT}} Services</span>
-                        <span class="pill-stat"><i class="fa-solid fa-earth-americas"></i> {{AZURE_REGIONS_COUNT}} Regions</span>
+                        <span class="pill-stat" data-i18n="stat_azure_services"><i class="fa-solid fa-cubes"></i> {{AZURE_SERVICES_COUNT}} Services</span>
+                        <span class="pill-stat" data-i18n="stat_azure_regions"><i class="fa-solid fa-earth-americas"></i> {{AZURE_REGIONS_COUNT}} Regions</span>
                     </div>
                 </div>
                 <div class="provider-actions">
@@ -921,8 +921,8 @@
                     </div>
                     <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0 0 10px 0;" data-i18n="aws_desc">Amazon Web Services global IP ranges categorized by service and region.</p>
                     <div class="provider-stats">
-                        <span class="pill-stat"><i class="fa-solid fa-cubes"></i> {{AWS_SERVICES_COUNT}} Services</span>
-                        <span class="pill-stat"><i class="fa-solid fa-earth-americas"></i> {{AWS_REGIONS_COUNT}} Regions</span>
+                        <span class="pill-stat" data-i18n="stat_aws_services"><i class="fa-solid fa-cubes"></i> {{AWS_SERVICES_COUNT}} Services</span>
+                        <span class="pill-stat" data-i18n="stat_aws_regions"><i class="fa-solid fa-earth-americas"></i> {{AWS_REGIONS_COUNT}} Regions</span>
                     </div>
                 </div>
                 <div class="provider-actions">
@@ -941,8 +941,8 @@
                     </div>
                     <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0 0 10px 0;" data-i18n="gcp_desc">Google Cloud Platform customer endpoints and regional scopes.</p>
                     <div class="provider-stats">
-                        <span class="pill-stat"><i class="fa-solid fa-earth-americas"></i> {{GCP_REGIONS_COUNT}} Scopes / Regions</span>
-                        <span class="pill-stat"><i class="fa-solid fa-globe"></i> Global List</span>
+                        <span class="pill-stat" data-i18n="stat_gcp_regions"><i class="fa-solid fa-earth-americas"></i> {{GCP_REGIONS_COUNT}} Scopes / Regions</span>
+                        <span class="pill-stat" data-i18n="stat_gcp_global"><i class="fa-solid fa-globe"></i> Global List</span>
                     </div>
                 </div>
                 <div class="provider-actions">
@@ -961,8 +961,8 @@
                     </div>
                     <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0 0 10px 0;" data-i18n="cf_desc">Cloudflare Anycast edge proxies, CDN, and WAF IP ranges.</p>
                     <div class="provider-stats">
-                        <span class="pill-stat"><i class="fa-solid fa-shield-halved"></i> {{CF_V4_COUNT}} IPv4 CIDRs</span>
-                        <span class="pill-stat"><i class="fa-solid fa-network-wired"></i> {{CF_V6_COUNT}} IPv6 CIDRs</span>
+                        <span class="pill-stat" data-i18n="stat_cf_v4"><i class="fa-solid fa-shield-halved"></i> {{CF_V4_COUNT}} IPv4 CIDRs</span>
+                        <span class="pill-stat" data-i18n="stat_cf_v6"><i class="fa-solid fa-network-wired"></i> {{CF_V6_COUNT}} IPv6 CIDRs</span>
                     </div>
                 </div>
                 <div class="provider-actions">
@@ -1025,7 +1025,7 @@
             </div>
 
             <!-- pfSense -->
-            <div id="guide-pfsense" class="guide-content">
+            <div id="guide-pfsense" class="guide-content" data-i18n="guide_pfsense">
                 <h4><i class="fa-solid fa-shield-halved"></i> pfSense (URL Table Aliases)</h4>
                 <ol class="guide-steps">
                     <li>In pfSense WebGUI, navigate to <strong>Firewall &rarr; Aliases &rarr; IP</strong> and click <strong>Add</strong>.</li>
@@ -1056,7 +1056,7 @@
             </div>
 
             <!-- OPNsense -->
-            <div id="guide-opnsense" class="guide-content">
+            <div id="guide-opnsense" class="guide-content" data-i18n="guide_opnsense">
                 <h4><i class="fa-solid fa-shield-virus"></i> OPNsense (URL Table Aliases)</h4>
                 <ol class="guide-steps">
                     <li>Navigate to <strong>Firewall &rarr; Aliases</strong> and click <strong>+ (Add)</strong>.</li>
@@ -1074,7 +1074,7 @@
             </div>
 
             <!-- Palo Alto -->
-            <div id="guide-paloalto" class="guide-content">
+            <div id="guide-paloalto" class="guide-content" data-i18n="guide_paloalto">
                 <h4><i class="fa-solid fa-fire"></i> Palo Alto Networks (External Dynamic Lists - EDL)</h4>
                 <ol class="guide-steps">
                     <li>Navigate to <strong>Objects &rarr; External Dynamic Lists</strong> and click <strong>Add</strong>.</li>
@@ -1090,7 +1090,7 @@
             </div>
 
             <!-- MikroTik -->
-            <div id="guide-mikrotik" class="guide-content">
+            <div id="guide-mikrotik" class="guide-content" data-i18n="guide_mikrotik">
                 <h4><i class="fa-solid fa-network-wired"></i> MikroTik RouterOS (Address Lists & Script)</h4>
                 <ol class="guide-steps">
                     <li>In WinBox or Terminal, create a scheduled script under <strong>System &rarr; Scripts</strong>:
@@ -1114,7 +1114,7 @@
             </div>
 
             <!-- Fortinet -->
-            <div id="guide-fortinet" class="guide-content">
+            <div id="guide-fortinet" class="guide-content" data-i18n="guide_fortinet">
                 <h4><i class="fa-solid fa-server"></i> Fortinet FortiGate (External Threat Feeds)</h4>
                 <ol class="guide-steps">
                     <li>Go to <strong>Security Fabric &rarr; Fabric Connectors</strong> and click <strong>Create New</strong>.</li>
@@ -1131,7 +1131,7 @@
             </div>
 
             <!-- Cisco -->
-            <div id="guide-cisco" class="guide-content">
+            <div id="guide-cisco" class="guide-content" data-i18n="guide_cisco">
                 <h4><i class="fa-solid fa-lock"></i> Cisco Firepower (FMC) / ASA</h4>
                 <ol class="guide-steps">
                     <li>In Firepower Management Center (FMC), navigate to <strong>Objects &rarr; Object Management &rarr; Security Intelligence &rarr; Network Lists and Feeds</strong>.</li>
@@ -1150,26 +1150,26 @@
 
         <!-- Features & Automation -->
         <div class="grid-2">
-            <div class="card">
+            <div class="card" data-i18n="card_optimizations">
                 <h2><i class="fa-solid fa-gears"></i> Engine & CIDR Optimizations</h2>
                 <p><strong>Strict CIDR Collapsing:</strong> Nested subnets are automatically eliminated (e.g. <code>/26</code> inside a <code>/16</code> is absorbed into the parent <code>/16</code>) and contiguous blocks are merged, reducing firewall table memory footprint by up to 70%.</p>
                 <p><strong>Protocol Separation:</strong> Every service and region is published with separate <code>.ipv4.txt</code> and <code>.ipv6.txt</code> lists to prevent family mismatch errors in pfSense and OPNsense rules.</p>
                 <p><strong>Canonical Sorting:</strong> Sorted numerically by network integer and subnet mask length.</p>
             </div>
 
-            <div class="card">
+            <div class="card" data-i18n="card_automation">
                 <h2><i class="fa-solid fa-clock-rotate-left"></i> Automated Schedule & Mirrors</h2>
                 <p><strong>Weekly Automation:</strong> Powered by GitHub Actions running every Wednesday at 11:00 UTC.</p>
                 <p><strong>Static Mirrors:</strong> Permanent direct links to raw provider JSONs without requiring web scrapers or temporary download tokens.</p>
-                <p><strong>Lightweight Footprint:</strong> 12-week rolling retention window with Gzip compression (<15 MB total Git footprint).</p>
+                <p><strong>Lightweight Footprint:</strong> 12-week rolling retention window with Gzip compression (&lt;15 MB total Git footprint).</p>
             </div>
         </div>
 
         <!-- Footer -->
         <div class="footer">
             <div class="footer-left">
-                <span class="pill">Automation Active</span>
-                <span>Generated on <strong>{{GENERATED_TIME}}</strong> by {{GENERATED_BY}}</span>
+                <span class="pill" data-i18n="footer_pill">Automation Active</span>
+                <span data-i18n="footer_gen">Generated on <strong>{{GENERATED_TIME}}</strong> by {{GENERATED_BY}}</span>
             </div>
             <div>
                 <a href="https://github.com/leoescarpellin/cloudIPrange" target="_blank" rel="noopener">
@@ -1183,6 +1183,7 @@
         // Multi-Language Support (English / Português)
         const I18N = {
             en: {
+                browser_tab_title: "Cloud IP Ranges Hub – Automated Multi-Cloud CIDRs",
                 portal_title: "Cloud IP Ranges Automation Hub",
                 portal_subtitle: "Automated, deduplicated, and CIDR-collapsed IP ranges for <strong>Microsoft Azure</strong>, <strong>Amazon AWS</strong>, <strong>Google Cloud</strong>, and <strong>Cloudflare</strong>. Ready for firewall aliases and dynamic lists.",
                 lookup_title: '<i class="fa-solid fa-magnifying-glass-location"></i> Multi-Cloud IP Validator & Rapid Lookup',
@@ -1194,6 +1195,14 @@
                 aws_desc: "Amazon Web Services global IP ranges categorized by service and region.",
                 gcp_desc: "Google Cloud Platform customer endpoints and regional scopes.",
                 cf_desc: "Cloudflare Anycast edge proxies, CDN, and WAF IP ranges.",
+                stat_azure_services: '<i class="fa-solid fa-cubes"></i> {{AZURE_SERVICES_COUNT}} Services',
+                stat_azure_regions: '<i class="fa-solid fa-earth-americas"></i> {{AZURE_REGIONS_COUNT}} Regions',
+                stat_aws_services: '<i class="fa-solid fa-cubes"></i> {{AWS_SERVICES_COUNT}} Services',
+                stat_aws_regions: '<i class="fa-solid fa-earth-americas"></i> {{AWS_REGIONS_COUNT}} Regions',
+                stat_gcp_regions: '<i class="fa-solid fa-earth-americas"></i> {{GCP_REGIONS_COUNT}} Scopes / Regions',
+                stat_gcp_global: '<i class="fa-solid fa-globe"></i> Global List',
+                stat_cf_v4: '<i class="fa-solid fa-shield-halved"></i> {{CF_V4_COUNT}} IPv4 CIDRs',
+                stat_cf_v6: '<i class="fa-solid fa-network-wired"></i> {{CF_V6_COUNT}} IPv6 CIDRs',
                 browse_services: '<i class="fa-solid fa-folder-open"></i> Browse Services',
                 browse_regions: '<i class="fa-solid fa-map-location-dot"></i> Browse Regions',
                 json_mirror: '<i class="fa-solid fa-file-code"></i> JSON Mirror',
@@ -1215,6 +1224,115 @@
                 fw_placeholder: "Select a firewall model above to display setup instructions and alias configuration.",
                 tip_best_practice: '<i class="fa-solid fa-circle-info"></i> <strong>Best Practice:</strong> Always use <code>.ipv4.txt</code> for IPv4 rules and <code>.ipv6.txt</code> for IPv6 rules. pfSense produces an error if IPv6 addresses are present inside an alias assigned to an IPv4 rule.',
                 tip_squidguard: '<i class="fa-solid fa-shield-cat"></i> <strong>Web Filtering (SquidGuard):</strong> For URL and domain filtering in pfSense SquidGuard, use our <a href="squidguard/index.html" style="color: #c2410c; font-weight: 700; text-decoration: underline;">UT1 Toulouse Blacklist Mirror (Shallalist Successor)</a>.',
+                guide_pfsense: `<h4><i class="fa-solid fa-shield-halved"></i> pfSense (URL Table Aliases)</h4>
+                <ol class="guide-steps">
+                    <li>In pfSense WebGUI, navigate to <strong>Firewall &rarr; Aliases &rarr; IP</strong> and click <strong>Add</strong>.</li>
+                    <li>Configure the alias:
+                        <ul>
+                            <li><strong>Name:</strong> <code>Azure_Storage_IPv4</code> or <code>AWS_SaoPaulo_IPv4</code></li>
+                            <li><strong>Type:</strong> Select <code>URL Table (IPs)</code>.</li>
+                            <li><strong>URL Examples:</strong>
+                                <ul>
+                                    <li>Azure: <code>https://leoescarpellin.github.io/cloudIPrange/ranges-services/AzureStorage.ipv4.txt</code></li>
+                                    <li>AWS: <code>https://leoescarpellin.github.io/cloudIPrange/aws/ranges-regions/sa-east-1.ipv4.txt</code></li>
+                                    <li>GCP: <code>https://leoescarpellin.github.io/cloudIPrange/gcp/ranges-regions/southamerica-east1.ipv4.txt</code></li>
+                                    <li>Cloudflare: <code>https://leoescarpellin.github.io/cloudIPrange/cloudflare/cloudflare.ipv4.txt</code></li>
+                                </ul>
+                            </li>
+                            <li><strong>Update Frequency:</strong> Enter <code>1</code> day (or <code>7</code> days).</li>
+                        </ul>
+                    </li>
+                    <li>Click <strong>Save</strong> and <strong>Apply Changes</strong>. pfSense will fetch and load the CIDRs into packet filter (pf).</li>
+                    <li>In <strong>Firewall &rarr; Rules</strong>, select the alias as the <strong>Source</strong> or <strong>Destination</strong>.</li>
+                </ol>
+                <div class="tip-box">
+                    <i class="fa-solid fa-circle-info"></i> <strong>Best Practice:</strong> Always use <code>.ipv4.txt</code> for IPv4 rules and <code>.ipv6.txt</code> for IPv6 rules. pfSense produces an error if IPv6 addresses are present inside an alias assigned to an IPv4 rule.
+                </div>
+                <div class="tip-box" style="margin-top: 10px; background: #fdf8f6; border-left-color: #f97316; color: #7c2d12;">
+                    <i class="fa-solid fa-shield-cat"></i> <strong>Web Filtering (SquidGuard):</strong> For URL and domain filtering in pfSense SquidGuard, use our <a href="squidguard/index.html" style="color: #c2410c; font-weight: 700; text-decoration: underline;">UT1 Toulouse Blacklist Mirror (Shallalist Successor)</a>.
+                </div>`,
+                guide_opnsense: `<h4><i class="fa-solid fa-shield-virus"></i> OPNsense (URL Table Aliases)</h4>
+                <ol class="guide-steps">
+                    <li>Navigate to <strong>Firewall &rarr; Aliases</strong> and click <strong>+ (Add)</strong>.</li>
+                    <li>Configure the alias:
+                        <ul>
+                            <li><strong>Enabled:</strong> Checked.</li>
+                            <li><strong>Name:</strong> <code>Azure_BrazilSouth</code> / <code>AWS_SAEast</code></li>
+                            <li><strong>Type:</strong> <code>URL Table (IPs)</code></li>
+                            <li><strong>Content:</strong> <code>https://leoescarpellin.github.io/cloudIPrange/ranges-regions/brazilsouth.ipv4.txt</code> (or AWS / GCP / Cloudflare URL)</li>
+                            <li><strong>Refresh Frequency:</strong> <code>1</code> (days).</li>
+                        </ul>
+                    </li>
+                    <li>Click <strong>Save</strong> and <strong>Apply Changes</strong>. OPNsense will download and cache the table in memory.</li>
+                </ol>`,
+                guide_paloalto: `<h4><i class="fa-solid fa-fire"></i> Palo Alto Networks (External Dynamic Lists - EDL)</h4>
+                <ol class="guide-steps">
+                    <li>Navigate to <strong>Objects &rarr; External Dynamic Lists</strong> and click <strong>Add</strong>.</li>
+                    <li>Set <strong>Name</strong> (e.g., <code>EDL-Azure-Storage</code>) and <strong>Type</strong> to <code>IP List</code>.</li>
+                    <li>In the <strong>Source</strong> tab:
+                        <ul>
+                            <li><strong>Source URL:</strong> <code>https://leoescarpellin.github.io/cloudIPrange/ranges-services/AzureStorage.txt</code> (or <code>.ipv4.txt</code>).</li>
+                            <li><strong>Repeat:</strong> Select <code>Daily</code> or <code>Weekly</code>.</li>
+                        </ul>
+                    </li>
+                    <li>Click <strong>OK</strong>, commit configuration, and add the EDL object to your Security Policy rule.</li>
+                </ol>`,
+                guide_mikrotik: `<h4><i class="fa-solid fa-network-wired"></i> MikroTik RouterOS (Address Lists & Script)</h4>
+                <ol class="guide-steps">
+                    <li>In WinBox or Terminal, create a scheduled script under <strong>System &rarr; Scripts</strong>:
+<pre><code>/tool fetch url="https://leoescarpellin.github.io/cloudIPrange/ranges-regions/brazilsouth.ipv4.txt" dst-path="azure_brazil.txt"
+:local content [/file get azure_brazil.txt contents]
+:local lineEnd 0
+:local line ""
+/ip firewall address-list remove [find list="Azure_BrazilSouth"]
+:while ([:len $content] > 0) do={
+  :set lineEnd [:find $content "\\n"]
+  :if ($lineEnd = -1) do={:set lineEnd [:len $content]}
+  :set line [:pick $content 0 $lineEnd]
+  :set content [:pick $content ($lineEnd + 1) [:len $content]]
+  :if ([:len $line] > 0) do={
+    /ip firewall address-list add list="Azure_BrazilSouth" address=$line comment="Azure IP Range"
+  }
+}</code></pre>
+                    </li>
+                    <li>Schedule under <strong>System &rarr; Scheduler</strong> to run daily or weekly.</li>
+                </ol>`,
+                guide_fortinet: `<h4><i class="fa-solid fa-server"></i> Fortinet FortiGate (External Threat Feeds)</h4>
+                <ol class="guide-steps">
+                    <li>Go to <strong>Security Fabric &rarr; Fabric Connectors</strong> and click <strong>Create New</strong>.</li>
+                    <li>Select <strong>Threat Feeds &rarr; IP Address</strong>.</li>
+                    <li>Configure the connector:
+                        <ul>
+                            <li><strong>Name:</strong> <code>Azure_Storage_Feed</code> or <code>Cloudflare_Feed</code></li>
+                            <li><strong>URL:</strong> <code>https://leoescarpellin.github.io/cloudIPrange/ranges-services/AzureStorage.ipv4.txt</code></li>
+                            <li><strong>Refresh Rate:</strong> <code>Daily</code> (or every 1440 minutes).</li>
+                        </ul>
+                    </li>
+                    <li>Use the created Fabric Connector object as Source/Destination in your Firewall Policies.</li>
+                </ol>`,
+                guide_cisco: `<h4><i class="fa-solid fa-lock"></i> Cisco Firepower (FMC) / ASA</h4>
+                <ol class="guide-steps">
+                    <li>In Firepower Management Center (FMC), navigate to <strong>Objects &rarr; Object Management &rarr; Security Intelligence &rarr; Network Lists and Feeds</strong>.</li>
+                    <li>Click <strong>Add Network Lists and Feeds</strong>:
+                        <ul>
+                            <li><strong>Name:</strong> <code>Cloud_Services_Feed</code></li>
+                            <li><strong>Type:</strong> <code>Feed</code></li>
+                            <li><strong>Feed URL:</strong> <code>https://leoescarpellin.github.io/cloudIPrange/ranges-services/AzureStorage.ipv4.txt</code></li>
+                            <li><strong>Update Frequency:</strong> <code>Daily</code></li>
+                        </ul>
+                    </li>
+                    <li>Deploy changes to Firepower Threat Defense (FTD).</li>
+                </ol>`,
+                card_optimizations: `<h2><i class="fa-solid fa-gears"></i> Engine & CIDR Optimizations</h2>
+                <p><strong>Strict CIDR Collapsing:</strong> Nested subnets are automatically eliminated (e.g. <code>/26</code> inside a <code>/16</code> is absorbed into the parent <code>/16</code>) and contiguous blocks are merged, reducing firewall table memory footprint by up to 70%.</p>
+                <p><strong>Protocol Separation:</strong> Every service and region is published with separate <code>.ipv4.txt</code> and <code>.ipv6.txt</code> lists to prevent family mismatch errors in pfSense and OPNsense rules.</p>
+                <p><strong>Canonical Sorting:</strong> Sorted numerically by network integer and subnet mask length.</p>`,
+                card_automation: `<h2><i class="fa-solid fa-clock-rotate-left"></i> Automated Schedule & Mirrors</h2>
+                <p><strong>Weekly Automation:</strong> Powered by GitHub Actions running every Wednesday at 11:00 UTC.</p>
+                <p><strong>Static Mirrors:</strong> Permanent direct links to raw provider JSONs without requiring web scrapers or temporary download tokens.</p>
+                <p><strong>Lightweight Footprint:</strong> 12-week rolling retention window with Gzip compression (<15 MB total Git footprint).</p>`,
+                footer_pill: "Automation Active",
+                footer_gen: 'Generated on <strong>{{GENERATED_TIME}}</strong> by {{GENERATED_BY}}',
                 lookup_loading: '<i class="fa-solid fa-spinner fa-spin"></i> Loading multi-cloud IP database (Azure, AWS, GCP, Cloudflare)...',
                 lookup_err: "Could not load IP database: ",
                 lookup_invalid: '<i class="fa-solid fa-circle-exclamation"></i> Please enter a valid IP address or CIDR subnet (IPv4 or IPv6).',
@@ -1226,6 +1344,7 @@
                 copied_feedback: '<i class="fa-solid fa-check"></i> Copied!'
             },
             pt: {
+                browser_tab_title: "Cloud IP Ranges Hub – Automação de CIDRs Multi-Cloud",
                 portal_title: "Cloud IP Ranges Hub de Automação",
                 portal_subtitle: "Faixas de IP automatizadas, deduplicadas e agrupadas em CIDR para <strong>Microsoft Azure</strong>, <strong>Amazon AWS</strong>, <strong>Google Cloud</strong> e <strong>Cloudflare</strong>. Prontas para aliases e listas dinâmicas em firewalls.",
                 lookup_title: '<i class="fa-solid fa-magnifying-glass-location"></i> Validador & Consulta Rápida de IPs Multi-Cloud',
@@ -1237,6 +1356,14 @@
                 aws_desc: "Faixas de IP globais da Amazon Web Services categorizadas por serviço e região.",
                 gcp_desc: "Endpoints de clientes e escopos regionais da Google Cloud Platform.",
                 cf_desc: "Faixas de IP dos proxies de borda Anycast, CDN e WAF da Cloudflare.",
+                stat_azure_services: '<i class="fa-solid fa-cubes"></i> {{AZURE_SERVICES_COUNT}} Serviços',
+                stat_azure_regions: '<i class="fa-solid fa-earth-americas"></i> {{AZURE_REGIONS_COUNT}} Regiões',
+                stat_aws_services: '<i class="fa-solid fa-cubes"></i> {{AWS_SERVICES_COUNT}} Serviços',
+                stat_aws_regions: '<i class="fa-solid fa-earth-americas"></i> {{AWS_REGIONS_COUNT}} Regiões',
+                stat_gcp_regions: '<i class="fa-solid fa-earth-americas"></i> {{GCP_REGIONS_COUNT}} Escopos / Regiões',
+                stat_gcp_global: '<i class="fa-solid fa-globe"></i> Lista Global',
+                stat_cf_v4: '<i class="fa-solid fa-shield-halved"></i> {{CF_V4_COUNT}} Blocos IPv4',
+                stat_cf_v6: '<i class="fa-solid fa-network-wired"></i> {{CF_V6_COUNT}} Blocos IPv6',
                 browse_services: '<i class="fa-solid fa-folder-open"></i> Ver Serviços',
                 browse_regions: '<i class="fa-solid fa-map-location-dot"></i> Ver Regiões',
                 json_mirror: '<i class="fa-solid fa-file-code"></i> Espelho JSON',
@@ -1258,6 +1385,115 @@
                 fw_placeholder: "Selecione um modelo de firewall acima para exibir as instruções de configuração e aliases.",
                 tip_best_practice: '<i class="fa-solid fa-circle-info"></i> <strong>Boa Prática:</strong> Utilize sempre <code>.ipv4.txt</code> para regras IPv4 e <code>.ipv6.txt</code> para regras IPv6. O pfSense gera erro se endereços IPv6 estiverem em um alias atribuído a uma regra IPv4.',
                 tip_squidguard: '<i class="fa-solid fa-shield-cat"></i> <strong>Filtragem Web (SquidGuard):</strong> Para filtragem de URLs e domínios no SquidGuard, utilize o nosso <a href="squidguard/index.html" style="color: #c2410c; font-weight: 700; text-decoration: underline;">Mirror da Blacklist UT1 Toulouse (Sucessor Shallalist)</a>.',
+                guide_pfsense: `<h4><i class="fa-solid fa-shield-halved"></i> pfSense (Aliases do tipo URL Table)</h4>
+                <ol class="guide-steps">
+                    <li>No pfSense WebGUI, navegue até <strong>Firewall &rarr; Aliases &rarr; IP</strong> e clique em <strong>Add</strong>.</li>
+                    <li>Configure o alias:
+                        <ul>
+                            <li><strong>Name:</strong> <code>Azure_Storage_IPv4</code> ou <code>AWS_SaoPaulo_IPv4</code></li>
+                            <li><strong>Type:</strong> Selecione <code>URL Table (IPs)</code>.</li>
+                            <li><strong>Exemplos de URLs:</strong>
+                                <ul>
+                                    <li>Azure: <code>https://leoescarpellin.github.io/cloudIPrange/ranges-services/AzureStorage.ipv4.txt</code></li>
+                                    <li>AWS: <code>https://leoescarpellin.github.io/cloudIPrange/aws/ranges-regions/sa-east-1.ipv4.txt</code></li>
+                                    <li>GCP: <code>https://leoescarpellin.github.io/cloudIPrange/gcp/ranges-regions/southamerica-east1.ipv4.txt</code></li>
+                                    <li>Cloudflare: <code>https://leoescarpellin.github.io/cloudIPrange/cloudflare/cloudflare.ipv4.txt</code></li>
+                                </ul>
+                            </li>
+                            <li><strong>Frequência de Atualização:</strong> Informe <code>1</code> dia (ou <code>7</code> dias).</li>
+                        </ul>
+                    </li>
+                    <li>Clique em <strong>Save</strong> e depois em <strong>Apply Changes</strong>. O pfSense baixará e carregará os blocos CIDR na tabela de filtragem de pacotes (pf).</li>
+                    <li>Em <strong>Firewall &rarr; Rules</strong>, selecione o alias criado no campo <strong>Source</strong> (origem) ou <strong>Destination</strong> (destino).</li>
+                </ol>
+                <div class="tip-box">
+                    <i class="fa-solid fa-circle-info"></i> <strong>Boa Prática:</strong> Utilize sempre <code>.ipv4.txt</code> para regras IPv4 e <code>.ipv6.txt</code> para regras IPv6. O pfSense gera erro se endereços IPv6 estiverem contidos em um alias atribuído a uma regra IPv4.
+                </div>
+                <div class="tip-box" style="margin-top: 10px; background: #fdf8f6; border-left-color: #f97316; color: #7c2d12;">
+                    <i class="fa-solid fa-shield-cat"></i> <strong>Filtragem Web (SquidGuard):</strong> Para filtragem de URLs e domínios no SquidGuard do pfSense, utilize o nosso <a href="squidguard/index.html" style="color: #c2410c; font-weight: 700; text-decoration: underline;">Mirror da Blacklist UT1 Toulouse (Sucessor Shallalist)</a>.
+                </div>`,
+                guide_opnsense: `<h4><i class="fa-solid fa-shield-virus"></i> OPNsense (Aliases do tipo URL Table)</h4>
+                <ol class="guide-steps">
+                    <li>Navegue até <strong>Firewall &rarr; Aliases</strong> e clique no botão <strong>+ (Add)</strong>.</li>
+                    <li>Configure o alias:
+                        <ul>
+                            <li><strong>Enabled:</strong> Marcado.</li>
+                            <li><strong>Name:</strong> <code>Azure_BrazilSouth</code> / <code>AWS_SAEast</code></li>
+                            <li><strong>Type:</strong> <code>URL Table (IPs)</code></li>
+                            <li><strong>Content:</strong> <code>https://leoescarpellin.github.io/cloudIPrange/ranges-regions/brazilsouth.ipv4.txt</code> (ou URL da AWS / GCP / Cloudflare)</li>
+                            <li><strong>Frequência de Atualização:</strong> <code>1</code> (dias).</li>
+                        </ul>
+                    </li>
+                    <li>Clique em <strong>Save</strong> e depois em <strong>Apply Changes</strong>. O OPNsense baixará a lista e manterá os blocos em cache na memória.</li>
+                </ol>`,
+                guide_paloalto: `<h4><i class="fa-solid fa-fire"></i> Palo Alto Networks (External Dynamic Lists - EDL)</h4>
+                <ol class="guide-steps">
+                    <li>Navegue até <strong>Objects &rarr; External Dynamic Lists</strong> e clique em <strong>Add</strong>.</li>
+                    <li>Defina o <strong>Name</strong> (ex: <code>EDL-Azure-Storage</code>) e o <strong>Type</strong> para <code>IP List</code>.</li>
+                    <li>Na aba <strong>Source</strong>:
+                        <ul>
+                            <li><strong>Source URL:</strong> <code>https://leoescarpellin.github.io/cloudIPrange/ranges-services/AzureStorage.txt</code> (ou <code>.ipv4.txt</code>).</li>
+                            <li><strong>Repeat:</strong> Selecione <code>Daily</code> ou <code>Weekly</code>.</li>
+                        </ul>
+                    </li>
+                    <li>Clique em <strong>OK</strong>, aplique o <strong>Commit</strong> da configuração e utilize o objeto EDL em suas regras de Security Policy.</li>
+                </ol>`,
+                guide_mikrotik: `<h4><i class="fa-solid fa-network-wired"></i> MikroTik RouterOS (Address Lists & Script)</h4>
+                <ol class="guide-steps">
+                    <li>No WinBox ou Terminal, crie um script agendado em <strong>System &rarr; Scripts</strong>:
+<pre><code>/tool fetch url="https://leoescarpellin.github.io/cloudIPrange/ranges-regions/brazilsouth.ipv4.txt" dst-path="azure_brazil.txt"
+:local content [/file get azure_brazil.txt contents]
+:local lineEnd 0
+:local line ""
+/ip firewall address-list remove [find list="Azure_BrazilSouth"]
+:while ([:len $content] > 0) do={
+  :set lineEnd [:find $content "\\n"]
+  :if ($lineEnd = -1) do={:set lineEnd [:len $content]}
+  :set line [:pick $content 0 $lineEnd]
+  :set content [:pick $content ($lineEnd + 1) [:len $content]]
+  :if ([:len $line] > 0) do={
+    /ip firewall address-list add list="Azure_BrazilSouth" address=$line comment="Azure IP Range"
+  }
+}</code></pre>
+                    </li>
+                    <li>Configure o agendamento em <strong>System &rarr; Scheduler</strong> para execução diária ou semanal.</li>
+                </ol>`,
+                guide_fortinet: `<h4><i class="fa-solid fa-server"></i> Fortinet FortiGate (External Threat Feeds)</h4>
+                <ol class="guide-steps">
+                    <li>Acesse <strong>Security Fabric &rarr; Fabric Connectors</strong> e clique em <strong>Create New</strong>.</li>
+                    <li>Selecione <strong>Threat Feeds &rarr; IP Address</strong>.</li>
+                    <li>Configure o conector:
+                        <ul>
+                            <li><strong>Name:</strong> <code>Azure_Storage_Feed</code> ou <code>Cloudflare_Feed</code></li>
+                            <li><strong>URL:</strong> <code>https://leoescarpellin.github.io/cloudIPrange/ranges-services/AzureStorage.ipv4.txt</code></li>
+                            <li><strong>Refresh Rate:</strong> <code>Daily</code> (ou a cada 1440 minutos).</li>
+                        </ul>
+                    </li>
+                    <li>Utilize o objeto Fabric Connector criado como Source ou Destination nas suas Firewall Policies.</li>
+                </ol>`,
+                guide_cisco: `<h4><i class="fa-solid fa-lock"></i> Cisco Firepower (FMC) / ASA</h4>
+                <ol class="guide-steps">
+                    <li>No Firepower Management Center (FMC), navegue até <strong>Objects &rarr; Object Management &rarr; Security Intelligence &rarr; Network Lists and Feeds</strong>.</li>
+                    <li>Clique em <strong>Add Network Lists and Feeds</strong>:
+                        <ul>
+                            <li><strong>Name:</strong> <code>Cloud_Services_Feed</code></li>
+                            <li><strong>Type:</strong> <code>Feed</code></li>
+                            <li><strong>Feed URL:</strong> <code>https://leoescarpellin.github.io/cloudIPrange/ranges-services/AzureStorage.ipv4.txt</code></li>
+                            <li><strong>Update Frequency:</strong> <code>Daily</code></li>
+                        </ul>
+                    </li>
+                    <li>Faça o deploy das alterações para o Firepower Threat Defense (FTD).</li>
+                </ol>`,
+                card_optimizations: `<h2><i class="fa-solid fa-gears"></i> Motor de Otimização & Redução CIDR</h2>
+                <p><strong>Redução Estrita de CIDR:</strong> Sub-redes aninhadas são eliminadas automaticamente (ex: um <code>/26</code> dentro de um <code>/16</code> é absorvido pelo <code>/16</code> pai) e blocos contíguos são agrupados, reduzindo o uso de memória nas tabelas de firewall em até 70%.</p>
+                <p><strong>Separação por Protocolo:</strong> Cada serviço e região possui listas separadas em <code>.ipv4.txt</code> e <code>.ipv6.txt</code> para evitar erros de incompatibilidade de família de IP em regras do pfSense e OPNsense.</p>
+                <p><strong>Ordenação Canônica:</strong> Ordenação numérica pelo inteiro da rede e comprimento da máscara de sub-rede.</p>`,
+                card_automation: `<h2><i class="fa-solid fa-clock-rotate-left"></i> Agendamento Automatizado & Espelhos</h2>
+                <p><strong>Automação Semanal:</strong> Executado via GitHub Actions todas as quartas-feiras às 11:00 UTC.</p>
+                <p><strong>Espelhos Estáticos:</strong> Links diretos e permanentes para os JSONs oficiais dos provedores sem necessidade de scrapers ou tokens temporários.</p>
+                <p><strong>Armazenamento Otimizado:</strong> Janela móvel de retenção de 12 semanas com compactação Gzip (<15 MB no repositório Git).</p>`,
+                footer_pill: "Automação Ativa",
+                footer_gen: 'Gerado em <strong>{{GENERATED_TIME}}</strong> por {{GENERATED_BY}}',
                 lookup_loading: '<i class="fa-solid fa-spinner fa-spin"></i> Carregando base global de IPs (Azure, AWS, GCP, Cloudflare)...',
                 lookup_err: "Não foi possível carregar a base de IPs: ",
                 lookup_invalid: '<i class="fa-solid fa-circle-exclamation"></i> Por favor, insira um endereço IP ou bloco CIDR válido (IPv4 ou IPv6).',
@@ -1284,6 +1520,10 @@
             }
 
             const dict = I18N[lang] || I18N.en;
+            if (dict.browser_tab_title) {
+                document.title = dict.browser_tab_title;
+            }
+
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (dict[key]) {

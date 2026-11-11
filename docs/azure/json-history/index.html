@@ -321,7 +321,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1><i class="fa-solid fa-folder-open"></i> Azure JSON Archive</h1>
+            <h1><i class="fa-solid fa-folder-open"></i> <span id="pageTitle" data-i18n="page_title">Azure JSON Archive</span></h1>
             <div class="header-actions">
                 <div class="lang-switch">
                     <button type="button" class="lang-btn active" id="btn-lang-en" onclick="setLang('en')" title="Switch to English"><span class="flag-icon">🇺🇸</span> EN</button>
@@ -330,7 +330,7 @@
                 <a href="../../index.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> <span data-i18n="back_home">Home</span></a>
             </div>
         </div>
-        <p class="desc">12-week rolling retention archive of Microsoft Azure Service Tags.</p>
+        <p class="desc" id="pageDesc" data-i18n="page_desc">12-week rolling retention archive of Microsoft Azure Service Tags.</p>
         
         <div class="search-container">
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
@@ -355,7 +355,7 @@
                 </tr>
             </thead>
             <tbody id="fileTableBody">
-                <tr class="file-row" data-name="servicetags_public.json 3398" data-base="ServiceTags_Public.json" data-type="other"><td><div class="file-cell"><a class="file-name" href="ServiceTags_Public.json">ServiceTags_Public.json</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-json">JSON</span></td><td><span class="badge-records" title="3,398 items"><i class="fa-solid fa-tags"></i> 3,398</span></td><td class="file-size">4.44 MB</td><td><a class="action-btn" href="ServiceTags_Public.json" download title="Download file"><i class="fa-solid fa-download"></i></a></td></tr>
+                <tr class="file-row" data-name="servicetags_public.json 3398" data-base="ServiceTags_Public.json" data-type="other"><td><div class="file-cell"><a class="file-name" href="ServiceTags_Public.json">ServiceTags_Public.json</a><div class="match-info" style="display:none;"></div></div></td><td><span class="badge tag-json">JSON</span></td><td><span class="badge-records" title="3,398 items"><i class="fa-solid fa-tags"></i> 3,398</span></td><td class="file-size">4.44 MB</td><td><a class="action-btn" href="ServiceTags_Public.json" download title="Download file" data-i18n-title="download_title"><i class="fa-solid fa-download"></i></a></td></tr>
             </tbody>
         </table>
 
@@ -368,9 +368,13 @@
     <script>
         const DIR_I18N = {
             en: {
+                page_title: "Azure JSON Archive",
+                page_desc: "12-week rolling retention archive of Microsoft Azure Service Tags.",
+                badge_label: "archives",
                 back_home: "Home",
                 search_placeholder: "Filter by name or IP / CIDR address (e.g. storage, 20.38.106.12, 13.107.6.0/24)...",
                 clear_search: "Clear search",
+                download_title: "Download file",
                 compatible_firewalls: '<i class="fa-solid fa-shield-halved"></i> Compatible with: pfSense, OPNsense, Palo Alto, MikroTik, Fortinet',
                 th_filename: "Filename",
                 th_type: "Type",
@@ -396,9 +400,13 @@
                 empty_text_msg: (term) => `No files found matching "${term}".`
             },
             pt: {
+                page_title: "Arquivo Histórico JSON Azure",
+                page_desc: "Arquivo histórico com retenção de 12 semanas das Service Tags da Microsoft Azure.",
+                badge_label: "arquivos",
                 back_home: "Início",
                 search_placeholder: "Buscar por nome ou endereço IP / CIDR (ex: storage, 20.38.106.12, 13.107.6.0/24)...",
                 clear_search: "Limpar busca",
+                download_title: "Baixar arquivo",
                 compatible_firewalls: '<i class="fa-solid fa-shield-halved"></i> Compatível com: pfSense, OPNsense, Palo Alto, MikroTik, Fortinet',
                 th_filename: "Nome do Arquivo",
                 th_type: "Tipo",
@@ -439,6 +447,10 @@
             }
 
             const dict = DIR_I18N[lang] || DIR_I18N.en;
+            if (dict.page_title) {
+                document.title = dict.page_title + " – Cloud IP Ranges Hub";
+            }
+
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (dict[key]) {
@@ -602,6 +614,7 @@
             clearBtn.style.display = rawTerm ? 'flex' : 'none';
             const dict = DIR_I18N[currentLang] || DIR_I18N.en;
             const statsLabel = document.getElementById('statsLabel');
+            const currentBadge = dict.badge_label || badgeLabel;
 
             if (!rawTerm) {
                 filterStatus.style.display = 'none';
@@ -610,7 +623,7 @@
                     const matchInfo = row.querySelector('.match-info');
                     if (matchInfo) matchInfo.style.display = 'none';
                 });
-                if (statsLabel) statsLabel.innerHTML = dict.stats_showing(rows.length, totalItemsCount, badgeLabel);
+                if (statsLabel) statsLabel.innerHTML = dict.stats_showing(rows.length, totalItemsCount, currentBadge);
                 emptyState.style.display = 'none';
                 return;
             }
@@ -672,7 +685,7 @@
                 filterStatus.innerHTML = `<i class="fa-solid fa-filter"></i> <strong>${kind}</strong> ${dict.showing_containing} <code>${escapeHtml(rawTerm)}</code> (${Object.keys(matches).length} ${dict.matched_suffix})`;
                 filterStatus.style.display = 'flex';
 
-                if (statsLabel) statsLabel.innerHTML = dict.stats_showing(count, totalItemsCount, badgeLabel);
+                if (statsLabel) statsLabel.innerHTML = dict.stats_showing(count, totalItemsCount, currentBadge);
                 emptyMsg.innerHTML = dict.empty_ip_msg(escapeHtml(rawTerm));
                 emptyState.style.display = count === 0 ? 'block' : 'none';
                 return;
@@ -722,7 +735,7 @@
                 filterStatus.innerHTML = `<i class="fa-solid fa-filter"></i> <strong>${kind}</strong> ${dict.showing_containing} <code>${escapeHtml(rawTerm)}</code> (${Object.keys(matches).length} ${dict.matched_suffix})`;
                 filterStatus.style.display = 'flex';
 
-                if (statsLabel) statsLabel.innerHTML = dict.stats_showing(count, totalItemsCount, badgeLabel);
+                if (statsLabel) statsLabel.innerHTML = dict.stats_showing(count, totalItemsCount, currentBadge);
                 emptyMsg.innerHTML = dict.empty_ip_msg(escapeHtml(rawTerm));
                 emptyState.style.display = count === 0 ? 'block' : 'none';
                 return;
@@ -767,7 +780,7 @@
                     filterStatus.innerHTML = `<i class="fa-solid fa-filter"></i> <strong>${dict.prefix_detected}</strong> ${dict.showing_prefix} <code>${escapeHtml(rawTerm)}</code> (${Object.keys(matches).length} ${dict.matched_suffix})`;
                     filterStatus.style.display = 'flex';
 
-                    if (statsLabel) statsLabel.innerHTML = dict.stats_showing(count, totalItemsCount, badgeLabel);
+                    if (statsLabel) statsLabel.innerHTML = dict.stats_showing(count, totalItemsCount, currentBadge);
                     emptyMsg.innerHTML = dict.empty_prefix_msg(escapeHtml(rawTerm));
                     emptyState.style.display = count === 0 ? 'block' : 'none';
                     return;
@@ -791,7 +804,7 @@
                 }
             });
 
-            if (statsLabel) statsLabel.innerHTML = dict.stats_showing(count, totalItemsCount, badgeLabel);
+            if (statsLabel) statsLabel.innerHTML = dict.stats_showing(count, totalItemsCount, currentBadge);
             emptyMsg.innerHTML = dict.empty_text_msg(escapeHtml(rawTerm));
             emptyState.style.display = count === 0 ? 'block' : 'none';
         }
@@ -809,7 +822,6 @@
 
         // Initialize language
         setLang(currentLang);
-    </script>
     </script>
 </body>
 </html>
