@@ -1,8 +1,8 @@
 {
-  "last_modified": "Tue, 10 Nov 2026 21:50:17 GMT",
-  "sha256": "49346c1c4845ac36fda0bc13a31a1632bd25774b7f3a32fc22874bd88850eb0b",
-  "size_bytes": 26570136,
-  "size_mb": 25.34,
+  "last_modified": "Wed, 18 Nov 2026 19:03:35 GMT",
+  "sha256": "6d13ab2829af590058f085b60cfbc2f235cab42231b6639062c4a331d15b311c",
+  "size_bytes": 26603256,
+  "size_mb": 25.37,
   "category_count": 77,
   "categories": [
     "ads",
@@ -83,5 +83,5 @@
     "webhosting",
     "webmail"
   ],
-  "updated_at": "2026-11-11 03:00:27 UTC"
+  "updated_at": "2026-11-18 19:15:16 UTC"
 }
